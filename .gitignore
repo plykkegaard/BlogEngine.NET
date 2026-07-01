@@ -188,3 +188,7 @@ BlogEngine/.vs/
 BlogEngine/BlogEngine.NET/App_Data/datastore/extensions/*.xml
 /.vs/slnx.sqlite
 /.vs/BlogEngine.NET/config/applicationhost.config
+/BlogEngine/BlogEngine.NET/App_Data/logger.txt
+/BlogEngine/BlogEngine.Core/.vs/BlogEngine.Core.csproj.dtbcache.json
+/BlogEngine/BlogEngine.NET/.vs/BlogEngine.NET.csproj.dtbcache.json
+/BlogEngine/BlogEngine.Tests/.vs/BlogEngine.Tests.csproj.dtbcache.json
