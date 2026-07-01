@@ -390,6 +390,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <None Include="copilot-instructions.md" />
     <None Include="key.snk" />
     <None Include="packages.config" />
     <None Include="Service References\GalleryServer\service.edmx" />
