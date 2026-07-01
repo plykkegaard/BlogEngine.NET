@@ -124,6 +124,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="copilot-instructions.md" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
