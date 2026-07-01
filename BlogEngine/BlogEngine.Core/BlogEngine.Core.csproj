@@ -394,6 +394,7 @@
     <None Include="key.snk" />
     <None Include="packages.config" />
     <None Include="Service References\GalleryServer\service.edmx" />
+    <None Include="skills.md" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

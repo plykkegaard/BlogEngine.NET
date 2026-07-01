@@ -126,6 +126,7 @@
     <None Include="app.config" />
     <None Include="copilot-instructions.md" />
     <None Include="packages.config" />
+    <None Include="skills.md" />
   </ItemGroup>
   <ItemGroup />
   <Choose>
