@@ -1,4 +1,4 @@
-﻿angular.module('blogAdmin').factory("dataService", ["$http", "$q", function ($http, $q) { 
+﻿angular.module('blogAdmin').factory("dataService", ["$http", "$q", function ($http, $q) {
     return {
         getItems: function (url, p) {
             return $http.get(webRoot(url), {
