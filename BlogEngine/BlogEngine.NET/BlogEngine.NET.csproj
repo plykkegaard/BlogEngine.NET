@@ -16,13 +16,13 @@
     <AssemblyName>BlogEngine.NET</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <UseIISExpress>true</UseIISExpress>
-    <IISExpressSSLPort />
+    <IISExpressSSLPort>44367</IISExpressSSLPort>
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
     <UseGlobalApplicationHostFile />
     <TypeScriptToolsVersion>1.6</TypeScriptToolsVersion>
-    <Use64BitIISExpress />
+    <Use64BitIISExpress>true</Use64BitIISExpress>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -150,6 +150,7 @@
     <Content Include="admin\app\custom\widgets\widgetGallery.html" />
     <Content Include="admin\app\custom\widgets\widgetGalleryController.js" />
     <Content Include="admin\app\custom\widgets\widgetView.html" />
+    <Content Include="admin\app\http-legacy-shim.js" />
     <Content Include="admin\themes\standard\css\styles.css" />
     <Content Include="admin\themes\standard\img\logo-sidebar.png" />
     <Content Include="admin\themes\standard\img\profile.png" />
@@ -2490,7 +2491,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>64079</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:64079/</IISUrl>
+          <IISUrl>https://localhost:44367/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
