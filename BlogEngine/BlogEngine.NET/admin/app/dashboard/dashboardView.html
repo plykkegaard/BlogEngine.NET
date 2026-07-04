@@ -57,16 +57,16 @@
             <div class="col-sm-12 col-md-4">
                 <div class="panel panel-default dashboard-stats dashboard-list">
                     <div class="panel-heading">
-                        <div class="panel-title">{{lbl.stats}}</div>
+                        <div class="panel-title">{{lbl.stats}} <small style="color: #0f0;">[v6-TEST]</small> <button ng-click="navigate('/content/posts')" class="btn btn-xs btn-primary">TEST NAV</button></div>
                     </div>
                     <ul class="list-group">
-                        <li class="list-group-item"><a href="{{SiteVars.RelativeWebRoot}}admin/#/content/posts?fltr=pub">{{lbl.publishedPosts}} <span class="item-stats-info item-stats-info-green">{{vm.PostPublishedCnt}}</span></a></li>
-                        <li class="list-group-item"><a href="{{SiteVars.RelativeWebRoot}}admin/#/content/pages?fltr=pub">{{lbl.publishedPages}} <span class="item-stats-info item-stats-info-green">{{vm.PagePublishedCnt}}</span></a></li>
-                        <li class="list-group-item"><a href="{{SiteVars.RelativeWebRoot}}admin/#/content/posts?fltr=dft">{{lbl.draftPosts}} <span class="item-stats-info item-stats-info-yellow">{{vm.PostDraftCnt}}</span></a></li>
-                        <li class="list-group-item"><a href="{{SiteVars.RelativeWebRoot}}admin/#/content/pages?fltr=dft">{{lbl.draftPages}} <span class="item-stats-info item-stats-info-yellow">{{vm.PageDraftCnt}}</span></a></li>
-                        <li class="list-group-item"><a href="{{SiteVars.RelativeWebRoot}}admin/#/content/comments?fltr=apr">{{lbl.approvedComments}} <span class="item-stats-info item-stats-info-green">{{vm.ApprovedCommentsCnt}}</span></a></li>
-                        <li class="list-group-item"><a href="{{SiteVars.RelativeWebRoot}}admin/#/content/comments?fltr=pnd">{{lbl.unapprovedcomments}} <span class="item-stats-info item-stats-info-yellow">{{vm.PendingCommentsCnt}}</span></a></li>
-                        <li class="list-group-item"><a href="{{SiteVars.RelativeWebRoot}}admin/#/content/comments?fltr=spm">{{lbl.spamComments}}<span class="item-stats-info item-stats-info-red">{{vm.SpamCommentsCnt}}</span></a></li>
+                        <li class="list-group-item"><a ng-click="navigate('/content/posts?fltr=pub')" style="cursor: pointer;">{{lbl.publishedPosts}} <span class="item-stats-info item-stats-info-green">{{vm.PostPublishedCnt}}</span></a></li>
+                        <li class="list-group-item"><a ng-click="navigate('/content/pages?fltr=pub')" style="cursor: pointer;">{{lbl.publishedPages}} <span class="item-stats-info item-stats-info-green">{{vm.PagePublishedCnt}}</span></a></li>
+                        <li class="list-group-item"><a ng-click="navigate('/content/posts?fltr=dft')" style="cursor: pointer;">{{lbl.draftPosts}} <span class="item-stats-info item-stats-info-yellow">{{vm.PostDraftCnt}}</span></a></li>
+                        <li class="list-group-item"><a ng-click="navigate('/content/pages?fltr=dft')" style="cursor: pointer;">{{lbl.draftPages}} <span class="item-stats-info item-stats-info-yellow">{{vm.PageDraftCnt}}</span></a></li>
+                        <li class="list-group-item"><a ng-click="navigate('/content/comments?fltr=apr')" style="cursor: pointer;">{{lbl.approvedComments}} <span class="item-stats-info item-stats-info-green">{{vm.ApprovedCommentsCnt}}</span></a></li>
+                        <li class="list-group-item"><a ng-click="navigate('/content/comments?fltr=pnd')" style="cursor: pointer;">{{lbl.unapprovedcomments}} <span class="item-stats-info item-stats-info-yellow">{{vm.PendingCommentsCnt}}</span></a></li>
+                        <li class="list-group-item"><a ng-click="navigate('/content/comments?fltr=spm')" style="cursor: pointer;">{{lbl.spamComments}}<span class="item-stats-info item-stats-info-red">{{vm.SpamCommentsCnt}}</span></a></li>
                     </ul>
                 </div>
                 <div class="panel panel-default dashboard-list">
