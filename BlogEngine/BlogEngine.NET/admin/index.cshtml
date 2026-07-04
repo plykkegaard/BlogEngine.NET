@@ -6,3 +6,26 @@
 <div ng-view="" id="ng-view"></div>
 <div class="main-loading" id="global-loading"><div class="loader"></div></div>
 @Scripts.Render("~/scripts/blogadmin")
+<script>
+    console.log("=== POST-BUNDLE DIAGNOSTIC ===");
+    console.log("Angular loaded?", typeof angular !== 'undefined');
+    console.log("blogAdmin module exists?", angular && angular.module('blogAdmin'));
+
+    setTimeout(function() {
+        var appElement = document.querySelector('[ng-app]');
+        console.log("ng-app element found?", appElement !== null);
+
+        if (appElement) {
+            var injector = angular.element(appElement).injector();
+            console.log("Angular injector exists?", injector !== undefined);
+
+            if (injector) {
+                console.log("Angular is bootstrapped!");
+                var $location = injector.get('$location');
+                console.log("Current $location.url():", $location.url());
+            } else {
+                console.error("Angular is NOT bootstrapped!");
+            }
+        }
+    }, 1000);
+</script>
