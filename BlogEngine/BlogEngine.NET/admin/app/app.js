@@ -1,9 +1,48 @@
 ﻿(function () {
     var app = angular.module("blogAdmin", ['ngRoute', 'ngSanitize']);
 
-    var config = ["$routeProvider", function ($routeProvider) {
+    // Log routing errors
+    app.run(['$rootScope', '$location', function($rootScope, $location) {
+        // console.log('Angular app.run() executing...');
+        // console.log('Current location:', $location.url());
+
+        $rootScope.$on('$routeChangeError', function(event, current, previous, rejection) {
+            // console.error('Route change error:', rejection);
+            // console.error('Attempted route:', current);
+        });
+
+        $rootScope.$on('$routeChangeStart', function(event, next, current) {
+            // console.log('Route changing to:', next.$$route ? next.$$route.originalPath : 'unknown');
+            // console.log('Full next object:', next);
+        });
+
+        $rootScope.$on('$routeChangeSuccess', function(event, current, previous) {
+            // console.log('Route change SUCCESS:', current.$$route ? current.$$route.originalPath : 'unknown');
+        });
+
+        $rootScope.$on('$locationChangeStart', function(event, newUrl, oldUrl) {
+            // console.log('Location changing from:', oldUrl, 'to:', newUrl);
+        });
+    }]);
+
+    var config = ["$routeProvider", "$locationProvider", function ($routeProvider, $locationProvider) {
+        // Detect if we're on an editor page (editpost or editpage)
+        var isEditorPage = window.location.pathname.toLowerCase().indexOf('/editor/edit') > -1;
+
+        if (isEditorPage) {
+            // Disable routing for editor pages - they use standalone controllers
+            // console.log('Editor page detected - routing disabled');
+            return;
+        }
+
+        // Configure hash prefix for consistency
+        $locationProvider.hashPrefix('!');
+
+        // Cache buster for development
+        var cacheBuster = '?v=' + new Date().getTime();
+
         $routeProvider
-        .when("/", { templateUrl: "app/dashboard/dashboardView.html" })
+        .when("/", { templateUrl: "app/dashboard/dashboardView.html" + cacheBuster })
 
         .when("/content/posts", { templateUrl: "app/content/posts/postView.html" })
         .when("/content/blogs", { templateUrl: "app/content/blogs/blogView.html" })
