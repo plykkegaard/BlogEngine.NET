@@ -62,6 +62,10 @@ namespace BlogEngine.NET.App_Start
 
         static void RegisterBundles(BundleCollection bundles)
         {
+            // Enable optimizations (which includes cache-busting via version hashes) when not in debug mode
+            // In debug mode, keep optimizations off to ensure latest code is used during development
+            BundleTable.EnableOptimizations = !HttpContext.Current.IsDebuggingEnabled;
+
             // for anonymous users
             bundles.Add(new StyleBundle("~/Content/Auto/css").Include(
                 "~/Content/Auto/*.css")
@@ -116,8 +120,9 @@ namespace BlogEngine.NET.App_Start
                 .Include("~/Scripts/angular.min.js")
                 .Include("~/Scripts/angular-route.min.js")
                 .Include("~/Scripts/angular-sanitize.min.js") 
-                            
+
                 .Include("~/admin/app/app.js")
+                .Include("~/admin/app/http-legacy-shim.js")
                 .Include("~/admin/app/listpager.js")
                 .Include("~/admin/app/grid-helpers.js")
                 .Include("~/admin/app/data-service.js")
@@ -163,6 +168,7 @@ namespace BlogEngine.NET.App_Start
                 .Include("~/scripts/textext.js")
                 .Include("~/scripts/moment.js")
                 .Include("~/admin/app/app.js")
+                .Include("~/admin/app/http-legacy-shim.js")
                 .Include("~/admin/app/grid-helpers.js")
                 .Include("~/admin/app/editor/editor-helpers.js")
                 .Include("~/admin/app/editor/posteditorController.js")
