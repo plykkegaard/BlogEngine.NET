@@ -699,7 +699,55 @@ namespace BlogEngine.Core
                 }
 
                 uri.Path = RelativeWebRoot;
-                uri.Scheme = context.Request.Url.Scheme; // added for https support
+
+                // Check for proxy/load balancer headers to determine if original request was HTTPS
+                var scheme = context.Request.Url.Scheme;
+                var forwardedProto = context.Request.Headers["X-Forwarded-Proto"];
+                var forwardedScheme = context.Request.Headers["X-Forwarded-Scheme"];
+                var frontEndHttps = context.Request.Headers["Front-End-Https"];
+                var forwardedPort = context.Request.Headers["X-Forwarded-Port"];
+
+                // Check IIS server variables for HTTPS
+                var serverHttps = context.Request.ServerVariables["HTTPS"];
+                var serverPortSecure = context.Request.ServerVariables["SERVER_PORT_SECURE"];
+
+                if (!string.IsNullOrEmpty(forwardedProto) && forwardedProto.Equals("https", StringComparison.OrdinalIgnoreCase))
+                {
+                    scheme = "https";
+                }
+                else if (!string.IsNullOrEmpty(forwardedScheme) && forwardedScheme.Equals("https", StringComparison.OrdinalIgnoreCase))
+                {
+                    scheme = "https";
+                }
+                else if (!string.IsNullOrEmpty(frontEndHttps) && frontEndHttps.Equals("on", StringComparison.OrdinalIgnoreCase))
+                {
+                    scheme = "https";
+                }
+                else if (!string.IsNullOrEmpty(serverHttps) && serverHttps.Equals("on", StringComparison.OrdinalIgnoreCase))
+                {
+                    scheme = "https";
+                }
+                else if (!string.IsNullOrEmpty(serverPortSecure) && serverPortSecure.Equals("1", StringComparison.OrdinalIgnoreCase))
+                {
+                    scheme = "https";
+                }
+
+                uri.Scheme = scheme;
+
+                // Handle forwarded port for proxies/load balancers
+                if (!string.IsNullOrEmpty(forwardedPort) && int.TryParse(forwardedPort, out int port))
+                {
+                    // Only set non-default ports
+                    if ((scheme == "https" && port != 443) || (scheme == "http" && port != 80))
+                    {
+                        uri.Port = port;
+                    }
+                }
+                else if (scheme == "https" && uri.Port == 80)
+                {
+                    // If we detected HTTPS but port is still 80, reset to default HTTPS port
+                    uri.Port = -1; // -1 means use default port for the scheme
+                }
 
                 absoluteWebRoot = uri.Uri;
                 context.Items[contextItemKey] = absoluteWebRoot;
