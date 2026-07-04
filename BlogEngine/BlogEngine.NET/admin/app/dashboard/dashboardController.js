@@ -3,6 +3,14 @@
     $scope.itemToPurge = {};
     $scope.news = [];
     $scope.security = $rootScope.security;
+
+    // Navigation helper for dashboard links
+    $scope.navigate = function(path) {
+        console.log('Dashboard navigate() called with path:', path);
+        console.log('Current location before:', $location.url());
+        $location.url(path);
+        console.log('Current location after:', $location.url());
+    };
     $scope.focusInput = false;
     $scope.qd = angular.copy(newDraft);
 
