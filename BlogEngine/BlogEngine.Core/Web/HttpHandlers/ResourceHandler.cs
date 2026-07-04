@@ -64,11 +64,14 @@ namespace BlogEngine.Core.Web.HttpHandlers
             string cacheKey;
             string script;
 
+            // Include protocol scheme in cache key to prevent HTTP/HTTPS cache conflicts
+            var scheme = context.Request.Url.Scheme;
+
             if (request.FilePath.Contains("admin.res.axd"))
             {
                 lang = BlogSettings.Instance.Culture;
 
-                cacheKey = "admin.resource.axd - " + lang;
+                cacheKey = $"admin.resource.axd - {lang} - {scheme}";
                 script = (string)Blog.CurrentInstance.Cache[cacheKey];
 
                 if (String.IsNullOrEmpty(script))
@@ -107,7 +110,7 @@ namespace BlogEngine.Core.Web.HttpHandlers
             }
             else
             {
-                cacheKey = "resource.axd - " + lang;
+                cacheKey = $"resource.axd - {lang} - {scheme}";
                 script = (string)Blog.CurrentInstance.Cache[cacheKey];
                 
                 if (String.IsNullOrEmpty(script))
@@ -137,7 +140,9 @@ namespace BlogEngine.Core.Web.HttpHandlers
 
             Blog.CurrentInstance.Cache.Insert(cacheKey, script, null, Cache.NoAbsoluteExpiration, new TimeSpan(3, 0, 0, 0));
 
-            SetHeaders(script.GetHashCode(), context);
+            // Include scheme in hash to ensure HTTP and HTTPS versions have different ETags
+            var hashInput = scheme + script;
+            SetHeaders(hashInput.GetHashCode(), context);
             context.Response.Write(script);
 
             if (BlogSettings.Instance.EnableHttpCompression)
