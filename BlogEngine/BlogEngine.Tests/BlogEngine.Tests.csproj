@@ -111,6 +111,7 @@
     <Compile Include="WebApi\TagControllerTests.cs" />
     <Compile Include="WebApi\TrashControllerTests.cs" />
     <Compile Include="WebApi\UserControllerTests.cs" />
+    <Compile Include="Security\FileUploadValidatorTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BlogEngine.Core\BlogEngine.Core.csproj">
