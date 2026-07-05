@@ -12,13 +12,13 @@ angular.module('blogAdmin').controller('PingSericesController', ["$rootScope", "
 
     $scope.load = function (callback) {
         dataService.getItems('/api/pingservices', { })
-        .success(function (data) {
-            angular.copy(data, $scope.items);
+        .then(function (response) {
+            angular.copy(response.data, $scope.items);
             gridInit($scope, $filter);
             callback;
             spinOff();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.errorLoadingBlogs);
         });
     }
@@ -30,7 +30,7 @@ angular.module('blogAdmin').controller('PingSericesController', ["$rootScope", "
         spinOn();
         $scope.newItem.OptionName = $scope.newItem.OptionValue;
         dataService.addItem("/api/pingservices", $scope.newItem)
-        .success(function (data) {
+        .then(function (response) {
             toastr.success($rootScope.lbl.completed);
             $scope.newItem = {};
             $scope.load();
@@ -38,7 +38,7 @@ angular.module('blogAdmin').controller('PingSericesController', ["$rootScope", "
             $("#modal-add").modal('hide');
             $scope.focusInput = false;
         })
-        .error(function (data) {
+        .catch(function (data) {
             toastr.error(data);
             spinOff();
             $("#modal-add").modal('hide');

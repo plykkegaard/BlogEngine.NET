@@ -13,15 +13,19 @@
     $scope.focusInput = false;
 
     $scope.load = function (path) {
+        console.log('FileManager: load() called with path:', path);
         var p = path ? { take: 0, skip: 0, path: path } : { take: 0, skip: 0 };
         dataService.getItems('/api/filemanager', p)
-        .success(function (data) {
+        .then(function (response) {
+            var data = response.data;
+            console.log('FileManager: Received', data.length, 'items from server');
             angular.copy(data, $scope.items);
             gridInit($scope, $filter);
             $scope.currentPath = path ? path : $scope.rootStorage;
             $('#file-spinner').hide();
         })
-        .error(function (data) {
+        .catch(function (response) {
+            console.log('FileManager: Error loading items:', response);
             toastr.error($rootScope.lbl.Error);
             $('#file-spinner').hide();
         });
@@ -59,7 +63,7 @@
         if (action === "delete") {
             spinOn();
             dataService.processChecked("/api/filemanager/processchecked/delete", checked)
-            .success(function (data) {
+            .then(function (response) {
                 $scope.load($scope.currentPath);
                 gridInit($scope, $filter);
                 toastr.success($rootScope.lbl.completed);
@@ -68,7 +72,7 @@
                 }
                 spinOff();
             })
-            .error(function () {
+            .catch(function () {
                 toastr.error($rootScope.lbl.failed);
                 spinOff();
             });
@@ -80,14 +84,24 @@
         fd.append("file", files[0]);
         $('#file-spinner').show();
 
+        console.log('FileManager: Starting upload, currentPath:', $scope.currentPath);
+
         dataService.uploadFile("/api/upload?action=filemgr&dirPath=" + $scope.currentPath, fd)
-        .success(function (data) {
+        .then(function (response) {
+            var data = response.data;
+            console.log('FileManager: Upload success, response:', data);
+            console.log('FileManager: Reloading file list for path:', $scope.currentPath);
             $scope.load($scope.currentPath);
             gridInit($scope, $filter);
             toastr.success($rootScope.lbl.completed);
             $('#file-spinner').hide();
+            // Force Angular to update the view
+            if (!$scope.$$phase) {
+                $scope.$apply();
+            }
         })
-        .error(function () {
+        .catch(function (response) {
+            console.log('FileManager: Upload failed, error:', response);
             toastr.error($rootScope.lbl.failed);
             $('#file-spinner').hide();
         });
@@ -104,14 +118,14 @@
         }
         spinOn();
         dataService.updateItem("/api/filemanager/addfolder/add", { Name: $scope.dirName, FullPath: $scope.currentPath })
-        .success(function (data) {
+        .then(function (response) {
             $scope.load($scope.currentPath);
             gridInit($scope, $filter);
             toastr.success($rootScope.lbl.completed);
             spinOff();
             $("#modal-form").modal('hide');
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.failed);
             spinOff();
         });
@@ -149,6 +163,12 @@
         wm.getParams().ed.insertContent(s);
         wm.getWindows()[0].close();
     }
+
+    // Listen for file upload events from other controllers
+    $scope.$on('fileUploaded', function (event, data) {
+        // Refresh the file manager to show newly uploaded files
+        $scope.load($scope.currentPath);
+    });
 
     $scope.load('');
 }]);

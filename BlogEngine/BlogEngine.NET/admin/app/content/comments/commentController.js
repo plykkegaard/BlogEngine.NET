@@ -10,7 +10,8 @@
     $scope.load = function () {
         spinOn();
         dataService.getItems('/api/comments')
-        .success(function (data) {
+        .then(function (response) {
+            var data = response.data;
             angular.copy(data, $scope.vm);
             $scope.items = $scope.vm.Items;
             gridInit($scope, $filter);
@@ -26,7 +27,7 @@
             }
             spinOff();
         })
-        .error(function (data) {
+        .catch(function (response) {
             toastr.error($rootScope.lbl.failed);
             spinOff();
         });
@@ -35,12 +36,13 @@
     $scope.showEditForm = function (id) {
         $scope.vm.SelectedItem = findInArray($scope.items, 'Id', id);
         dataService.getItems("/api/comments/" + id)
-        .success(function (data) {
+        .then(function (response) {
+            var data = response.data;
             angular.copy(data, $scope.vm.Detail);
             $("#modal-comment-edit").modal();
             $scope.focusInput = true;
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.failed);
         });
     }
@@ -52,12 +54,12 @@
             "Content": $scope.commentReply.text
         }
         dataService.addItem("/api/comments", comment)
-        .success(function (data) {
+        .then(function (response) {
             toastr.success($rootScope.lbl.commentUpdated);
             $scope.load();
             $("#modal-comment-edit").modal('hide');
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.updateFailed);
             $("#modal-comment-edit").modal('hide');
         });
@@ -70,21 +72,21 @@
 	}
 
 	$scope.deleteAll = function () {
-	    if ($scope.filter) {
-	        spinOn();
-	        var url = "/api/comments/DeleteAll/spam";
+		if ($scope.filter) {
+			spinOn();
+			var url = "/api/comments/DeleteAll/spam";
 
-	        if ($scope.filter === "pnd") {
-	            url = "/api/comments/DeleteAll/pending";
-	        }
-	        dataService.updateItem(url, { item: $scope.item })
-            .success(function (data) {
-                toastr.success($rootScope.lbl.commentsDeleted);
-                $scope.load();
-                spinOff();
-            })
-            .error(function () { toastr.error($rootScope.lbl.failed); spinOff(); });
-	    }
+			if ($scope.filter === "pnd") {
+				url = "/api/comments/DeleteAll/pending";
+			}
+			dataService.updateItem(url, { item: $scope.item })
+			.then(function (response) {
+				toastr.success($rootScope.lbl.commentsDeleted);
+				$scope.load();
+				spinOff();
+			})
+			.catch(function () { toastr.error($rootScope.lbl.failed); spinOff(); });
+		}
 	}
 
     $(document).ready(function () {

@@ -18,12 +18,12 @@ angular.module('blogAdmin').controller('BlogListController', ["$rootScope", "$sc
         $scope.modalTitle = $rootScope.lbl.editExistingBlog;
         spinOn();
         dataService.getItems('/api/blogs/' + id)
-        .success(function (data) {
-            angular.copy(data, $scope.editItem);
+        .then(function (response) {
+            angular.copy(response.data, $scope.editItem);
             $("#modal-edit").modal();
             spinOff();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.errorLoadingBlog);
             spinOff();
         });
@@ -31,13 +31,13 @@ angular.module('blogAdmin').controller('BlogListController', ["$rootScope", "$sc
 
     $scope.load = function (callback) {
         dataService.getItems('/api/blogs', { take: 0, skip: 0, filter: "1 == 1", order: "Name" })
-        .success(function (data) {
-            angular.copy(data, $scope.items);
+        .then(function (response) {
+            angular.copy(response.data, $scope.items);
             gridInit($scope, $filter);
             callback;
             spinOff();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.errorLoadingBlogs);
         });
     }
@@ -45,13 +45,13 @@ angular.module('blogAdmin').controller('BlogListController', ["$rootScope", "$sc
     $scope.save = function () {
         spinOn();
         dataService.updateItem("/api/blogs/update/item", $scope.editItem)
-        .success(function (data) {
+        .then(function (response) {
             toastr.success($rootScope.lbl.blogSaved);
             $scope.load();
             spinOff();
             $("#modal-edit").modal('hide');
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.failedAddingNewRole);
             spinOff();
             $("#modal-edit").modal('hide');
@@ -64,7 +64,7 @@ angular.module('blogAdmin').controller('BlogListController', ["$rootScope", "$sc
         }
         spinOn();
         dataService.addItem("/api/blogs", $scope.newItem)
-        .success(function (data) {
+        .then(function (response) {
             toastr.success($rootScope.lbl.blogAddedShort);
             $scope.newItem = {};
             $scope.load();
@@ -72,7 +72,7 @@ angular.module('blogAdmin').controller('BlogListController', ["$rootScope", "$sc
             $("#modal-add").modal('hide');
             $scope.focusInput = false;
         })
-        .error(function (data) {
+        .catch(function (data) {
             toastr.error(data);
             spinOff();
             $("#modal-add").modal('hide');

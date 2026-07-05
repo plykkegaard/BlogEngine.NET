@@ -14,11 +14,11 @@
     $scope.load = function () {
         spinOn();
         dataService.getItems('/api/lookups')
-        .success(function (data) {
-            angular.copy(data, $scope.lookups);
+        .then(function (response) {
+            angular.copy(response.data, $scope.lookups);
             $scope.loadSettings();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.errorLoadingSettings);
             spinOff();
         });
@@ -26,7 +26,8 @@
 
     $scope.loadSettings = function () {
         dataService.getItems('/api/settings')
-        .success(function (data) {
+        .then(function (response) {
+            var data = response.data;
             angular.copy(data, $scope.vm);
             $scope.settings = $scope.vm.Settings;
             $scope.timeZoneOptions = $scope.vm.TimeZones;
@@ -41,7 +42,7 @@
             $scope.setCommentProviders($scope.settings.CommentProvider);
             spinOff();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.errorLoadingSettings);
             spinOff();
         });
@@ -64,11 +65,11 @@
         $scope.settings.txtErrorTitle = $scope.txtErrorTitle;
 
         dataService.updateItem("/api/settings", $scope.settings)
-        .success(function (data) {
+        .then(function (response) {
             toastr.success($rootScope.lbl.settingsUpdated);
             $scope.load();
         })
-        .error(function () { toastr.error($rootScope.lbl.updateFailed); });
+        .catch(function () { toastr.error($rootScope.lbl.updateFailed); });
     }
 
     $scope.exportToXml = function () {
@@ -86,16 +87,17 @@
         var fd = new FormData();
         fd.append("file", files[0]);
         dataService.uploadFile("/api/upload?action=import", fd)
-        .success(function (data) {
+        .then(function (response) {
             toastr.success($rootScope.lbl.importedFromBlogML);
             spinOff();
         })
-        .error(function () { toastr.error($rootScope.lbl.importFailed); spinOff(); });
+        .catch(function () { toastr.error($rootScope.lbl.importFailed); spinOff(); });
     }
 
     $scope.testEmail = function () {
         dataService.updateItem("/api/settings?action=testEmail", $scope.settings)
-        .success(function (data) {
+        .then(function (response) {
+            var data = response.data;
             if (data) {
                 toastr.error(data);
             }
@@ -103,12 +105,13 @@
                 toastr.success($rootScope.lbl.completed);
             }
         })
-        .error(function () { toastr.error($rootScope.lbl.failed); });
+        .catch(function () { toastr.error($rootScope.lbl.failed); });
     }
 
     $scope.clearCache = function () {
         dataService.updateItem("/api/settings?action=clearCache", $scope.settings)
-        .success(function (data) {
+        .then(function (response) {
+            var data = response.data;
             if (data) {
                 toastr.error(data);
             }
@@ -116,7 +119,7 @@
                 toastr.success($rootScope.lbl.completed);
             }
         })
-        .error(function () { toastr.error($rootScope.lbl.failed); });
+        .catch(function () { toastr.error($rootScope.lbl.failed); });
     }
 
     $scope.loadTheme = function () {

@@ -11,12 +11,12 @@
             window.location.replace("../Account/Login.aspx");
         }
         dataService.getItems('/api/users', { take: 0, skip: 0, filter: "1 == 1", order: "UserName" })
-        .success(function (data) {
-            angular.copy(data, $scope.items);
+        .then(function (response) {
+            angular.copy(response.data, $scope.items);
             gridInit($scope, $filter);
             spinOff();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.errorLoadingUsers);
         });
     }
@@ -35,13 +35,13 @@
         }
         spinOn();
         dataService.getItems('/api/users?id=' + id)
-        .success(function (data) {
-            angular.copy(data, $scope.editItem);
+        .then(function (response) {
+            angular.copy(response.data, $scope.editItem);
             $("#modal-user-edit").modal();
             $scope.focusInput = true;
             spinOff();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.errorLoadingUser);
             spinOff();
         });
@@ -53,12 +53,12 @@
             id = "fakeusername";
         }
         dataService.getItems('/api/roles/getuserroles/' + id)
-            .success(function (data) {
-                angular.copy(data, $scope.roles);
+            .then(function (response) {
+                angular.copy(response.data, $scope.roles);
                 gridInit($scope, $filter);
                 spinOff();
             })
-            .error(function () {
+            .catch(function () {
                 toastr.error($rootScope.lbl.errorLoadingRoles);
                 spinOff();
             });
@@ -72,14 +72,14 @@
         $scope.editItem.roles = $scope.roles;
         if ($scope.isNewItem) {
             dataService.addItem("/api/users", $scope.editItem)
-            .success(function (data) {
+            .then(function (response) {
                 toastr.success($rootScope.lbl.userAdded);
                 $scope.load();
                 spinOff();
                 $("#modal-user-edit").modal('hide');
                 $scope.focusInput = false;
             })
-            .error(function () {
+            .catch(function () {
                 toastr.error($rootScope.lbl.errorAddingNewUser);
                 spinOff();
                 $("#modal-user-edit").modal('hide');
@@ -88,14 +88,14 @@
         }
         else {
             dataService.updateItem("/api/users/update/item", $scope.editItem)
-            .success(function (data) {
+            .then(function (response) {
                 toastr.success($rootScope.lbl.userUpdatedShort);
                 $scope.load();
                 spinOff();
                 $("#modal-user-edit").modal('hide');
                 $scope.focusInput = false;
             })
-            .error(function () {
+            .catch(function () {
                 toastr.error($rootScope.lbl.updateFailed);
                 spinOff();
                 $("#modal-user-edit").modal('hide');

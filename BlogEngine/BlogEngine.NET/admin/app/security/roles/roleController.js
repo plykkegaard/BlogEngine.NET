@@ -7,12 +7,12 @@
 
     $scope.load = function () {
         dataService.getItems('/api/roles', { take: 0, skip: 0 })
-        .success(function (data) {
-            angular.copy(data, $scope.items);
+        .then(function (response) {
+            angular.copy(response.data, $scope.items);
             gridInit($scope, $filter);
             spinOff();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.errorLoadingRoles);
         });
     }
@@ -29,13 +29,13 @@
         }
         spinOn();
         dataService.getItems('/api/roles/getrights/' + id)
-        .success(function (data) {
-            angular.copy(data, $scope.rights);
+        .then(function (response) {
+            angular.copy(response.data, $scope.rights);
             $("#modal-edit").modal();
             $scope.focusInput = true;
             spinOff();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.errorLoadingRights);
             spinOff();
         });
@@ -44,13 +44,13 @@
     $scope.loadCurrentRole = function (id) {
         spinOn();
         dataService.getItems('/api/roles/get/' + id)
-        .success(function (data) {
-            angular.copy(data, $scope.editItem);
+        .then(function (response) {
+            angular.copy(response.data, $scope.editItem);
             $("#modal-edit").modal();
             $scope.focusInput = true;
             spinOff();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.errorLoadingRole);
             spinOff();
         });
@@ -72,14 +72,14 @@
     $scope.saveRole = function () {
         spinOn();
         dataService.addItem("/api/roles", $scope.editItem)
-        .success(function (data) {
+        .then(function (response) {
             toastr.success($rootScope.lbl.roleAdded);
             $scope.load();
             spinOff();
             $("#modal-edit").modal('hide');
             $scope.focusInput = false;
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.failedAddingNewRole);
             spinOff();
             $("#modal-edit").modal('hide');
@@ -90,14 +90,14 @@
     $scope.saveRights = function () {
         spinOn();
         dataService.updateItem("/api/roles/saverights/" + $scope.editItem.RoleName, $scope.rights)
-        .success(function (data) {
+        .then(function (response) {
             toastr.success($rootScope.lbl.rightsSaved);
             $scope.load();
             spinOff();
             $("#modal-edit").modal('hide');
             $scope.focusInput = false;
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.failedToSaveRights);
             spinOff();
             $("#modal-edit").modal('hide');
@@ -112,11 +112,11 @@
     $scope.delete = function (id) {
         spinOn();
         dataService.deleteById("/api/roles", id)
-        .success(function (data) {
+        .then(function (response) {
             toastr.success($rootScope.lbl.rolesItem + id + $rootScope.lbl.rolesItemDeleted);
             spinOff();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.couldNotDeleteItem + id);
             spinOff();
         });

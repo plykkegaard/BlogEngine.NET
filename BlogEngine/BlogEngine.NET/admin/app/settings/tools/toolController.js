@@ -9,11 +9,12 @@
         }
         spinOn();
         dataService.getItems('/api/tools/check1')
-        .success(function (data) {
+        .then(function (response) {
+            var data = response.data;
             $scope.userIdentity = data.replace(/["']/g, "");
             spinOff();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.errorLoadingUsers);
             spinOff();
         });
@@ -26,20 +27,20 @@
         $("#msgList").empty();
 
         dataService.getItems('/api/tools/trust')
-            .success(function (data) { $scope.addMsg(data); })
-            .error(function (data) { toastr.error($rootScope.lbl.Error); });
+            .then(function (response) { $scope.addMsg(response.data); })
+            .catch(function (data) { toastr.error($rootScope.lbl.Error); });
 
         dataService.getItems('/api/tools/data')
-            .success(function (data) { $scope.addMsg(data); })
-            .error(function (data) { toastr.error($rootScope.lbl.Error); });
+            .then(function (response) { $scope.addMsg(response.data); })
+            .catch(function (data) { toastr.error($rootScope.lbl.Error); });
 
         dataService.getItems('/api/tools/root')
-            .success(function (data) { $scope.addMsg(data); })
-            .error(function (data) { toastr.error($rootScope.lbl.Error); });
+            .then(function (response) { $scope.addMsg(response.data); })
+            .catch(function (data) { toastr.error($rootScope.lbl.Error); });
 
         dataService.getItems('/api/tools/Custom')
-            .success(function (data) { $scope.addMsg(data); })
-            .error(function () { toastr.error($rootScope.lbl.Error); });
+            .then(function (response) { $scope.addMsg(response.data); })
+            .catch(function () { toastr.error($rootScope.lbl.Error); });
     }
 
     $scope.addMsg = function (data) {

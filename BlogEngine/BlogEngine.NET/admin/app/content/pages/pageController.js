@@ -9,7 +9,8 @@
         var p = { take: 0, skip: 0 }
         spinOn();
         dataService.getItems('/api/pages', p)
-        .success(function (data) {
+        .then(function (response) {
+            var data = response.data;
             angular.copy(data, $scope.items);
             gridInit($scope, $filter);
             if ($scope.filter) {
@@ -17,7 +18,7 @@
             }
             spinOff();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.errorLoadingPages);
             spinOff();
         });

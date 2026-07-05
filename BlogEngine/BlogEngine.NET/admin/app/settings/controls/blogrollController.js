@@ -19,7 +19,8 @@ angular.module('blogAdmin').controller('BlogRollController', ["$rootScope", "$sc
         $scope.xfnReset();
         spinOn();
         dataService.getItems('/api/blogroll/' + id)
-        .success(function (data) {
+        .then(function (response) {
+            var data = response.data;
             angular.copy(data, $scope.editItem);
             var x = $scope.editItem.Xfn.split(" ");
             for (var i = 0, len = x.length; i < len; i++) {
@@ -46,7 +47,7 @@ angular.module('blogAdmin').controller('BlogRollController', ["$rootScope", "$sc
             $scope.focusInput = true;
             spinOff();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.failed);
             spinOff();
         });
@@ -54,13 +55,13 @@ angular.module('blogAdmin').controller('BlogRollController', ["$rootScope", "$sc
 
     $scope.load = function (callback) {
         dataService.getItems('/api/blogroll', { })
-        .success(function (data) {
-            angular.copy(data, $scope.items);
+        .then(function (response) {
+            angular.copy(response.data, $scope.items);
             gridInit($scope, $filter);
             callback;
             spinOff();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.errorLoadingBlogs);
         });
     }
@@ -81,14 +82,14 @@ angular.module('blogAdmin').controller('BlogRollController', ["$rootScope", "$sc
 
     $scope.saveOld = function () {
         dataService.updateItem("/api/blogroll/update/item", $scope.editItem)
-        .success(function (data) {
+        .then(function (response) {
             toastr.success($rootScope.lbl.completed);
             $scope.load();
             spinOff();
             $("#modal-edit").modal('hide');
             $scope.focusInput = true;
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.failed);
             spinOff();
             $("#modal-edit").modal('hide');
@@ -98,7 +99,7 @@ angular.module('blogAdmin').controller('BlogRollController', ["$rootScope", "$sc
 
     $scope.saveNew = function () {
         dataService.addItem("/api/blogroll", $scope.editItem)
-        .success(function (data) {
+        .then(function (response) {
             toastr.success($rootScope.lbl.completed);
             $scope.editItem = {};
             $scope.load();
@@ -106,7 +107,7 @@ angular.module('blogAdmin').controller('BlogRollController', ["$rootScope", "$sc
             $("#modal-edit").modal('hide');
             $scope.focusInput = false;
         })
-        .error(function (data) {
+        .catch(function (data) {
             toastr.error(data);
             spinOff();
             $("#modal-edit").modal('hide');

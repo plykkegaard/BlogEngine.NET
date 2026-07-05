@@ -150,7 +150,8 @@
         fd.append("file", files[0]);
 
         dataService.uploadFile("/api/upload?action=" + action, fd)
-        .success(function (data) {
+        .then(function (response) {
+            var data = response.data;
             toastr.success($rootScope.lbl.uploaded);
             var editorHtml = editorGetHtml();
             if (action === "file" && IsImage(data)) {
@@ -165,8 +166,10 @@
                     editorSetHtml(editorHtml + '<a href="' + res[0].replace('"', '') + '">' + res[1].replace('"', '') + '</a>');
                 }
             }
+            // Broadcast event to refresh file manager if it's open
+            $rootScope.$broadcast('fileUploaded', { path: data });
         })
-        .error(function () { toastr.error($rootScope.lbl.importFailed); });
+        .catch(function () { toastr.error($rootScope.lbl.importFailed); });
     }
 
     $scope.status = function () {
