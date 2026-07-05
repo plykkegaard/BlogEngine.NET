@@ -1,4 +1,4 @@
-﻿namespace BlogEngine.Core
+namespace BlogEngine.Core
 {
     using System;
     using System.Collections.Generic;
@@ -970,6 +970,21 @@
         public static void Log(string methodName, Exception ex)
         {
             Log($"{methodName}: {ex.Message}");
+        }
+
+        /// <summary>
+        /// Logs a security event with timestamp and event type.
+        /// </summary>
+        /// <param name="eventType">The type of security event (e.g., "UploadBlocked", "LoginFailed").</param>
+        /// <param name="details">Details about the security event.</param>
+        /// <remarks>
+        /// Security events are logged with a standardized format including timestamp for audit trail purposes.
+        /// </remarks>
+        public static void LogSecurityEvent(string eventType, string details)
+        {
+            var timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss UTC");
+            var logMessage = string.Format("[SECURITY] [{0}] {1}: {2}", timestamp, eventType, details);
+            Log(logMessage);
         }
 
         /// <summary>
