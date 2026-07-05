@@ -1,8 +1,10 @@
-﻿using App_Code;
+using App_Code;
 using BlogEngine.Core;
 using BlogEngine.Core.API.BlogML;
 using BlogEngine.Core.Providers;
 using System;
+using BlogEngine.Core.Services.Security;
+
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -15,23 +17,46 @@ public class UploadController : ApiController
 {
     public HttpResponseMessage Post(string action, string dirPath = "")
     {
-        WebUtils.CheckRightsForAdminPostPages(false);
-
-        HttpPostedFile file = HttpContext.Current.Request.Files[0];
-        action = action.ToLowerInvariant();
-
-        if (file != null && file.ContentLength > 0)
+        try
         {
-            var dirName = string.Format("/{0}/{1}", DateTime.Now.ToString("yyyy"), DateTime.Now.ToString("MM"));
-            var fileName = new FileInfo(file.FileName).Name; // to work in IE and others
+            WebUtils.CheckRightsForAdminPostPages(false);
 
-            // iOS sends all images as "image.jpg" or "image.png"
-            fileName = fileName.Replace("image.jpg", DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".jpg");
-            fileName = fileName.Replace("image.png", DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".png");
+            HttpPostedFile file = HttpContext.Current.Request.Files[0];
+            action = action.ToLowerInvariant();
 
-            var root = Blog.CurrentInstance.StorageLocation + Utils.FilesFolder;
+            Utils.Log($"UploadController.Post: Starting upload - Action: {action}, DirPath: {dirPath}");
 
-            dirPath = dirPath.SanitizePath(root);
+            if (file != null && file.ContentLength > 0)
+            {
+                var dirName = string.Format("/{0}/{1}", DateTime.Now.ToString("yyyy"), DateTime.Now.ToString("MM"));
+                var fileName = new FileInfo(file.FileName).Name; // to work in IE and others
+
+                Utils.Log($"UploadController.Post: File received - Name: {fileName}, Size: {file.ContentLength}, ContentType: {file.ContentType}");
+
+                // iOS sends all images as "image.jpg" or "image.png"
+                fileName = fileName.Replace("image.jpg", DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".jpg");
+                fileName = fileName.Replace("image.png", DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".png");
+                // Validate file upload security (extension whitelist/blacklist and MIME type)
+                if (!FileUploadValidator.IsFileUploadAllowed(file.InputStream, fileName, file.ContentType))
+                {
+                    var userName = Security.CurrentUser != null ? Security.CurrentUser.Identity.Name : "Anonymous";
+                    var ipAddress = HttpContext.Current.Request.UserHostAddress;
+                    BlogEngine.Core.Utils.LogSecurityEvent("UploadBlocked", 
+                        $"User: {userName}, File: {fileName}, IP: {ipAddress}");
+                    Utils.Log($"UploadController.Post: Upload blocked by security validation - File: {fileName}");
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, FileUploadValidator.GetValidationErrorMessage());
+                }
+
+                Utils.Log($"UploadController.Post: Security validation passed for file: {fileName}");
+
+                // Rewind stream after validation for subsequent use
+                if (file.InputStream.CanSeek)
+                    file.InputStream.Position = 0;
+
+                var root = Blog.CurrentInstance.StorageLocation + Utils.FilesFolder;
+
+                dirPath = dirPath.SanitizePath(root);
+
             
             if (!string.IsNullOrEmpty(dirPath))
                 dirName = dirPath;
@@ -80,19 +105,33 @@ public class UploadController : ApiController
             {
                 if (Security.IsAuthorizedTo(Rights.EditOwnPosts))
                 {
+                    Utils.Log($"UploadController.Post: Processing image upload - File: {fileName}, Directory: {dirName}");
                     dir = BlogService.GetDirectory(dirName);
+                    Utils.Log($"UploadController.Post: Directory obtained - Path: {dir.FullPath}");
                     var uploaded = BlogService.UploadFile(file.InputStream, fileName, dir, true);
+                    Utils.Log($"UploadController.Post: Image uploaded successfully - URL: {uploaded.AsImage.ImageUrl}");
                     return Request.CreateResponse(HttpStatusCode.Created, uploaded.AsImage.ImageUrl);
+                }
+                else
+                {
+                    Utils.Log($"UploadController.Post: User not authorized for image upload");
                 }
             }
             if (action == "file")
             {
                 if (Security.IsAuthorizedTo(Rights.EditOwnPosts)) 
                 {
+                    Utils.Log($"UploadController.Post: Processing file upload - File: {fileName}, Directory: {dirName}");
                     dir = BlogService.GetDirectory(dirName);
+                    Utils.Log($"UploadController.Post: Directory obtained - Path: {dir.FullPath}");
                     var uploaded = BlogService.UploadFile(file.InputStream, fileName, dir, true);
                     retUrl = uploaded.FileDownloadPath + "|" + fileName + " (" + BytesToString(uploaded.FileSize) + ")";
+                    Utils.Log($"UploadController.Post: File uploaded successfully - Path: {uploaded.FileDownloadPath}");
                     return Request.CreateResponse(HttpStatusCode.Created, retUrl);
+                }
+                else
+                {
+                    Utils.Log($"UploadController.Post: User not authorized for file upload");
                 }
             }
             if (action == "video")
@@ -115,7 +154,15 @@ public class UploadController : ApiController
                 }
             }
         }
+        Utils.Log($"UploadController.Post: Returning BadRequest - No valid action or file");
         return Request.CreateResponse(HttpStatusCode.BadRequest);
+        }
+        catch (Exception ex)
+        {
+            Utils.Log($"UploadController.Post: Exception occurred during upload", ex);
+            return Request.CreateResponse(HttpStatusCode.InternalServerError, 
+                new { error = "Upload failed: " + ex.Message });
+        }
     }
 
     #region Private methods

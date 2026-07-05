@@ -40,12 +40,12 @@ public class FileManagerController : ApiController
             foreach (var item in items)
             {
                 if (item.IsChecked)
-                {
-                    if(item.FileType == FileType.File || item.FileType == FileType.Image)
-                        BlogService.DeleteFile(Extensions.SanitizePath(item.FullPath));
+                    {
+                        if(item.FileType == FileType.File || item.FileType == FileType.Image)
+                            BlogService.DeleteFile(item.FullPath);
 
-                    if (item.FileType == FileType.Directory)
-                        BlogService.DeleteDirectory(Extensions.SanitizePath(item.FullPath));
+                        if (item.FileType == FileType.Directory)
+                            BlogService.DeleteDirectory(item.FullPath);
                 }
             }
         }
