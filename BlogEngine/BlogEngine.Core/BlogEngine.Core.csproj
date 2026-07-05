@@ -328,6 +328,9 @@
     <Compile Include="Web\Scripting\WebResourceFilter.cs" />
     <Compile Include="Web\UrlRules.cs" />
     <Compile Include="Helpers\XmlSafeResolver.cs" />
+    <Compile Include="Services\Security\FileUploadSecuritySection.cs" />
+    <Compile Include="Services\Security\MimeTypeDetector.cs" />
+    <Compile Include="Services\Security\FileUploadValidator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BlogRollItem.cs" />
