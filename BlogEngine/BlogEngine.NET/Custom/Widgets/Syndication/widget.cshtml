@@ -1,0 +1,21 @@
+@using BlogEngine.Core
+@{
+    var syndicationUrl = Utils.RelativeWebRoot + "syndication.axd";
+}
+<div class="Widget widget syndication">
+    <h4 class="WidgetHeader widget-header">@Model.Title</h4>
+    <div class="WidgetContent widget-content">
+        <ul id="syndication" class="syndication">
+            <li>
+                <a href="@syndicationUrl" title="Subscribe to RSS feed">
+                    <img alt="RSS" src="~/Content/images/blog/rssButton.png" style="vertical-align: middle;" /> RSS Feed
+                </a>
+            </li>
+            <li>
+                <a href="@(syndicationUrl)?format=atom" title="Subscribe to Atom feed">
+                    <img alt="Atom" src="~/Content/images/blog/rssButton.png" style="vertical-align: middle;" /> Atom Feed
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
