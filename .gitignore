@@ -194,3 +194,4 @@ BlogEngine/BlogEngine.NET/App_Data/datastore/extensions/*.xml
 /BlogEngine/BlogEngine.Tests/.vs/BlogEngine.Tests.csproj.dtbcache.json
 /.vs/CopilotSnapshots/D9F766A7180D7B4D9219B97C9582CB76
 /.vs/CopilotSnapshots
+/BlogEngine/BlogEngine.NET/App_Data/posts/2d81d984-efe9-4e60-bf46-4ca0ee009b57.xml
