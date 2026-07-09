@@ -10,3 +10,4 @@
 - Prefer incremental edits that stay aligned with the existing Web Forms structure rather than introducing MVC or ASP.NET Core patterns.
 - Keep custom assets, theme files, and resource paths intact when changing UI or rendering code.
 - Preserve the existing API controller structure and route behavior when changing admin or public-facing features.
+- **Lazy ponytail approach**: Solve the immediate problem with minimal changes, trust existing patterns, avoid adding unnecessary complexity.

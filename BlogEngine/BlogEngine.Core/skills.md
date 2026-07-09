@@ -10,3 +10,4 @@
 - Keep existing provider contracts and repository abstractions intact unless a task explicitly requires a change.
 - Preserve the current data model and serialization behavior when editing providers or services.
 - Prefer small, architecture-aligned changes over broad rewrites or new dependency injection patterns.
+- **Lazy ponytail approach**: Write minimal code, reuse what exists, avoid abstractions and optimizations unless immediately necessary.

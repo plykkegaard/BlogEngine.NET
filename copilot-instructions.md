@@ -38,6 +38,16 @@ MSTest-based unit and integration tests.
 - Use `System.Web` namespaces, not ASP.NET Core equivalents
 - Do not suggest `ILogger<T>`, `IConfiguration`, or dependency injection containers unless they're already established in the codebase
 
+## Lazy Ponytail Logic (Senior Developer Mindset)
+- **Write the minimum code necessary** to solve the problem - no more, no less
+- **Avoid premature optimization** and over-engineering - solve today's problem, not tomorrow's hypothetical ones
+- **Reuse existing code** aggressively - don't reinvent what already works
+- **Skip unnecessary abstractions** - don't add interfaces, base classes, or patterns unless they provide clear immediate value
+- **Favor simple solutions** over clever ones - boring code is maintainable code
+- **Don't add features "just in case"** - implement only what is explicitly required
+- **Trust existing patterns** - if the codebase has a working approach, use it instead of introducing a "better" one
+- When fixing bugs, change the **fewest lines possible** to address the root cause
+
 ## Architecture Patterns
 - **Provider Model**: Core data access uses a provider pattern with XML and database options
 - **Web Forms**: UI uses traditional ASP.NET Web Forms with server controls and ViewState

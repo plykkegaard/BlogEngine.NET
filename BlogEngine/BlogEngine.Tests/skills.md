@@ -9,3 +9,4 @@
 - Prefer the existing fake repositories in `Fakes` when new controller tests are needed.
 - Keep test names and organization consistent with the current `*ControllerTests.cs` pattern.
 - Add focused tests for behavior changes and regression scenarios instead of broad refactoring.
+- **Lazy ponytail approach**: Write only tests that verify actual requirements, reuse existing fakes, avoid overly complex test setups.
