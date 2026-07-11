@@ -12,10 +12,10 @@
         postAdminLinks = "<div class=\"post-adminlinks\">" + AdminLinks + "</div>";
     }
     var postUrl = Post.RelativeOrAbsoluteLink;
-    var postTitle = Server.HtmlEncode(Post.Title);
+    var postTitle = Utils.HtmlEncode(Post.Title);
     var postDate = Post.DateCreated.ToString("MMM dd, yyyy");
     var authorUrl = Utils.AbsoluteWebRoot + "author/" + Utils.RemoveIllegalCharacters(Post.Author + BlogConfig.FileExtension);
-    var authorName = Post.AuthorProfile != null ? Utils.RemoveIllegalCharacters(Post.AuthorProfile.DisplayName) : Utils.RemoveIllegalCharacters(Post.Author);
+    var authorName = Utils.HtmlEncode(Post.AuthorProfile != null ? Post.AuthorProfile.DisplayName : Post.Author);
 
     var postCategory = CategoryLinks(", ");
     var postTags = "<div class=\"post-tags\">" + TagLinks(", ") + "</div>";
