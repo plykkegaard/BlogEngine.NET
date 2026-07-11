@@ -696,7 +696,7 @@
 
         /// <summary>
         /// URL of the first image in the post, if any.
-        /// If there's no first image, returns the URL to "images/defaultImg.jpg" in the current theme used in the blog
+        /// If there's no first image, returns an empty string.
         /// </summary>
         public string FirstImgSrc
         {
@@ -711,11 +711,7 @@
                         srcValue = match.Groups[2].Value;
                     }
                 }
-                if (string.IsNullOrEmpty(srcValue))
-                {
-                    srcValue = Utils.RelativeWebRoot + "Custom/Themes/" + BlogSettings.Instance.Theme + "/images/defaultImg.jpg";
-                }
-                return srcValue;
+                return srcValue ?? string.Empty;
             }
         }
 
