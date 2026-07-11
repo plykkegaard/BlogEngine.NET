@@ -46,7 +46,7 @@
             dataService.updateItem("/api/categories/update/" + $scope.category.Id, $scope.category)
            .then(function (response) {
                toastr.success($rootScope.lbl.categoryUpdated);
-               $scope.load();
+               return $scope.loadAndCloseModal();
            })
            .catch(function (response) { toastr.error(response.data); });
         }
@@ -57,13 +57,27 @@
                toastr.success($rootScope.lbl.categoryAdded);
                if (data.Id) {
                    angular.copy(data, $scope.category);
-                   $scope.load();
+                   return $scope.loadAndCloseModal();
                }
            })
            .catch(function (response) { toastr.error(response.data); });
         }
-        $("#modal-add-cat").modal('hide');
-        $scope.focusInput = false;
+    }
+
+    $scope.loadAndCloseModal = function () {
+        return dataService.getItems('/api/categories', { skip: 0, take: 0 })
+            .then(function (response) {
+                angular.copy(response.data, $scope.items);
+                gridInit($scope, $filter);
+                spinOff();
+                $("#modal-add-cat").modal('hide');
+                $scope.focusInput = false;
+            })
+            .catch(function () {
+                toastr.error($rootScope.lbl.errorLoadingCategories);
+                $("#modal-add-cat").modal('hide');
+                $scope.focusInput = false;
+            });
     }
 
     $scope.processChecked = function (action, itemsChecked) {
