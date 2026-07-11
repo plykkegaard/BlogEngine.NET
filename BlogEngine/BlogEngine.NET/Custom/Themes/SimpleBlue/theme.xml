@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <metadata>
   <id>SimpleBlue</id>
-  <description>SimpleBlue is adapted from SimpleBlog Theme by Farzin Seyfolahi</description>
+  <description>SimpleBlue is a modern theme inspired by SimpleBlog by Farzin Seyfolahi</description>
   <authors>Peter Lykkegaard</authors>
   <website>https://looksharp.dk</website>
   <version>1.0.0.0</version>
-  <iconurl>https://looksharp.dk/Custom/Themes/SimpleBlog/img/SimpleBlog.png</iconurl>
+  <iconurl>/Custom/Themes/SimpleBlue/img/SimpleBlue.png</iconurl>
 </metadata>

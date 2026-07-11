@@ -1,4 +1,4 @@
-<%@ Master Language="C#" AutoEventWireup="true" CodeFile="site.master.cs" Inherits="SimpleBlog" %>
+<%@ Master Language="C#" AutoEventWireup="true" Codebehind="site.master.cs" Inherits="SimpleBlog" %>
 <%@ Import Namespace="BlogEngine.Core" %>
 <%@ Import Namespace="System.Linq" %>
 <!DOCTYPE html>

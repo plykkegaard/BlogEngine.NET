@@ -13,6 +13,14 @@ using System.Text.RegularExpressions;
 public partial class SimpleBlog : System.Web.UI.MasterPage
 {
     /// <summary>
+    /// Server-side anchor control for the login/logout link.
+    /// </summary>
+    /// <remarks>
+    /// This control is defined in the site.master markup and provides navigation to the login page or logout functionality.
+    /// </remarks>
+    protected System.Web.UI.HtmlControls.HtmlAnchor aLogin;
+
+    /// <summary>
     /// Regular expression pattern for cleaning up whitespace in HTML output.
     /// </summary>
     /// <remarks>
