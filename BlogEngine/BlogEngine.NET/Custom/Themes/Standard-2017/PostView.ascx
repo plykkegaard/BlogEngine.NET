@@ -4,11 +4,11 @@
 <article class="post" id="post<%=Index %>">
     <header class="post-header">
         <h2 class="post-title">
-            <a href="<%=Post.RelativeOrAbsoluteLink %>"><%=Server.HtmlEncode(Post.Title) %></a>
+            <a href="<%=Post.RelativeOrAbsoluteLink %>"><%=Utils.HtmlEncode(Post.Title) %></a>
         </h2>
         <div class="post-info clearfix">
             <span class="post-date"><%=Post.DateCreated.ToString("dd MMMM yyyy") %></span>
-            <span class="post-author"><a href="<%=Utils.AbsoluteWebRoot + "author/" + Utils.RemoveIllegalCharacters(Post.Author + BlogConfig.FileExtension) %>"><%=Post.AuthorProfile != null ? Utils.RemoveIllegalCharacters(Post.AuthorProfile.DisplayName) : Utils.RemoveIllegalCharacters(Post.Author) %></a></span>
+            <span class="post-author"><a href="<%=Utils.AbsoluteWebRoot + "author/" + Utils.RemoveIllegalCharacters(Post.Author + BlogConfig.FileExtension) %>"><%=Utils.HtmlEncode(Post.AuthorProfile != null ? Post.AuthorProfile.DisplayName : Post.Author) %></a></span>
             <span class="post-category"><%=CategoryLinks(", ") %></span>
         </div>
     </header>
