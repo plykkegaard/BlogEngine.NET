@@ -19,11 +19,11 @@
 
     $scope.load = function () {
         dataService.getItems('/api/lookups')
-        .success(function (data) {
-            angular.copy(data, $scope.lookups);
+        .then(function (response) {
+            angular.copy(response.data, $scope.lookups);
             $scope.loadTags();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error("Error loading lookups");
         });
     }
@@ -32,7 +32,8 @@
         var tagsUrl = '/api/tags';
         var p = { take: 0, skip: 0 };
         dataService.getItems(tagsUrl, p)
-        .success(function (data) {
+        .then(function (response) {
+            var data = response.data;
             $scope.allTags = [];
             for (var i = 0; i < data.length; i++) {
                 $scope.allTags[i] = (data[i].TagName);
@@ -45,7 +46,7 @@
                 $scope.selectedAuthor = selectedOption($scope.lookups.AuthorList, UserVars.Name);
             }
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.errorLoadingTags);
         });
     }
@@ -54,7 +55,8 @@
         spinOn();
         var url = '/api/posts/' + $scope.id;
         dataService.getItems(url)
-        .success(function (data) {
+        .then(function (response) {
+            var data = response.data;
             angular.copy(data, $scope.post);
             // check post categories in the list
             if ($scope.post.Categories != null) {
@@ -79,7 +81,7 @@
             $scope.loadCustom();
             spinOff();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.errorLoadingPosts);
             spinOff();
         });
@@ -115,18 +117,19 @@
 
         if ($scope.post.Id) {
             dataService.updateItem('api/posts/update/foo', $scope.post)
-           .success(function (data) {
+           .then(function (response) {
                $scope.refreshPost();
                $scope.updateCustom();
                toastr.success($rootScope.lbl.postUpdated);
                $("#modal-form").modal('hide');
                spinOff();
            })
-           .error(function () { toastr.error($rootScope.lbl.updateFailed); spinOff(); });
+           .catch(function () { toastr.error($rootScope.lbl.updateFailed); spinOff(); });
         }
         else {
             dataService.addItem('api/posts', $scope.post)
-           .success(function (data) {
+           .then(function (response) {
+               var data = response.data;
                toastr.success($rootScope.lbl.postAdded);
                if (data.Id) {
                    angular.copy(data, $scope.post);
@@ -136,7 +139,7 @@
                $("#modal-form").modal('hide');
                spinOff();
            })
-           .error(function () { toastr.error($rootScope.lbl.failedAddingNewPost); spinOff(); });
+           .catch(function () { toastr.error($rootScope.lbl.failedAddingNewPost); spinOff(); });
         }
     }
 
@@ -187,11 +190,11 @@
         spinOn();
         var url = '/api/posts/' + $scope.id;
         dataService.getItems(url)
-        .success(function (data) {
-            angular.copy(data, $scope.post);
+        .then(function (response) {
+            angular.copy(response.data, $scope.post);
             spinOff();
         })
-        .error(function () {
+        .catch(function () {
             spinOff();
         });
     }
@@ -206,7 +209,8 @@
             return false;
         }
         dataService.addItem("/api/categories", $scope.category)
-        .success(function (data) {
+        .then(function (response) {
+            var data = response.data;
             $scope.lookups.CategoryList.push(
                 {
                     OptionName: data.Title,
@@ -216,20 +220,21 @@
             );
             toastr.success($rootScope.lbl.categoryAdded);
             $("#modal-add-cat").modal('hide');
+            $scope.focusInput = false;
         })
-        .error(function () {
-            toastr.error(data);
+        .catch(function (response) {
+            toastr.error(response.data || $rootScope.lbl.errorAddingCategory);
         });
     }
 
     $scope.saveEditOptions = function () {
         dataService.updateItem('api/lookups/update/foo', $scope.lookups.PostOptions)
-           .success(function (data) {
+           .then(function (response) {
                toastr.success($rootScope.lbl.postUpdated);
                $("#myModal").modal('hide');
                spinOff();
            })
-           .error(function () { toastr.error($rootScope.lbl.updateFailed); });
+           .catch(function () { toastr.error($rootScope.lbl.updateFailed); });
     }
 
     $scope.load();
@@ -266,10 +271,10 @@
         $scope.customFields = [];
 
         dataService.getItems('/api/customfields', { filter: 'CustomType == "POST" && ObjectId == "' + $scope.post.Id + '"' })
-        .success(function (data) {
-            angular.copy(data, $scope.customFields);
+        .then(function (response) {
+            angular.copy(response.data, $scope.customFields);
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.errorLoadingCustomFields);
         });
     }
@@ -302,10 +307,10 @@
             $scope.customFields[i].ObjectId = $scope.post.Id;
         }
         dataService.updateItem("/api/customfields", $scope.customFields)
-        .success(function (data) {
+        .then(function (response) {
             spinOff();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.updateFailed);
             spinOff();
         });
@@ -315,12 +320,12 @@
         $scope.profileCustomFields = [];
 
         dataService.getItems('/api/customfields', { filter: 'CustomType == "PROFILE"' })
-        .success(function (data) {
-            angular.copy(data, $scope.profileCustomFields);
+        .then(function (response) {
+            angular.copy(response.data, $scope.profileCustomFields);
             $scope.twitterItem = findCustomItem("Twitter");
             $scope.facebookItem = findCustomItem("Facebook");
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.errorLoadingCustomFields);
         });
     }
