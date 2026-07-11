@@ -11,8 +11,8 @@
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="item-image">
-                                    <img ng-if="!package.PackageUrl" ng-src="{{package.IconUrl}}" alt="Package image" />
-                                    <a ng-if="package.PackageUrl" href="{{package.PackageUrl}}" target="_blank"><img class="pkg-img" ng-src="{{package.IconUrl}}" alt="Package image" /></a>
+                                    <img ng-if="!package.PackageUrl && package.IconUrl && package.IconUrl != '{}'" ng-src="{{package.IconUrl}}" alt="Package image" />
+                                    <a ng-if="package.PackageUrl && package.IconUrl && package.IconUrl != '{}'" href="{{package.PackageUrl}}" target="_blank"><img class="pkg-img" ng-src="{{package.IconUrl}}" alt="Package image" /></a>
                                 </div>
                             </div>
                             <div class="col-md-9">
@@ -70,8 +70,8 @@
                     <div class="item-details-left">
                         <div class="item-img-box">
                             <span>
-                                <img ng-if="item.IconUrl === ''" src="../Content/images/blog/pkg.png" />
-                                <img ng-if="item.IconUrl != ''" ng-src="{{item.IconUrl}}" />
+                                <img ng-if="item.IconUrl === '' || item.IconUrl === '{}'" src="../Content/images/blog/pkg.png" />
+                                <img ng-if="item.IconUrl != '' && item.IconUrl != '{}'" ng-src="{{item.IconUrl}}" />
                             </span>
                         </div>
                         <div class="item-buttons">
