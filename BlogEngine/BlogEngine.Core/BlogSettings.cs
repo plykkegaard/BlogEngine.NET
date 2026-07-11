@@ -65,10 +65,7 @@
         private static readonly object SyncRoot = new object();
 
         /// <summary>
-        /// The timeout in milliseconds for a remote download. Default is 30 seconds.
-        /// </summary>
-        /// <summary>
-        /// The timeout in milliseconds for a remote download. Default is 30 seconds.
+        /// Gets or sets the timeout in milliseconds for a remote download.
         /// </summary>
         /// <remarks>
         /// This field stores the configured timeout duration for remote file downloads.
@@ -1452,13 +1449,18 @@
         public string TimeZoneId { get; set; }
 
         /// <summary>
-        /// Converts time passed from client into UTC time
+        /// Converts a local date and time from the client into Coordinated Universal Time (UTC).
         /// </summary>
-        /// <param name="localTime">ToUtc</param>
-        /// <returns>Server time</returns>
+        /// <param name="localTime">The local time to convert. If omitted or empty, the current UTC time is returned.</param>
+        /// <returns>The converted UTC date and time.</returns>
+        /// <remarks>
+        /// This method uses the blog's configured time zone identifier to translate client-local time values into UTC.
+        /// If no value is supplied, the method returns the current UTC time. The input value is normalized to an
+        /// unspecified kind before conversion so the operation is consistent across the application.
+        /// </remarks>
         public DateTime ToUtc(DateTime ? localTime = null)
         {
-            if(localTime == null || localTime == new DateTime()) // no time sent in, use "now"
+            if(localTime == null || localTime == new DateTime(1, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)) // no time sent in, use "now"
                 return DateTime.UtcNow;
 
             var zone = string.IsNullOrEmpty(Instance.TimeZoneId) ? "UTC" : Instance.TimeZoneId;
@@ -1469,14 +1471,18 @@
         }
 
         /// <summary>
-        /// Converts time saved to the storage as UTC 
-        /// into local user time offset by timezone
+        /// Converts a UTC date and time into the blog's configured local time zone.
         /// </summary>
-        /// <param name="serverTime">FromUtc</param>
-        /// <returns>Client time</returns>
+        /// <param name="serverTime">The UTC time to convert. If omitted or empty, the current UTC time is used.</param>
+        /// <returns>The converted local date and time.</returns>
+        /// <remarks>
+        /// This method converts storage values from UTC into the configured time zone for the current blog instance.
+        /// If no value is supplied, the current UTC time is used. The input value is normalized to an unspecified kind
+        /// before conversion so the operation is consistent with other time handling in the application.
+        /// </remarks>
         public DateTime FromUtc(DateTime ? serverTime = null)
         {
-            if (serverTime == null || serverTime == new DateTime())
+            if (serverTime == null || serverTime == new DateTime(1, 1, 1, 0, 0, 0, DateTimeKind.Unspecified))
                 serverTime = DateTime.UtcNow;
 
             var zone = string.IsNullOrEmpty(Instance.TimeZoneId) ? "UTC" : Instance.TimeZoneId;
@@ -1611,16 +1617,20 @@
         /// </returns>
         public string Version()
         {
-            return version ?? (version = this.GetType().Assembly.GetName().Version.ToString());
+            return version ?? (version = typeof(BlogSettings).Assembly.GetName().Version.ToString());
         }
 
         #endregion
 
         #region Custom front page
         /// <summary>
-        /// When file with name "FrontPage.aspx" or "FrontPage.cshtml"
-        /// exists in the blog root, use it as custom front page
+        /// Gets the custom front page file name for the current blog instance if one is configured.
         /// </summary>
+        /// <value>The front page file name, such as "FrontPage.cshtml" or "FrontPage.aspx", when present.</value>
+        /// <remarks>
+        /// This property checks the blog root for a custom front page file and caches the resolved value for a short period.
+        /// The value is resolved from either a Razor or ASPX front page file and is only considered for the primary blog instance.
+        /// </remarks>
         public static string CustomFrontPage
         {
             get
@@ -1643,6 +1653,15 @@
                 return Blog.CurrentInstance.Cache[cacheKey].ToString();
             }
         }
+
+        /// <summary>
+        /// Resolves the custom front page file name used by the primary blog instance, if any.
+        /// </summary>
+        /// <returns>The file name of the custom front page when it exists; otherwise, an empty string.</returns>
+        /// <remarks>
+        /// This helper checks the blog root for a Razor front page file first and then falls back to an ASPX file.
+        /// The lookup is only performed for the primary blog instance, which is the only context where a custom front page is applied.
+        /// </remarks>
         static string GetCustomFrontPage()
         {
             if (Blog.CurrentInstance.IsPrimary)
@@ -1827,38 +1846,98 @@
 
         #region "ErrorPage Title"
         /// <summary>
-        ///     Gets or sets the Title Of Error Page.
+        /// Gets or sets the title shown on the error page.
         /// </summary>
-        /// <value>The Title Error Page.</value>
-
+        /// <value>The title text for the error page.</value>
+        /// <remarks>
+        /// This value is displayed to users when an application error occurs and should provide a clear, user-friendly description
+        /// of the failure state. It can be customized to match the branding or messaging style of the blog.
+        /// </remarks>
         public string ErrorTitle { get; set; }
 
         #endregion
 
         #region "ErrorPage Body"
         /// <summary>
-        ///     Gets or sets the Body Of Error Page.
+        /// Gets or sets the body text shown on the error page.
         /// </summary>
-        /// <value>The Body Error Page.</value>
+        /// <value>The body content for the error page.</value>
+        /// <remarks>
+        /// This value is displayed as the main content of the error page and can be used to explain the problem or provide
+        /// guidance to visitors when an unexpected error occurs.
+        /// </remarks>
         public string ErrorText { get; set; }
 
         #endregion
 
         #region EditorOptions
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the post editor shows the slug option.
+        /// </summary>
+        /// <remarks>
+        /// When enabled, the editor exposes the slug field so authors can customize the URL-friendly post identifier.
+        /// </remarks>
         public bool PostOptionsSlug { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the post editor shows the description option.
+        /// </summary>
+        /// <remarks>
+        /// When enabled, the editor exposes the post description field for additional metadata and excerpt content.
+        /// </remarks>
         public bool PostOptionsDescription { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the post editor shows custom field options.
+        /// </summary>
+        /// <remarks>
+        /// When enabled, the editor exposes support for custom metadata fields that can be attached to a post.
+        /// </remarks>
         public bool PostOptionsCustomFields { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the page editor shows the slug option.
+        /// </summary>
+        /// <remarks>
+        /// When enabled, the editor exposes the URL slug field for custom pages so authors can tailor the page address.
+        /// </remarks>
         public bool PageOptionsSlug { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the page editor shows the description option.
+        /// </summary>
+        /// <remarks>
+        /// When enabled, the editor exposes the description field for page metadata and summary text.
+        /// </remarks>
         public bool PageOptionsDescription { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the page editor shows custom field options.
+        /// </summary>
+        /// <remarks>
+        /// When enabled, the editor exposes custom field support for pages so additional metadata can be managed.
+        /// </remarks>
         public bool PageOptionsCustomFields { get; set; }
 
         #endregion
 
         #region Legacy
 
+        /// <summary>
+        /// Specifies the moderation mode used by the blog.
+        /// </summary>
+        /// <remarks>
+        /// This enum defines the available moderation strategies for comments and other review workflows.
+        /// </remarks>
         public enum Moderation { Manual, Auto, Disqus }
+
+        /// <summary>
+        /// Gets the effective moderation mode for the blog.
+        /// </summary>
+        /// <remarks>
+        /// The current implementation always returns the automatic moderation mode for backward compatibility.
+        /// </remarks>
         public Moderation ModerationType { get { return Moderation.Auto; } }
 
         #endregion
