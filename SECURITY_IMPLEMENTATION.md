@@ -224,18 +224,337 @@ This prevents attackers from learning which specific checks failed.
 										└──────────────────────┘
 ```
 
+---
+
+# Security Headers Implementation
+
+**Version:** 3.4.0.0  
+**Date:** 2025-01-XX  
+**Status:** ✅ Implemented & Tested
+
+## Overview
+
+BlogEngine.NET now includes modern HTTP security headers to protect against common web vulnerabilities including Cross-Site Scripting (XSS), clickjacking, MIME-sniffing attacks, and information leakage through referrer headers.
+
+## Security Headers
+
+### 1. Content-Security-Policy (CSP)
+
+**Purpose:** Prevents XSS attacks by controlling which scripts can be executed on the page.
+
+**Default Value:** `script-src 'self'`
+
+**Protection:**
+- Only allows scripts from the same origin (blocks inline scripts and external CDNs by default)
+- Prevents execution of injected malicious scripts
+- Mitigates XSS attack surface significantly
+
+**Configuration Example:**
+```xml
+<securityHeaders 
+    enableContentSecurityPolicy="true" 
+    contentSecurityPolicy="script-src 'self'" />
+```
+
+**Advanced Configuration:**
+```xml
+<!-- Allow specific CDNs -->
+<securityHeaders 
+    contentSecurityPolicy="script-src 'self' https://cdn.jsdelivr.net https://ajax.microsoft.com" />
+
+<!-- Allow inline scripts (not recommended) -->
+<securityHeaders 
+    contentSecurityPolicy="script-src 'self' 'unsafe-inline'" />
+```
+
+### 2. X-Frame-Options
+
+**Purpose:** Prevents clickjacking attacks by controlling whether the page can be embedded in iframes.
+
+**Default Value:** `DENY`
+
+**Protection:**
+- Prevents any domain from framing the content
+- Blocks UI redress attacks where attackers trick users into clicking hidden elements
+- Protects against clickjacking, likejacking, and cursorjacking
+
+**Configuration Example:**
+```xml
+<securityHeaders 
+    enableXFrameOptions="true" 
+    xFrameOptions="DENY" />
+```
+
+**Alternative Values:**
+- `DENY` - No domain can frame the content (recommended)
+- `SAMEORIGIN` - Only same origin can frame the content
+
+### 3. X-Content-Type-Options
+
+**Purpose:** Prevents browsers from MIME-sniffing a response away from the declared content-type.
+
+**Default Value:** `nosniff` (always on when enabled)
+
+**Protection:**
+- Prevents drive-by download attacks
+- Stops browsers from interpreting files as a different MIME type than declared
+- Reduces risk of malicious file execution
+
+**Configuration Example:**
+```xml
+<securityHeaders 
+    enableXContentTypeOptions="true" />
+```
+
+### 4. Referrer-Policy
+
+**Purpose:** Controls how much referrer information should be included with requests.
+
+**Default Value:** `strict-origin-when-cross-origin`
+
+**Protection:**
+- Prevents sensitive information leakage through URL parameters
+- Protects user privacy by limiting referrer data sent to third parties
+- Balances security with functionality (maintains analytics capabilities)
+
+**Behavior:**
+- **Same-origin requests:** Full URL sent (including path and query string)
+- **Cross-origin HTTPS → HTTPS:** Only origin sent (no path/query)
+- **HTTPS → HTTP:** No referrer sent (prevents downgrade leakage)
+
+**Configuration Example:**
+```xml
+<securityHeaders 
+    enableReferrerPolicy="true" 
+    referrerPolicy="strict-origin-when-cross-origin" />
+```
+
+**Alternative Values:**
+- `no-referrer` - Never send referrer (most private)
+- `same-origin` - Send referrer only for same-origin requests
+- `strict-origin` - Send only origin, no referrer on HTTPS → HTTP downgrade
+- `no-referrer-when-downgrade` - Send full referrer unless downgrade occurs
+
+## Implementation Architecture
+
+### HttpModule Pattern
+
+**Component:** `SecurityHeadersModule.cs`
+
+All security headers are applied via a single HttpModule that hooks into the ASP.NET request pipeline:
+
+```csharp
+public sealed class SecurityHeadersModule : IHttpModule
+{
+    public void Init(HttpApplication context)
+    {
+        context.EndRequest += OnEndRequest;
+    }
+
+    private static void OnEndRequest(object sender, EventArgs e)
+    {
+        // Add security headers to response based on configuration
+    }
+}
+```
+
+**Pipeline Integration:**
+- Registered in `web.config` under `<httpModules>`
+- Executes on every request via `EndRequest` event
+- Headers added before response is sent to client
+- Safe header addition (checks for existing headers)
+
+### Configuration Section
+
+**Component:** `SecurityHeadersSection.cs`
+
+Type-safe configuration class reads settings from `web.config`:
+
+```csharp
+public class SecurityHeadersSection : ConfigurationSection
+{
+    [ConfigurationProperty("enableContentSecurityPolicy", DefaultValue = true)]
+    public bool EnableContentSecurityPolicy { get; set; }
+
+    [ConfigurationProperty("contentSecurityPolicy", DefaultValue = "script-src 'self'")]
+    public string ContentSecurityPolicy { get; set; }
+
+    // Additional properties for other headers...
+}
+```
+
+**Location:** `Web.Config` → `BlogEngine/securityHeaders`
+
+### Default Configuration
+
+```xml
+<BlogEngine>
+  <securityHeaders 
+    enableContentSecurityPolicy="true" 
+    contentSecurityPolicy="script-src 'self'" 
+    enableXFrameOptions="true" 
+    xFrameOptions="DENY" 
+    enableXContentTypeOptions="true" 
+    enableReferrerPolicy="true" 
+    referrerPolicy="strict-origin-when-cross-origin" />
+</BlogEngine>
+```
+
+## Testing & Validation
+
+### Unit Tests
+
+**Location:** `BlogEngine.Tests/Security/SecurityHeadersModuleTests.cs`
+
+Comprehensive test coverage includes:
+- Default configuration values validation
+- Property setters for all headers
+- Enable/disable toggle functionality
+- IHttpModule interface implementation
+- Configuration read/write operations
+
+### Manual Verification
+
+**Using Browser Developer Tools:**
+
+1. Open Developer Tools (F12)
+2. Navigate to the Network tab
+3. Load any page on the blog
+4. Click the request and view Response Headers
+5. Verify presence of:
+   - `Content-Security-Policy`
+   - `X-Frame-Options`
+   - `X-Content-Type-Options`
+   - `Referrer-Policy`
+
+**Using curl:**
+
+```bash
+curl -I https://yourblog.com
+
+# Expected output includes:
+# Content-Security-Policy: script-src 'self'
+# X-Frame-Options: DENY
+# X-Content-Type-Options: nosniff
+# Referrer-Policy: strict-origin-when-cross-origin
+```
+
+### Security Scanning Tools
+
+- **Mozilla Observatory:** https://observatory.mozilla.org
+- **Security Headers:** https://securityheaders.com
+- **CSP Evaluator:** https://csp-evaluator.withgoogle.com
+
+## Troubleshooting
+
+### CSP Blocking Legitimate Scripts
+
+**Symptom:** Console shows CSP violations for scripts that should work.
+
+**Solutions:**
+1. Add specific CDN domains to `contentSecurityPolicy`:
+   ```xml
+   contentSecurityPolicy="script-src 'self' https://trusted-cdn.com"
+   ```
+2. Temporarily use report-only mode to identify issues without blocking
+3. Review and whitelist necessary external scripts
+
+### Embedded Content Not Loading
+
+**Symptom:** Videos, social media embeds, or iframes don't display.
+
+**Solution:** Adjust X-Frame-Options if embedding is required:
+```xml
+xFrameOptions="SAMEORIGIN"
+```
+Or disable for specific routes (requires custom logic).
+
+### Analytics/Tracking Issues
+
+**Symptom:** Referrer data not reaching analytics platforms.
+
+**Solution:** Use a less restrictive referrer policy:
+```xml
+referrerPolicy="no-referrer-when-downgrade"
+```
+
+## Maintenance & Customization
+
+### Disabling Specific Headers
+
+To disable any header, set its `enable` property to `false`:
+
+```xml
+<securityHeaders 
+    enableContentSecurityPolicy="false" 
+    enableXFrameOptions="true" 
+    enableXContentTypeOptions="true" 
+    enableReferrerPolicy="true" />
+```
+
+### Environment-Specific Configuration
+
+Use web.config transforms for different environments:
+
+**Web.Debug.config:**
+```xml
+<securityHeaders 
+    contentSecurityPolicy="script-src 'self' 'unsafe-inline'" 
+    xdt:Transform="SetAttributes" />
+```
+
+**Web.Release.config:**
+```xml
+<securityHeaders 
+    contentSecurityPolicy="script-src 'self'" 
+    xdt:Transform="SetAttributes" />
+```
+
+### Adding Additional Security Headers
+
+To add more headers (e.g., `Strict-Transport-Security`):
+
+1. Add properties to `SecurityHeadersSection.cs`
+2. Update `SecurityHeadersModule.OnEndRequest` method
+3. Add configuration attributes in `web.config`
+4. Add corresponding unit tests
+
+## Compliance & Standards
+
+This implementation addresses:
+
+- **OWASP Top 10:** A05:2021 - Security Misconfiguration
+- **OWASP ASVS:** V14.4 - HTTP Security Headers
+- **CWE-693:** Protection Mechanism Failure
+- **CWE-1021:** Improper Restriction of Rendered UI Layers (Clickjacking)
+- **CWE-79:** Cross-site Scripting (XSS) mitigation through CSP
+- **Mozilla Web Security Guidelines**
+- **NIST Cybersecurity Framework**
+
+---
+
 ## Files Modified/Created
 
-### New Files
+### File Upload Security - New Files
 - `BlogEngine.Core/Services/Security/FileUploadSecuritySection.cs`
 - `BlogEngine.Core/Services/Security/MimeTypeDetector.cs`
 - `BlogEngine.Core/Services/Security/FileUploadValidator.cs`
 - `BlogEngine.Tests/Security/FileUploadValidatorTests.cs`
 
-### Modified Files
-- `BlogEngine.NET/Web.Config` (added configuration section)
+### File Upload Security - Modified Files
+- `BlogEngine.NET/Web.Config` (added fileUploadSecurity configuration section)
 - `BlogEngine.NET/AppCode/Api/UploadController.cs` (added validation)
 - `BlogEngine.Core/Helpers/Utils.cs` (added `LogSecurityEvent`)
+- `BlogEngine.Core/BlogEngine.Core.csproj` (added new source files)
+- `BlogEngine.Tests/BlogEngine.Tests.csproj` (added test file)
+
+### Security Headers - New Files
+- `BlogEngine.Core/Web/HttpModules/SecurityHeadersModule.cs`
+- `BlogEngine.Core/Web/HttpModules/SecurityHeadersSection.cs`
+- `BlogEngine.Tests/Security/SecurityHeadersModuleTests.cs`
+
+### Security Headers - Modified Files
+- `BlogEngine.NET/Web.Config` (added securityHeaders configuration section and module registration)
 - `BlogEngine.Core/BlogEngine.Core.csproj` (added new source files)
 - `BlogEngine.Tests/BlogEngine.Tests.csproj` (added test file)
 
@@ -267,7 +586,7 @@ This implementation addresses:
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 3.4.0.0 | 2025-01-XX | Initial security implementation |
+| 3.4.0.0 | 2025-01-XX | File upload security implementation + Security headers (CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy) |
 
 ---
 
