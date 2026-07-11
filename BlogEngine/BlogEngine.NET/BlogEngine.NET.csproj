@@ -797,6 +797,7 @@
     <Content Include="copilot-instructions.md" />
     <Content Include="Custom\Widgets\Syndication\widget.cshtml" />
     <Content Include="Custom\Themes\SimpleBlue\site.master" />
+    <Content Include="COMMENT_XSS_VERIFICATION_GUIDE.md" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <Content Include="Scripts\errors.json" />
     <Content Include="Scripts\angular.min.js.map" />
