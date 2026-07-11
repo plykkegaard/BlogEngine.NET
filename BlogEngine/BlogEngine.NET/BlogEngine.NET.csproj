@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
@@ -560,30 +560,30 @@
     <Content Include="Custom\Controls\Defaults\CommentView.ascx" />
     <Content Include="Custom\Controls\Defaults\PostView.ascx" />
     <Content Include="Custom\Media\sample.flv" />
-    <Content Include="Custom\Themes\SimpleBlog\Changelog.txt" />
-    <Content Include="Custom\Themes\SimpleBlog\CommentView.ascx" />
-    <Content Include="Custom\Themes\SimpleBlog\img\background.gif" />
-    <Content Include="Custom\Themes\SimpleBlog\img\blogengine.ico" />
-    <Content Include="Custom\Themes\SimpleBlog\img\BtnSearch.png" />
-    <Content Include="Custom\Themes\SimpleBlog\img\effect_1.png" />
-    <Content Include="Custom\Themes\SimpleBlog\img\effect_2.png" />
-    <Content Include="Custom\Themes\SimpleBlog\img\effect_3.png" />
-    <Content Include="Custom\Themes\SimpleBlog\img\header.png" />
-    <Content Include="Custom\Themes\SimpleBlog\img\nav.png" />
-    <Content Include="Custom\Themes\SimpleBlog\img\simpleblog.png" />
-    <Content Include="Custom\Themes\SimpleBlog\img\social.png" />
-    <Content Include="Custom\Themes\SimpleBlog\img\stripes.png" />
-    <Content Include="Custom\Themes\SimpleBlog\img\success.png" />
-    <Content Include="Custom\Themes\SimpleBlog\img\up.png" />
-    <Content Include="Custom\Themes\SimpleBlog\include\index.js" />
-    <Content Include="Custom\Themes\SimpleBlog\include\modernizr.js" />
-    <Content Include="Custom\Themes\SimpleBlog\include\paper.gif" />
-    <Content Include="Custom\Themes\SimpleBlog\include\styles.min.css" />
-    <Content Include="Custom\Themes\SimpleBlog\newsletter.html" />
-    <Content Include="Custom\Themes\SimpleBlog\PostView.ascx" />
-    <Content Include="Custom\Themes\SimpleBlog\ReadMe.txt" />
-    <Content Include="Custom\Themes\SimpleBlog\theme.xml" />
-    <Content Include="Custom\Themes\SimpleBlog\WidgetContainer.ascx" />
+    <Content Include="Custom\Themes\SimpleBlue\Changelog.txt" />
+    <Content Include="Custom\Themes\SimpleBlue\CommentView.ascx" />
+    <Content Include="Custom\Themes\SimpleBlue\img\background.gif" />
+    <Content Include="Custom\Themes\SimpleBlue\img\blogengine.ico" />
+    <Content Include="Custom\Themes\SimpleBlue\img\BtnSearch.png" />
+    <Content Include="Custom\Themes\SimpleBlue\img\effect_1.png" />
+    <Content Include="Custom\Themes\SimpleBlue\img\effect_2.png" />
+    <Content Include="Custom\Themes\SimpleBlue\img\effect_3.png" />
+    <Content Include="Custom\Themes\SimpleBlue\img\header.png" />
+    <Content Include="Custom\Themes\SimpleBlue\img\nav.png" />
+    <Content Include="Custom\Themes\SimpleBlue\img\SimpleBlue.png" />
+    <Content Include="Custom\Themes\SimpleBlue\img\social.png" />
+    <Content Include="Custom\Themes\SimpleBlue\img\stripes.png" />
+    <Content Include="Custom\Themes\SimpleBlue\img\success.png" />
+    <Content Include="Custom\Themes\SimpleBlue\img\up.png" />
+    <Content Include="Custom\Themes\SimpleBlue\include\index.js" />
+    <Content Include="Custom\Themes\SimpleBlue\include\modernizr.js" />
+    <Content Include="Custom\Themes\SimpleBlue\include\paper.gif" />
+    <Content Include="Custom\Themes\SimpleBlue\include\styles.min.css" />
+    <Content Include="Custom\Themes\SimpleBlue\newsletter.html" />
+    <Content Include="Custom\Themes\SimpleBlue\PostView.ascx" />
+    <Content Include="Custom\Themes\SimpleBlue\ReadMe.txt" />
+    <Content Include="Custom\Themes\SimpleBlue\theme.xml" />
+    <Content Include="Custom\Themes\SimpleBlue\WidgetContainer.ascx" />
     <Content Include="Custom\Themes\Standard-2017\CommentForm.ascx" />
     <Content Include="Custom\Themes\Standard-2017\CommentView.ascx" />
     <Content Include="Custom\Themes\Standard-2017\newsletter.html" />
@@ -796,7 +796,7 @@
     <Content Include="fonts\fontawesome-webfont.eot" />
     <Content Include="copilot-instructions.md" />
     <Content Include="Custom\Widgets\Syndication\widget.cshtml" />
-    <Content Include="Custom\Themes\SimpleBlog\site.master" />
+    <Content Include="Custom\Themes\SimpleBlue\site.master" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <Content Include="Scripts\errors.json" />
     <Content Include="Scripts\angular.min.js.map" />
@@ -2224,7 +2224,7 @@
     <Compile Include="contact.aspx.designer.cs">
       <DependentUpon>contact.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Custom\Themes\SimpleBlog\site.master.cs">
+    <Compile Include="Custom\Themes\SimpleBlue\site.master.cs">
       <DependentUpon>site.master</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
