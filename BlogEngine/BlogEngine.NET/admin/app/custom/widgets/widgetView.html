@@ -42,8 +42,8 @@
                         </div>
                     </div>
                     <div class="modal-widget-image">
-                        <img ng-if="!package.PackageUrl" ng-src="{{package.IconUrl}}" alt="Package image" />
-                        <a ng-if="package.PackageUrl" href="{{package.PackageUrl}}" target="_blank"> <img class="pkg-img" ng-src="{{package.IconUrl}}" alt="Package image" /> </a>
+                        <img ng-if="!package.PackageUrl && package.IconUrl && package.IconUrl != '{}'" ng-src="{{package.IconUrl}}" alt="Package image" />
+                        <a ng-if="package.PackageUrl && package.IconUrl && package.IconUrl != '{}'" href="{{package.PackageUrl}}" target="_blank"> <img class="pkg-img" ng-src="{{package.IconUrl}}" alt="Package image" /> </a>
                     </div>
                     <div class="modal-widget-review" ng-if="package.Extra != null">
                         <div class="panel panel-default">
