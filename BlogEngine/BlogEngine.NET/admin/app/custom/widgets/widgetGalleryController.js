@@ -1,4 +1,4 @@
-﻿angular.module('blogAdmin').controller('CustomWidgetGalleryController', ["$rootScope", "$scope", "$location", "$filter", "dataService", function ($rootScope, $scope, $location, $filter, dataService) {
+angular.module('blogAdmin').controller('CustomWidgetGalleryController', ["$rootScope", "$scope", "$location", "$filter", "dataService", function ($rootScope, $scope, $location, $filter, dataService) {
     $scope.items = [];
     $scope.customFields = [];
     $scope.editId = "";
@@ -15,7 +15,7 @@
     $scope.load = function () {
         spinOn();
         dataService.getItems('/api/packages', { take: 0, skip: 0, filter: $scope.fltr, order: 'LastUpdated desc' })
-        .success(function (data) {
+        .then(function (response) { var data = response.data;
             angular.copy(data, $scope.items);
             gridInit($scope, $filter);
             $scope.gridFilter('PackageType', 'Widget', 'pub');
@@ -26,7 +26,7 @@
             }
             spinOff();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.errorLoadingPackages);
             spinOff();
         });
@@ -34,12 +34,12 @@
 
     $scope.showInfo = function (id) {
         dataService.getItems('/api/packages/' + id)
-        .success(function (data) {
+        .then(function (response) { var data = response.data;
             angular.copy(data, $scope.package);
             $scope.selectedRating = $scope.package.Rating;
             $scope.removeEmptyReviews();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.errorLoadingPackages);
         });
         $("#modal-info").modal();
@@ -61,11 +61,11 @@
     $scope.installPackage = function (pkgId) {
         spinOn();
         dataService.updateItem("/api/packages/install/" + pkgId, pkgId)
-        .success(function (data) {
+        .then(function (response) { var data = response.data;
             toastr.success($rootScope.lbl.completed);
             $scope.load();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.failed);
             spinOff();
         });
@@ -74,11 +74,11 @@
     $scope.uninstallPackage = function (pkgId) {
         spinOn();
         dataService.updateItem("/api/packages/uninstall/" + pkgId, pkgId)
-        .success(function (data) {
+        .then(function (response) { var data = response.data;
             toastr.success($rootScope.lbl.completed);
             $scope.load();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.failed);
             spinOff();
         });
@@ -87,10 +87,10 @@
     $scope.upgradePackage = function (pkgId) {
         spinOn();
         dataService.updateItem("/api/packages/uninstall/" + pkgId, pkgId)
-        .success(function (data) {
+        .then(function (response) { var data = response.data;
             $scope.installPackage(pkgId);
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.failed);
             spinOff();
         });
