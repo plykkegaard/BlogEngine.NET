@@ -1,4 +1,4 @@
-﻿angular.module('blogAdmin').controller('PageEditorController', ["$rootScope", "$scope", "$location", "$filter", "$log", "dataService", function ($rootScope, $scope, $location, $filter, $log, dataService) {
+angular.module('blogAdmin').controller('PageEditorController', ["$rootScope", "$scope", "$location", "$filter", "$log", "dataService", function ($rootScope, $scope, $location, $filter, $log, dataService) {
     $scope.id = getFromQueryString('id');
     $scope.page = newPage;
     $scope.lookups = [];
@@ -12,7 +12,7 @@
     $scope.load = function () {
         var lookupsUrl = '/api/lookups';
         dataService.getItems(lookupsUrl)
-        .success(function (data) {
+        .then(function (response) { var data = response.data;
             angular.copy(data, $scope.lookups);
 
             $scope.lookups.PageList.unshift({ OptionName: '-- none --', OptionValue: 'none' });
@@ -25,7 +25,7 @@
                 $scope.selectedParent = selectedOption($scope.lookups.PageList, $scope.page.Parent.OptionValue);
             }
         })
-        .error(function () {
+        .catch(function () {
             toastr.error("Error loading lookups");
         });
     }
@@ -34,7 +34,7 @@
         spinOn();
         var url = '/api/pages/' + $scope.id;
         dataService.getItems(url)
-        .success(function (data) {
+        .then(function (response) { var data = response.data;
             angular.copy(data, $scope.page);
             // add "none" option
             if ($scope.page.Parent == null) {
@@ -50,7 +50,7 @@
             $scope.loadCustom();
             spinOff();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.errorLoadingPage);
             spinOff();
         });
@@ -75,21 +75,21 @@
 
         if ($scope.page.Id) {
             dataService.updateItem('/api/pages/update/foo', $scope.page)
-           .success(function (data) {
+           .then(function (response) { var data = response.data;
                $scope.updateCustom();
                $scope.load();
                toastr.success("Page updated");
                $("#modal-form").modal('hide');
                spinOff();
            })
-           .error(function () {
+           .catch(function () {
                toastr.error("Update failed");
                spinOff();
            });
         }
         else {
             dataService.addItem('/api/pages', $scope.page)
-           .success(function (data) {
+           .then(function (response) { var data = response.data;
                toastr.success("Page added");
                $log.log(data);
                if (data.Id) {
@@ -100,7 +100,7 @@
                $("#modal-form").modal('hide');
                spinOff();
            })
-           .error(function () {
+           .catch(function () {
                toastr.error("Failed adding new page");
                spinOff();
            });
@@ -112,7 +112,7 @@
         fd.append("file", files[0]);
 
         dataService.uploadFile("/api/upload?action=" + action, fd)
-        .success(function (data) {
+        .then(function (response) { var data = response.data;
             toastr.success($rootScope.lbl.uploaded);
             var editorHtml = editorGetHtml();
             if (action === "file" && IsImage(data)) {
@@ -128,7 +128,7 @@
                 }
             }
         })
-        .error(function () { toastr.error("Import failed"); });
+        .catch(function () { toastr.error("Import failed"); });
     }
 
     $scope.status = function () {
@@ -170,12 +170,12 @@
 
     $scope.saveEditOptions = function () {
         dataService.updateItem('api/lookups/update/foo', $scope.lookups.PageOptions)
-           .success(function (data) {
+           .then(function (response) { var data = response.data;
                toastr.success($rootScope.lbl.pageUpdated);
                $("#myModal").modal('hide');
                spinOff();
            })
-           .error(function () { toastr.error($rootScope.lbl.updateFailed); });
+           .catch(function () { toastr.error($rootScope.lbl.updateFailed); });
     }
 
     /* custom fields */
@@ -189,11 +189,11 @@
         $scope.customFields = [];
 
         dataService.getItems('/api/customfields', { filter: 'CustomType == "PAGE" && ObjectId == "' + $scope.page.Id + '"' })
-        .success(function (data) {
+        .then(function (response) { var data = response.data;
             angular.copy(data, $scope.customFields);
             spinOff();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.errorLoadingCustomFields);
             spinOff();
         });
@@ -227,10 +227,10 @@
             $scope.customFields[i].ObjectId = $scope.page.Id;
         }
         dataService.updateItem("/api/customfields", $scope.customFields)
-        .success(function (data) {
+        .then(function (response) { var data = response.data;
             spinOff();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.updateFailed);
             spinOff();
         });
