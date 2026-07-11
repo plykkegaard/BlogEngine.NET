@@ -24,8 +24,8 @@
                         </div>
                     </div>
                     <div class="modal-theme-image">
-                        <img ng-if="!package.PackageUrl" ng-src="{{package.IconUrl}}" alt="Package image" />
-                        <a ng-if="package.PackageUrl" href="{{package.PackageUrl}}" target="_blank"> <img class="pkg-img" ng-src="{{package.IconUrl}}" alt="Package image" /> </a>
+                        <img ng-if="!package.PackageUrl && package.IconUrl && package.IconUrl != '{}'" ng-src="{{package.IconUrl}}" alt="Package image" />
+                        <a ng-if="package.PackageUrl && package.IconUrl && package.IconUrl != '{}'" href="{{package.PackageUrl}}" target="_blank"> <img class="pkg-img" ng-src="{{package.IconUrl}}" alt="Package image" /> </a>
                     </div>
                     <div class="modal-theme-review" ng-if="package.Extra != null">
                         <div class="panel panel-default">
@@ -111,8 +111,8 @@
             <div data-ng-repeat="item in pagedItems[currentPage] | orderBy:sortingOrder:reverse" class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
                 <div id="pkg-{{item.Id}}" ng-class="(item.Id == activeTheme) ? 'theme-item theme-item-active' : 'theme-item'">
                     <div class="item-img">
-                        <img ng-if="item.IconUrl === ''" src="../Content/images/blog/pkg.png" />
-                        <img ng-if="item.IconUrl != ''" ng-src="{{item.IconUrl}}" />
+                        <img ng-if="item.IconUrl === '' || item.IconUrl === '{}'" src="../Content/images/blog/pkg.png" />
+                        <img ng-if="item.IconUrl != '' && item.IconUrl != '{}'" ng-src="{{item.IconUrl}}" />
                         <i class="item-active fa fa-check" ng-if="item.Id === activeTheme"></i>
                     </div>
                     <div class="item-info clear">
