@@ -560,6 +560,30 @@
     <Content Include="Custom\Controls\Defaults\CommentView.ascx" />
     <Content Include="Custom\Controls\Defaults\PostView.ascx" />
     <Content Include="Custom\Media\sample.flv" />
+    <Content Include="Custom\Themes\SimpleBlog\Changelog.txt" />
+    <Content Include="Custom\Themes\SimpleBlog\CommentView.ascx" />
+    <Content Include="Custom\Themes\SimpleBlog\img\background.gif" />
+    <Content Include="Custom\Themes\SimpleBlog\img\blogengine.ico" />
+    <Content Include="Custom\Themes\SimpleBlog\img\BtnSearch.png" />
+    <Content Include="Custom\Themes\SimpleBlog\img\effect_1.png" />
+    <Content Include="Custom\Themes\SimpleBlog\img\effect_2.png" />
+    <Content Include="Custom\Themes\SimpleBlog\img\effect_3.png" />
+    <Content Include="Custom\Themes\SimpleBlog\img\header.png" />
+    <Content Include="Custom\Themes\SimpleBlog\img\nav.png" />
+    <Content Include="Custom\Themes\SimpleBlog\img\simpleblog.png" />
+    <Content Include="Custom\Themes\SimpleBlog\img\social.png" />
+    <Content Include="Custom\Themes\SimpleBlog\img\stripes.png" />
+    <Content Include="Custom\Themes\SimpleBlog\img\success.png" />
+    <Content Include="Custom\Themes\SimpleBlog\img\up.png" />
+    <Content Include="Custom\Themes\SimpleBlog\include\index.js" />
+    <Content Include="Custom\Themes\SimpleBlog\include\modernizr.js" />
+    <Content Include="Custom\Themes\SimpleBlog\include\paper.gif" />
+    <Content Include="Custom\Themes\SimpleBlog\include\styles.min.css" />
+    <Content Include="Custom\Themes\SimpleBlog\newsletter.html" />
+    <Content Include="Custom\Themes\SimpleBlog\PostView.ascx" />
+    <Content Include="Custom\Themes\SimpleBlog\ReadMe.txt" />
+    <Content Include="Custom\Themes\SimpleBlog\theme.xml" />
+    <Content Include="Custom\Themes\SimpleBlog\WidgetContainer.ascx" />
     <Content Include="Custom\Themes\Standard-2017\CommentForm.ascx" />
     <Content Include="Custom\Themes\Standard-2017\CommentView.ascx" />
     <Content Include="Custom\Themes\Standard-2017\newsletter.html" />
@@ -625,6 +649,7 @@
     <Content Include="Custom\Widgets\PostList\widget.xml" />
     <Content Include="Custom\Widgets\Search\screenshot.png" />
     <Content Include="Custom\Widgets\Search\widget.xml" />
+    <Content Include="Custom\Widgets\Syndication\widget.xml" />
     <Content Include="Custom\Widgets\TagCloud\screenshot.png" />
     <Content Include="Custom\Widgets\TagCloud\widget.xml" />
     <Content Include="Custom\Widgets\TextBox\screenshot.png" />
@@ -770,6 +795,8 @@
     <Content Include="fonts\fontawesome-webfont.ttf" />
     <Content Include="fonts\fontawesome-webfont.eot" />
     <Content Include="copilot-instructions.md" />
+    <Content Include="Custom\Widgets\Syndication\widget.cshtml" />
+    <Content Include="Custom\Themes\SimpleBlog\site.master" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <Content Include="Scripts\errors.json" />
     <Content Include="Scripts\angular.min.js.map" />
@@ -1653,6 +1680,8 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
     <Content Include="Web.sitemap" />
+    <Content Include="XSS_TEST_CASES.md" />
+    <Content Include="XSS_IMPLEMENTATION_SUMMARY.md" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Account\account.css" />
@@ -2194,6 +2223,10 @@
     </Compile>
     <Compile Include="contact.aspx.designer.cs">
       <DependentUpon>contact.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Custom\Themes\SimpleBlog\site.master.cs">
+      <DependentUpon>site.master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Custom\Widgets\CategoryList\CategoryList.cs" />
     <Compile Include="Custom\Widgets\Common.cs" />
