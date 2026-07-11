@@ -320,6 +320,8 @@
     <Compile Include="Web\HttpHandlers\TrackbackHandler.cs" />
     <Compile Include="Web\HttpModules\CompressionModule.cs" />
     <Compile Include="Web\HttpModules\ReferrerModule.cs" />
+    <Compile Include="Web\HttpModules\SecurityHeadersModule.cs" />
+    <Compile Include="Web\HttpModules\SecurityHeadersSection.cs" />
     <Compile Include="Web\HttpModules\WwwSubDomainModule.cs" />
     <Compile Include="Web\HttpModules\UrlRewrite.cs" />
     <Compile Include="Web\Scripting\PageHeader.cs" />
