@@ -14,6 +14,13 @@
     /// <summary>
     /// Represents the configured settings for the blog engine.
     /// </summary>
+    /// <remarks>
+    /// This class holds configuration values loaded from the application
+    /// settings and provides runtime access to themes, compression options,
+    /// comment paging limits, and other behavioral flags used throughout the
+    /// BlogEngine. It follows a singleton pattern per blog instance so that
+    /// each hosted site can maintain its own independent configuration.
+    /// </remarks>
     public class BlogSettings
     {
         #region PRIVATE/PROTECTED/PUBLIC MEMBERS
@@ -60,10 +67,41 @@
         /// <summary>
         /// The timeout in milliseconds for a remote download. Default is 30 seconds.
         /// </summary>
+        /// <summary>
+        /// The timeout in milliseconds for a remote download. Default is 30 seconds.
+        /// </summary>
+        /// <remarks>
+        /// This field stores the configured timeout duration for remote file downloads.
+        /// If set to a negative value, the default timeout of 30000 milliseconds (30 seconds) will be used instead.
+        /// A value of 0 indicates unlimited time.
+        /// </remarks>
         private int remoteDownloadTimeout = defaultRemoteDownloadTimeout;
+
+        /// <summary>
+        /// The default timeout in milliseconds for remote downloads (30 seconds).
+        /// </summary>
+        /// <remarks>
+        /// This constant is used as the default timeout value when no explicit timeout is configured
+        /// or when an invalid negative value is provided.
+        /// </remarks>
         private const int defaultRemoteDownloadTimeout = 30000;
 
+        /// <summary>
+        /// The maximum size in bytes for remote files that can be downloaded by the server.
+        /// </summary>
+        /// <remarks>
+        /// This field stores the configured maximum file size. If set to a negative value,
+        /// the default maximum of 524288 bytes (512 KB) will be used instead.
+        /// </remarks>
         private int maxRemoteFileSize = defaultMaxRemoteFileSize;
+
+        /// <summary>
+        /// The default maximum remote file size in bytes (512 KB).
+        /// </summary>
+        /// <remarks>
+        /// This constant is used as the default value for remote file downloads when no explicit
+        /// maximum is configured or when an invalid negative value is provided.
+        /// </remarks>
         private const int defaultMaxRemoteFileSize = 524288;
 
         #endregion
@@ -74,15 +112,25 @@
         ///     Prevents a default instance of the <see cref = "BlogSettings" /> class from being created. 
         ///     Initializes a new instance of the <see cref = "BlogSettings" /> class.
         /// </summary>
+        /// <remarks>
+        /// This private constructor ensures that BlogSettings instances can only be created
+        /// internally through the static factory methods. It immediately loads the blog settings
+        /// for the current blog instance.
+        /// </remarks>
         private BlogSettings()
         {
             this.Load(Blog.CurrentInstance);
         }
 
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="BlogSettings"/> class for a specific blog.
         /// </summary>
-        /// <param name="blog"></param>
+        /// <param name="blog">The blog instance to load settings for.</param>
+        /// <remarks>
+        /// This private constructor is used internally by the singleton factory methods to create
+        /// new BlogSettings instances. It immediately loads all configured settings from the blog's
+        /// settings provider into this instance.
+        /// </remarks>
         private BlogSettings(Blog blog)
         {
             this.Load(blog);
@@ -95,6 +143,8 @@
         /// </summary>
         /// <value>A singleton instance of the <see cref = "BlogSettings" /> class.</value>
         /// <remarks>
+        /// Returns the settings singleton for the currently active blog instance. The singleton is created on first access
+        /// and cached for reuse. This property provides the primary access point for retrieving blog settings in the application.
         /// </remarks>
         public static BlogSettings Instance
         {
@@ -107,6 +157,16 @@
         /// <summary>
         /// Returns the settings for the requested blog instance.
         /// </summary>
+        /// <param name="blog">The blog instance to retrieve settings for.</param>
+        /// <remarks>
+        /// This static factory method retrieves or creates the singleton settings instance for a specific blog.
+        /// The method uses thread-safe double-checked locking to ensure that only one instance is created per blog,
+        /// even in multi-threaded scenarios. Settings are loaded from the blog's settings provider upon creation.
+        /// </remarks>
+        /// <returns>
+        /// The BlogSettings singleton instance for the specified blog. The same instance will be returned for
+        /// subsequent calls with the same blog instance.
+        /// </returns>
         public static BlogSettings GetInstanceSettings(Blog blog)
         {
             BlogSettings blogSettings;
@@ -128,10 +188,23 @@
             return blogSettings;
         }
 
+        /// <summary>
+        /// Cached indicator of whether the current theme is a Razor theme.
+        /// </summary>
+        /// <remarks>
+        /// This nullable boolean field caches the result of theme type detection to avoid repeated
+        /// file system checks. A null value indicates the check has not yet been performed.
+        /// </remarks>
         private bool? _isRazorTheme;
         /// <summary>
-        /// Gets whether Theme is a razor theme.
+        /// Gets whether the current theme is a Razor theme.
         /// </summary>
+        /// <remarks>
+        /// This property checks the configured theme to determine if it uses Razor view engine syntax
+        /// (site.cshtml) rather than traditional ASPX syntax. The result is cached to minimize file system
+        /// access for repeated checks. Use this property to determine which view engine to use when rendering
+        /// theme content.
+        /// </remarks>
         public bool IsRazorTheme
         {
             get
@@ -144,8 +217,17 @@
         }
 
         /// <summary>
-        /// Determines if themeName is a razor theme.
+        /// Determines if a theme with the specified name is a Razor theme.
         /// </summary>
+        /// <param name="themeName">The name of the theme directory to check.</param>
+        /// <remarks>
+        /// This static method checks whether a theme uses the Razor view engine by looking for the presence
+        /// of a site.cshtml file in the theme directory. This is useful for determining how to properly render
+        /// the theme without requiring an instance of BlogSettings.
+        /// </remarks>
+        /// <returns>
+        /// True if the theme contains a site.cshtml file indicating it is a Razor theme; otherwise, false.
+        /// </returns>
         public static bool IsThemeRazor(string themeName)
         {
             string path = HostingEnvironment.MapPath($"~/Custom/Themes/{themeName}/site.cshtml");
@@ -153,10 +235,21 @@
         }
 
         /// <summary>
-        /// Takes into account factors such as if there is a theme override of if
-        /// the theme is a Razor theme and returns the actual theme folder name
-        /// for the current HTTP request.
+        /// Gets the effective theme folder name accounting for theme overrides and Razor theme compatibility.
         /// </summary>
+        /// <param name="themeOverride">An optional theme name that overrides the configured theme. If provided, this theme will be used instead.</param>
+        /// <remarks>
+        /// This method determines which theme folder should actually be used by taking into account:
+        /// (1) Whether a theme override is specified for this request
+        /// (2) Whether the effective theme is a Razor theme (which requires the RazorHost wrapper)
+        /// (3) The configured default theme for the blog
+        /// 
+        /// When a theme is a Razor theme, the method returns "RazorHost" as a compatibility wrapper.
+        /// Otherwise, it returns the actual theme folder name.
+        /// </remarks>
+        /// <returns>
+        /// The actual theme folder to use, either "RazorHost" for Razor-based themes or the theme name for ASPX themes.
+        /// </returns>
         public string GetThemeWithAdjustments(string themeOverride)
         {
             string theme = this.Theme;
@@ -176,7 +269,9 @@
         /// </summary>
         /// <value>A brief synopsis of the blog content.</value>
         /// <remarks>
-        ///     This value is also used for the description meta tag.
+        ///     This value is also used for the description meta tag in the HTML head section,
+        ///     making it important for search engine optimization (SEO). The description should
+        ///     be concise and accurately summarize the blog's purpose and content.
         /// </remarks>
         public string Description { get; set; }
 
@@ -188,6 +283,11 @@
         ///     Gets or sets a value indicating if HTTP compression is enabled.
         /// </summary>
         /// <value><b>true</b> if compression is enabled, otherwise returns <b>false</b>.</value>
+        /// <remarks>
+        /// HTTP compression reduces bandwidth usage by compressing response content using GZIP.
+        /// This setting is automatically disabled on Mono platforms due to compatibility issues.
+        /// Enabling compression can significantly improve page load times for end users.
+        /// </remarks>
         public bool EnableHttpCompression
         {
             get
@@ -209,6 +309,11 @@
         ///     Gets or sets a value indicating if referral tracking is enabled.
         /// </summary>
         /// <value><b>true</b> if referral tracking is enabled, otherwise returns <b>false</b>.</value>
+        /// <remarks>
+        /// When enabled, the blog tracks and logs the referrer sources that bring visitors to the site.
+        /// This information is used to understand traffic patterns and visitor sources. Combined with
+        /// NumberOfReferrerDays, this setting controls how referrer data is collected and retained.
+        /// </remarks>
         public bool EnableReferrerTracking { get; set; }
 
         #endregion
@@ -218,6 +323,12 @@
         /// <summary>
         ///     Gets or sets a value indicating the number of days that referrer information should be stored.
         /// </summary>
+        /// <remarks>
+        /// This setting determines the retention period for referrer tracking data. Once a referrer record
+        /// exceeds this age, it may be removed during cleanup operations. This helps manage storage space while
+        /// still maintaining a reasonable historical view of traffic sources. Works in conjunction with
+        /// EnableReferrerTracking to control referrer analytics.
+        /// </remarks>
         public int NumberOfReferrerDays { get; set; }
 
         #endregion
@@ -228,6 +339,11 @@
         ///     Gets or sets a value indicating if related posts are displayed.
         /// </summary>
         /// <value><b>true</b> if related posts are displayed, otherwise returns <b>false</b>.</value>
+        /// <remarks>
+        /// When enabled, the blog displays posts related to the current post based on shared categories or tags.
+        /// This feature helps increase engagement by suggesting relevant content to readers and can improve
+        /// time spent on site and click-through rates.
+        /// </remarks>
         public bool EnableRelatedPosts { get; set; }
 
         #endregion
@@ -235,8 +351,13 @@
         #region AlternateFeedUrl
 
         /// <summary>
-        ///     Gets or sets the FeedBurner user name.
+        ///     Gets or sets the alternate feed URL.
         /// </summary>
+        /// <remarks>
+        /// This setting allows configuration of an alternate feed service URL, commonly used to integrate
+        /// with feed distribution services like FeedBurner. When specified, feed requests may be redirected
+        /// to this URL to provide additional analytics and feed management capabilities.
+        /// </remarks>
         public string AlternateFeedUrl { get; set; }
 
         #endregion
@@ -244,8 +365,13 @@
         #region FeedAuthor
 
         /// <summary>
-        /// RSS feed author
+        /// Gets or sets the author name used in RSS feed entries.
         /// </summary>
+        /// <remarks>
+        /// This setting specifies the author name to be included in the RSS syndication feed metadata.
+        /// It's displayed in feed readers to identify the blog's author. Leave empty to use the default
+        /// blog author name configured elsewhere in the system.
+        /// </remarks>
         public string FeedAuthor { get; set; }
 
         #endregion
@@ -255,6 +381,11 @@
         /// <summary>
         ///     Gets or sets whether or not to time stamp post links.
         /// </summary>
+        /// <remarks>
+        /// When enabled, post URLs will include timestamps or other temporal information,
+        /// which can be useful for URL generation and organizational purposes. This affects
+        /// how post links are constructed and displayed throughout the blog.
+        /// </remarks>
         public bool TimeStampPostLinks { get; set; }
 
         #endregion
@@ -265,6 +396,11 @@
         ///     Gets or sets the name of the blog.
         /// </summary>
         /// <value>The title of the blog.</value>
+        /// <remarks>
+        /// This is the primary title/name of the blog, displayed in page headers and feed metadata.
+        /// It serves as the blog's primary identifier and is used extensively throughout the user interface
+        /// and in search engine optimization (SEO) elements.
+        /// </remarks>
         public string Name { get; set; }
 
         #endregion
@@ -272,9 +408,14 @@
         #region PostsPerPage
 
         /// <summary>
-        ///     Gets or sets the number of posts to show an each page.
+        ///     Gets or sets the number of posts to show on each page.
         /// </summary>
-        /// <value>The number of posts to show an each page.</value>
+        /// <value>The number of posts to show on each page.</value>
+        /// <remarks>
+        /// This setting controls pagination in post listings. It determines how many posts are displayed
+        /// on archive pages, category pages, and tag pages. Affects both the blog homepage and filtered views.
+        /// Lower values require more page navigation while higher values may impact page load performance.
+        /// </remarks>
         public int PostsPerPage { get; set; }
 
         #endregion
@@ -285,6 +426,11 @@
         ///     Gets or sets a value indicating if live preview of post is displayed.
         /// </summary>
         /// <value><b>true</b> if live previews are displayed, otherwise returns <b>false</b>.</value>
+        /// <remarks>
+        /// When enabled, the post editor displays a live preview of post content as the author types,
+        /// allowing real-time preview of formatting and markup rendering without needing to publish or save.
+        /// This improves the authoring experience and helps catch formatting issues before publication.
+        /// </remarks>
         public bool ShowLivePreview { get; set; }
 
         #endregion
@@ -292,9 +438,14 @@
         #region EnableRating
 
         /// <summary>
-        ///     Gets or sets a value indicating if live preview of post is displayed.
+        ///     Gets or sets a value indicating if post and comment ratings are enabled.
         /// </summary>
-        /// <value><b>true</b> if live previews are displayed, otherwise returns <b>false</b>.</value>
+        /// <value><b>true</b> if post/comment ratings are enabled, otherwise returns <b>false</b>.</value>
+        /// <remarks>
+        /// When enabled, visitors can rate posts and comments using a rating widget (typically 1-5 stars).
+        /// This provides feedback on content quality and helps surface popular content. Rating data can be
+        /// used for analytics and to identify the most valuable content.
+        /// </remarks>
         public bool EnableRating { get; set; }
 
         #endregion
@@ -304,6 +455,11 @@
         /// <summary>
         ///     Gets or sets a value indicating if the full post is displayed in lists or only the description/excerpt.
         /// </summary>
+        /// <remarks>
+        /// When enabled, post listings display the complete post content. When disabled, only the post description
+        /// or excerpt is shown, with a "Read more" link to the full post. This affects user experience and can impact
+        /// page load times. The number of characters displayed can be controlled via DescriptionCharacters.
+        /// </remarks>
         public bool ShowDescriptionInPostList { get; set; }
 
         #endregion
@@ -311,8 +467,13 @@
         #region DescriptionCharacters
 
         /// <summary>
-        ///     Gets or sets a value indicating how many characters should be shown of the description
+        ///     Gets or sets a value indicating how many characters should be shown of the description.
         /// </summary>
+        /// <remarks>
+        /// This setting controls the maximum length of post descriptions displayed in list views.
+        /// It only applies when ShowDescriptionInPostList is enabled. Text exceeding this character count
+        /// will be truncated with an ellipsis (...) or a "Read more" link, depending on theme implementation.
+        /// </remarks>
         public int DescriptionCharacters { get; set; }
 
         #endregion
@@ -322,6 +483,11 @@
         /// <summary>
         ///     Gets or sets a value indicating if the full post is displayed in lists by tag/category or only the description/excerpt.
         /// </summary>
+        /// <remarks>
+        /// This setting specifically controls description display behavior for post listings filtered by tag or category.
+        /// When enabled, full post content is shown; when disabled, only excerpts are displayed. This may be configured
+        /// differently from the general ShowDescriptionInPostList to provide different user experience for filtered views.
+        /// </remarks>
         public bool ShowDescriptionInPostListForPostsByTagOrCategory { get; set; }
 
         #endregion
@@ -331,6 +497,11 @@
         /// <summary>
         ///     Gets or sets a value indicating how many characters should be shown of the description when posts are shown by tag or category.
         /// </summary>
+        /// <remarks>
+        /// This setting controls excerpt length specifically for tag and category listing pages.
+        /// It allows independent configuration from the general DescriptionCharacters setting,
+        /// enabling different excerpt lengths for filtered views versus the main post listing.
+        /// </remarks>
         public int DescriptionCharactersForPostsByTagOrCategory { get; set; }
 
         #endregion
@@ -338,8 +509,13 @@
         #region Enclosure support
 
         /// <summary>
-        ///     Enable enclosures for RSS feeds
+        ///     Gets or sets a value indicating whether to enable enclosures for RSS feeds.
         /// </summary>
+        /// <remarks>
+        /// When enabled, RSS feed entries can include enclosures (typically audio or video files).
+        /// Enclosures are used for podcast distribution and multimedia content syndication.
+        /// This setting must be enabled for readers to properly handle podcast content in feeds.
+        /// </remarks>
         public bool EnableEnclosures { get; set; }
 
         #endregion
@@ -347,8 +523,13 @@
         #region Tags Export
 
         /// <summary>
-        ///     Enable exporting of tags in the RSS syndication feed.
+        ///     Gets or sets a value indicating whether to enable exporting of tags in RSS feeds.
         /// </summary>
+        /// <remarks>
+        /// When enabled, RSS feed entries include tag information using the category element.
+        /// This allows feed readers and aggregators to understand and organize post content by topic.
+        /// Disabling this can reduce feed size slightly but removes valuable metadata from syndication.
+        /// </remarks>
         public bool EnableTagExport { get; set; }
 
         #endregion
@@ -449,9 +630,14 @@
         #region CompressWebResource
 
         /// <summary>
-        ///     Gets or sets a value indicating whether to compress WebResource.axd
+        ///     Gets or sets a value indicating whether to compress WebResource.axd responses.
         /// </summary>
-        /// <value><c>true</c> if [compress web resource]; otherwise, <c>false</c>.</value>
+        /// <value><c>true</c> if WebResource.axd responses should be compressed; otherwise, <c>false</c>.</value>
+        /// <remarks>
+        /// WebResource.axd is an ASP.NET handler that serves embedded resources (scripts, styles). Compressing these
+        /// responses can reduce bandwidth usage. This setting works in conjunction with EnableHttpCompression but allows
+        /// independent control over WebResource compression specifically.
+        /// </remarks>
         public bool CompressWebResource { get; set; }
 
         #endregion
@@ -459,8 +645,13 @@
         #region EnableOptimization
 
         /// <summary>
-        ///     DO NOT USE: no longer needed and will be removed in later versions
+        ///     Gets or sets a value indicating whether general optimization features are enabled.
         /// </summary>
+        /// <remarks>
+        /// This property is deprecated and no longer actively used. It is maintained for backward compatibility
+        /// with existing configurations but will be removed in a future version. Individual optimization features
+        /// should be controlled through their specific settings instead.
+        /// </remarks>
         public bool EnableOptimization { get; set; }
 
         #endregion 
@@ -468,9 +659,14 @@
         #region UseBlogNameInPageTitles
 
         /// <summary>
-        ///     Gets or sets a value indicating if whitespace in stylesheets should be removed
+        ///     Gets or sets a value indicating if the blog name should be included in page titles.
         /// </summary>
-        /// <value><b>true</b> if whitespace is removed, otherwise returns <b>false</b>.</value>
+        /// <value><b>true</b> if blog name is included in page titles, otherwise returns <b>false</b>.</value>
+        /// <remarks>
+        /// When enabled, the blog name (configured in the Name property) is automatically appended to all page titles
+        /// throughout the site. This is useful for SEO and branding purposes, allowing visitors to immediately identify
+        /// which blog they're visiting. For example, a post title becomes "Post Title - Blog Name".
+        /// </remarks>
         public bool UseBlogNameInPageTitles { get; set; }
 
         #endregion
@@ -478,8 +674,13 @@
         #region RequireSSLMetaWeblogAPI;
 
         /// <summary>
-        ///     Gets or sets a value indicating whether [require SSL for MetaWeblogAPI connections].
+        ///     Gets or sets a value indicating whether SSL is required for MetaWeblog API connections.
         /// </summary>
+        /// <remarks>
+        /// The MetaWeblog API allows remote clients to publish posts to the blog programmatically. When this setting is enabled,
+        /// connections to the MetaWeblog API endpoint must use HTTPS instead of HTTP, improving security for remote publishing.
+        /// This should be enabled when allowing external tools or services to manage blog content.
+        /// </remarks>
         public bool RequireSslMetaWeblogApi { get; set; }
 
         #endregion
@@ -487,9 +688,14 @@
         #region EnableOpenSearch
 
         /// <summary>
-        ///     Gets or sets a value indicating if whitespace in stylesheets should be removed
+        ///     Gets or sets a value indicating if OpenSearch support is enabled for the blog.
         /// </summary>
-        /// <value><b>true</b> if whitespace is removed, otherwise returns <b>false</b>.</value>
+        /// <value><b>true</b> if OpenSearch is enabled, otherwise returns <b>false</b>.</value>
+        /// <remarks>
+        /// OpenSearch is a standard that allows web browsers and clients to discover and use search plugins from websites.
+        /// When enabled, the blog advertises its search capabilities via an OpenSearch description document, allowing users
+        /// to add the blog as a search engine in compatible browsers.
+        /// </remarks>
         public bool EnableOpenSearch { get; set; }
 
         #endregion
@@ -497,8 +703,13 @@
         #region TrackingScript
 
         /// <summary>
-        ///     Gets or sets the tracking script used to collect visitor data.
+        ///     Gets or sets the tracking script code to be included in the blog's HTML pages.
         /// </summary>
+        /// <remarks>
+        /// This property contains custom tracking or analytics script code (typically JavaScript) that will be injected
+        /// into blog pages. This is commonly used for services like Google Analytics or other web analytics platforms.
+        /// The script content is inserted into the HTML page header or footer, depending on theme implementation.
+        /// </remarks>
         public string TrackingScript { get; set; }
 
         #endregion
@@ -506,9 +717,13 @@
         #region ShowPostNavigation
 
         /// <summary>
-        ///     Gets or sets a value indicating whether or not to show the post navigation.
+        ///     Gets or sets a value indicating whether to display navigation links between posts.
         /// </summary>
-        /// <value><c>true</c> if [show post navigation]; otherwise, <c>false</c>.</value>
+        /// <value><c>true</c> if post navigation links should be displayed; otherwise, <c>false</c>.</value>
+        /// <remarks>
+        /// When enabled, navigation controls (previous/next post links) are displayed at the bottom of individual post pages,
+        /// allowing readers to easily browse through posts. This improves user experience and can increase page views and engagement.
+        /// </remarks>
         public bool ShowPostNavigation { get; set; }
 
         #endregion
@@ -516,9 +731,14 @@
         #region EnablePasswordReset
 
         /// <summary>
-        ///     Gets or sets a value indicating whether or not to enable password resets.
+        ///     Gets or sets a value indicating whether users can reset forgotten passwords.
         /// </summary>
-        /// <value><c>true</c> if [enable self registration]; otherwise, <c>false</c>.</value>
+        /// <value><c>true</c> if password reset functionality is enabled; otherwise, <c>false</c>.</value>
+        /// <remarks>
+        /// When enabled, users who forget their passwords can use a password reset mechanism to regain access to their accounts.
+        /// When disabled, administrators must manually reset user passwords. This is a security-critical feature that should be
+        /// carefully considered based on your site's security requirements and user support capabilities.
+        /// </remarks>
         public bool EnablePasswordReset
         {
             get { return enablePasswordResets; }
@@ -530,21 +750,36 @@
         #region SelfRegistration
 
         /// <summary>
-        ///     Gets or sets a value indicating whether or not to enable self registration.
+        ///     Gets or sets a value indicating whether users can register themselves for a blog account.
         /// </summary>
-        /// <value><c>true</c> if [enable self registration]; otherwise, <c>false</c>.</value>
+        /// <value><c>true</c> if self-registration is enabled; otherwise, <c>false</c>.</value>
+        /// <remarks>
+        /// When enabled, visitors can create their own user accounts without administrator intervention.
+        /// The new user's initial role is determined by SelfRegistrationInitialRole, and whether a new blog
+        /// is created is controlled by CreateBlogOnSelfRegistration. Disable this for private blogs requiring
+        /// administrator approval for new users.
+        /// </remarks>
         public bool EnableSelfRegistration { get; set; }
 
         /// <summary>
-        ///     Gets or sets the initial role assigned to users who self register.
+        ///     Gets or sets the initial role assigned to users who self-register.
         /// </summary>
-        /// <value>The role name.</value>
+        /// <value>The role name (e.g., "Editor", "Contributor").</value>
+        /// <remarks>
+        /// This property defines the permission level automatically granted to newly self-registered users.
+        /// Common values include Editor, Contributor, or other custom roles defined in your system.
+        /// Ensure the specified role exists and has appropriate permission levels for your security model.
+        /// </remarks>
         public string SelfRegistrationInitialRole { get; set; }
 
         /// <summary>
-        /// If we need to create blog for self-registered user
-        /// (instead of just add user to existing blog)
+        /// Gets or sets a value indicating whether a new blog should be created for self-registered users.
         /// </summary>
+        /// <remarks>
+        /// When true, each new self-registered user automatically receives their own blog in a multi-blog installation.
+        /// When false, new users are added to the existing blog as a regular user or contributor. This setting is most
+        /// relevant in multi-blog scenarios where each user may want their own publication space.
+        /// </remarks>
         public bool CreateBlogOnSelfRegistration { get; set; }
 
         #endregion
@@ -552,8 +787,15 @@
         #region HandleWwwSubdomain
 
         /// <summary>
-        ///     Gets or sets how to handle the www subdomain of the url (for SEO purposes).
+        ///     Gets or sets how to handle the www subdomain in blog URLs.
         /// </summary>
+        /// <remarks>
+        /// This setting controls URL canonicalization for SEO purposes. Typical values include:
+        /// - "RemoveWWW": Redirect all www URLs to non-www URLs
+        /// - "AddWWW": Redirect all non-www URLs to www URLs
+        /// - "None": Allow both www and non-www URLs
+        /// Consistent URL handling improves SEO by avoiding duplicate content penalties.
+        /// </remarks>
         public string HandleWwwSubdomain { get; set; }
 
         #endregion
@@ -561,9 +803,14 @@
         #region EnablePingBackSend
 
         /// <summary>
-        ///     Gets or sets a value indicating whether [enable ping back send].
+        ///     Gets or sets a value indicating whether to send pingbacks when posts link to other blogs.
         /// </summary>
-        /// <value><c>true</c> if [enable ping back send]; otherwise, <c>false</c>.</value>
+        /// <value><c>true</c> if pingback sending is enabled; otherwise, <c>false</c>.</value>
+        /// <remarks>
+        /// When enabled, the blog automatically sends pingbacks to other blogs when your posts contain links to them.
+        /// This is a form of blog-to-blog communication that notifies target blogs about incoming links. Disabling this
+        /// improves performance slightly but reduces discoverability in the blogging community.
+        /// </remarks>
         public bool EnablePingBackSend { get; set; }
 
         #endregion
@@ -571,11 +818,16 @@
         #region EnablePingBackReceive;
 
         /// <summary>
-        ///     Gets or sets a value indicating whether [enable ping back receive].
+        ///     Gets or sets a value indicating whether to accept pingbacks from other blogs.
         /// </summary>
         /// <value>
-        ///     <c>true</c> if [enable ping back receive]; otherwise, <c>false</c>.
+        ///     <c>true</c> if pingback receiving is enabled; otherwise, <c>false</c>.
         /// </value>
+        /// <remarks>
+        /// When enabled, other blogs can send pingbacks to notify your blog about incoming links.
+        /// Pingbacks appear as a form of trackback-like notification. Disabling this prevents unsolicited pingback spam.
+        /// If enabled, you should enable comments moderation to handle potential spam pingbacks.
+        /// </remarks>
         public bool EnablePingBackReceive { get; set; }
 
         #endregion
@@ -583,11 +835,16 @@
         #region EnableTrackBackSend;
 
         /// <summary>
-        ///     Gets or sets a value indicating whether [enable track back send].
+        ///     Gets or sets a value indicating whether to send trackbacks when posts link to other blogs.
         /// </summary>
         /// <value>
-        ///     <c>true</c> if [enable track back send]; otherwise, <c>false</c>.
+        ///     <c>true</c> if trackback sending is enabled; otherwise, <c>false</c>.
         /// </value>
+        /// <remarks>
+        /// Trackbacks are similar to pingbacks but use a different protocol. When enabled, trackbacks are sent to blogs
+        /// that your posts link to. This feature is less common than pingbacks in modern blogging but may be needed for
+        /// compatibility with older blog platforms.
+        /// </remarks>
         public bool EnableTrackBackSend { get; set; }
 
         #endregion
@@ -595,11 +852,16 @@
         #region EnableTrackBackReceive;
 
         /// <summary>
-        ///     Gets or sets a value indicating whether [enable track back receive].
+        ///     Gets or sets a value indicating whether to accept trackbacks from other blogs.
         /// </summary>
         /// <value>
-        ///     <c>true</c> if [enable track back receive]; otherwise, <c>false</c>.
+        ///     <c>true</c> if trackback receiving is enabled; otherwise, <c>false</c>.
         /// </value>
+        /// <remarks>
+        /// When enabled, other blogs can send trackbacks to notify your blog about incoming links.
+        /// Trackbacks appear as comments or special trackback entries on your posts. Disabling this prevents trackback spam.
+        /// If enabled, enable comments moderation to screen incoming trackbacks for inappropriate content.
+        /// </remarks>
         public bool EnableTrackBackReceive { get; set; }
 
         #endregion
@@ -607,9 +869,14 @@
         #region Email
 
         /// <summary>
-        ///     Gets or sets the e-mail address notifications are sent to.
+        ///     Gets or sets the email address where blog notifications and alerts are sent.
         /// </summary>
-        /// <value>The e-mail address notifications are sent to.</value>
+        /// <value>The email address for blog notifications.</value>
+        /// <remarks>
+        /// This is the primary contact email address for the blog. Notifications about new comments, moderation alerts,
+        /// contact form submissions, and other system events are sent to this address. This should be a valid, monitored
+        /// email address to ensure important notifications are received.
+        /// </remarks>
         public string Email { get; set; }
 
         #endregion
@@ -617,9 +884,14 @@
         #region SendMailOnComment
 
         /// <summary>
-        ///     Gets or sets a value indicating if an enail is sent when a comment is added to a post.
+        ///     Gets or sets a value indicating whether email notifications are sent when a comment is added to a post.
         /// </summary>
         /// <value><b>true</b> if email notification of new comments is enabled, otherwise returns <b>false</b>.</value>
+        /// <remarks>
+        /// When enabled, the blog sends an email to the configured Email address whenever a new comment is posted.
+        /// This allows blog administrators to receive immediate notifications about new reader feedback. For high-traffic blogs,
+        /// you may want to disable this to reduce email volume, or enable comments moderation to screen comments before notification.
+        /// </remarks>
         public bool SendMailOnComment { get; set; }
 
         #endregion
@@ -627,9 +899,14 @@
         #region SmtpPassword
 
         /// <summary>
-        ///     Gets or sets the password used to connect to the SMTP server.
+        ///     Gets or sets the password used to authenticate with the SMTP server.
         /// </summary>
-        /// <value>The password used to connect to the SMTP server.</value>
+        /// <value>The password for SMTP authentication.</value>
+        /// <remarks>
+        /// This is the password credential used when connecting to the SMTP server for sending emails.
+        /// Leave empty if the SMTP server doesn't require authentication. Store this securely, as it controls
+        /// access to your email sending capabilities. Consider using application-level password encryption.
+        /// </remarks>
         public string SmtpPassword { get; set; }
 
         #endregion
@@ -639,7 +916,13 @@
         /// <summary>
         ///     Gets or sets the DNS name or IP address of the SMTP server used to send notification emails.
         /// </summary>
-        /// <value>The DNS name or IP address of the SMTP server used to send notification emails.</value>
+        /// <value>The DNS name or IP address of the SMTP server.</value>
+        /// <remarks>
+        /// This is the mail server that the blog uses to send email notifications and other automated emails.
+        /// Common values include "smtp.gmail.com", "mail.yourdomain.com", or your hosting provider's mail server.
+        /// The port number can be configured separately via SmtpServerPort. Ensure the server is reachable from your
+        /// web server and firewall rules allow outbound SMTP connections.
+        /// </remarks>
         public string SmtpServer { get; set; }
 
         #endregion
@@ -647,9 +930,16 @@
         #region SmtpServerPort
 
         /// <summary>
-        ///     Gets or sets the DNS name or IP address of the SMTP server used to send notification emails.
+        ///     Gets or sets the port number on the SMTP server used to send notification emails.
         /// </summary>
-        /// <value>The DNS name or IP address of the SMTP server used to send notification emails.</value>
+        /// <value>The port number of the SMTP server.</value>
+        /// <remarks>
+        /// This specifies which port to connect to on the SMTP server. Common values are:
+        /// - 25 (standard unencrypted SMTP)
+        /// - 587 (SMTP with STARTTLS encryption)
+        /// - 465 (SMTP SSL encryption)
+        /// Port 587 with EnableSsl is the most common and recommended configuration for modern email servers.
+        /// </remarks>
         public int SmtpServerPort { get; set; }
 
         #endregion
@@ -657,9 +947,14 @@
         #region SmtpUsername
 
         /// <summary>
-        ///     Gets or sets the user name used to connect to the SMTP server.
+        ///     Gets or sets the user name used to authenticate with the SMTP server.
         /// </summary>
-        /// <value>The user name used to connect to the SMTP server.</value>
+        /// <value>The username for SMTP authentication.</value>
+        /// <remarks>
+        /// This is the username credential used when connecting to the SMTP server for authentication.
+        /// Leave empty if the SMTP server doesn't require authentication. This is often an email address
+        /// or service account name, depending on your SMTP server's authentication requirements.
+        /// </remarks>
         public string SmtpUserName { get; set; }
 
         #endregion
@@ -667,8 +962,13 @@
         #region EnableSsl
 
         /// <summary>
-        ///     Gets or sets a value indicating if SSL is enabled for sending e-mails
+        ///     Gets or sets a value indicating whether SSL/TLS encryption should be used for SMTP connections.
         /// </summary>
+        /// <remarks>
+        /// When enabled, SMTP communications are encrypted using SSL or STARTTLS protocols. This is strongly recommended
+        /// for security, especially if the SMTP server is hosted on a remote service or the internet. Modern mail servers
+        /// typically require this setting to be enabled. Set SmtpServerPort to 587 for STARTTLS or 465 for implicit SSL.
+        /// </remarks>
         public bool EnableSsl { get; set; }
 
         #endregion
@@ -676,9 +976,14 @@
         #region EmailSubjectPrefix
 
         /// <summary>
-        ///     Gets or sets the email subject prefix.
+        ///     Gets or sets a prefix that is prepended to the subject line of notification emails.
         /// </summary>
         /// <value>The email subject prefix.</value>
+        /// <remarks>
+        /// This prefix is automatically added to the beginning of email subjects for blog notifications.
+        /// For example, if the prefix is "[MyBlog]", a new comment notification might have the subject "[MyBlog] New comment on Post Title".
+        /// This helps recipients organize and filter emails by blog, which is useful in multi-blog scenarios or when multiple services send emails.
+        /// </remarks>
         public string EmailSubjectPrefix { get; set; }
 
         #endregion
@@ -686,11 +991,13 @@
         #region DaysCommentsAreEnabled
 
         /// <summary>
-        ///     Gets or sets the number of days that a post accepts comments.
+        ///     Gets or sets the number of days after publication that a post accepts comments.
         /// </summary>
         /// <value>The number of days that a post accepts comments.</value>
         /// <remarks>
-        ///     After this time period has expired, comments on a post are disabled.
+        ///     After this time period has elapsed since the post publication date, comments on the post are automatically
+        ///     disabled, preventing new comments from being added. Set to 0 or a very high number to effectively allow
+        ///     comments indefinitely. This helps manage comment spam and maintain control over older posts.
         /// </remarks>
         public int DaysCommentsAreEnabled { get; set; }
 
@@ -699,26 +1006,44 @@
         #region EnableCountryInComments
 
         /// <summary>
-        ///     Gets or sets a value indicating if dispay of the country of commenter is enabled.
+        ///     Gets or sets a value indicating whether the commenter's country should be displayed.
         /// </summary>
         /// <value><b>true</b> if commenter country display is enabled, otherwise returns <b>false</b>.</value>
+        /// <remarks>
+        /// When enabled, the blog attempts to determine and display the country of origin for commenters
+        /// (typically via IP geolocation). This information may be displayed alongside the comment or in
+        /// commenter profiles. Disable this for privacy-focused configurations.
+        /// </remarks>
         public bool EnableCountryInComments { get; set; }
 
         #endregion
 
         #region EnableWebsiteInComments
+
         /// <summary>
-        ///     Gets or sets a value indicating if display of the website of commenter is enabled
+        ///     Gets or sets a value indicating whether the commenter's website should be displayed.
         /// </summary>
+        /// <remarks>
+        /// When enabled, a commenter's website URL (if provided) is displayed alongside their comment,
+        /// either as plain text or a clickable link. This encourages community engagement and allows
+        /// commenters to promote their own content. Disable this to focus on comment content rather than
+        /// commenter promotion or for privacy reasons.
+        /// </remarks>
         public bool EnableWebsiteInComments { get; set; }
+
         #endregion
 
         #region IsCommentsEnabled
 
         /// <summary>
-        ///     Gets or sets a value indicating if comments are enabled for posts.
+        ///     Gets or sets a value indicating whether comments are enabled for new posts.
         /// </summary>
         /// <value><b>true</b> if comments can be made against a post, otherwise returns <b>false</b>.</value>
+        /// <remarks>
+        /// This global setting controls the default comment permission for newly created posts. Individual posts
+        /// can override this setting to enable or disable comments on a per-post basis. When disabled, all posts
+        /// will not accept comments unless specifically configured otherwise.
+        /// </remarks>
         public bool IsCommentsEnabled { get; set; }
 
         #endregion
@@ -726,9 +1051,14 @@
         #region IsCoCommentEnabled
 
         /// <summary>
-        ///     Only here so old themes won't break
+        ///     Gets or sets a value indicating whether CoComment support is enabled.
         /// </summary>
-        /// <value>false</value>
+        /// <value>Always returns false.</value>
+        /// <remarks>
+        /// This property is maintained for backward compatibility with older themes and should not be used
+        /// in new development. CoComment was a third-party service that is no longer active. This setting
+        /// will be removed in a future version.
+        /// </remarks>
         public bool IsCoCommentEnabled { get; set; }
 
         #endregion
@@ -736,9 +1066,14 @@
         #region Avatar
 
         /// <summary>
-        ///     Gets or sets a value indicating if Gravatars are enabled or not.
+        ///     Gets or sets the avatar/profile picture provider for commenters.
         /// </summary>
-        /// <value><b>true</b> if Gravatars are enabled, otherwise returns <b>false</b>.</value>
+        /// <value>The avatar provider name (typically "Gravatar" or similar).</value>
+        /// <remarks>
+        /// This setting specifies which service is used to display avatar images for commenters.
+        /// Common values include "Gravatar" for Gravatar avatars. When set, commenter avatars are automatically
+        /// fetched from the configured service. Disable by leaving empty to show no avatars in comments.
+        /// </remarks>
         public string Avatar { get; set; }
 
         #endregion
@@ -746,18 +1081,30 @@
         #region IsCommentNestingEnabled
 
         /// <summary>
-        ///     Gets or sets a value indicated if comments should be displayed as nested.
+        ///     Gets or sets a value indicating whether comments should be displayed as nested/threaded.
         /// </summary>
         /// <value><b>true</b> if comments should be displayed as nested, <b>false</b> for flat comments.</value>
+        /// <remarks>
+        /// When enabled, comments are displayed in a threaded format where replies to comments are indented
+        /// underneath their parent comment, creating a visual conversation thread. When disabled, all comments
+        /// are displayed in a flat, chronological list. Nested comments improve readability for discussions but
+        /// can make individual comments harder to find in large comment sections.
+        /// </remarks>
         public bool IsCommentNestingEnabled { get; set; }
 
         #endregion
 
         #region Trust authenticated users
 
-        ///<summary>
-        ///    If true comments from authenticated users always approved
-        ///</summary>
+        /// <summary>
+        ///     Gets or sets a value indicating whether comments from authenticated users are automatically approved.
+        /// </summary>
+        /// <remarks>
+        /// When enabled, comments submitted by authenticated/registered users bypass the moderation queue and are
+        /// automatically published. This streamlines the publishing process for trusted community members while still
+        /// moderating comments from anonymous visitors. This assumes authenticated users are more trustworthy than
+        /// anonymous commenters.
+        /// </remarks>
         public bool TrustAuthenticatedUsers { get; set; }
 
         #endregion
@@ -765,9 +1112,14 @@
         #region SecurityValidationKey
 
         /// <summary>
-        ///     Gets or sets the security validation key.
+        ///     Gets or sets the security validation key used for protecting form submissions and CSRF protection.
         /// </summary>
         /// <value>The security validation key.</value>
+        /// <remarks>
+        /// This key is used for various security purposes including CSRF (Cross-Site Request Forgery) token validation
+        /// and form submission verification. A random, unique value should be generated for each blog installation and
+        /// kept secret. Keep this value secure and consistent across server restarts.
+        /// </remarks>
         public string SecurityValidationKey { get; set; }
 
         #endregion
@@ -775,8 +1127,13 @@
         #region Comments per page
 
         /// <summary>
-        ///     Number of comments per page displayed in the comments admin section
+        ///     Gets or sets the number of comments to display per page in the comments admin section.
         /// </summary>
+        /// <remarks>
+        /// This setting controls pagination in the administrative comments management interface. Affects how many
+        /// comments are displayed per page when viewing/moderating comments. A minimum of 5 comments per page is enforced.
+        /// Higher values show more comments at once but may slow page loading, while lower values require more navigation.
+        /// </remarks>
         public int CommentsPerPage
         {
             get { return Math.Max(commentsPerPage, 5); }
@@ -788,62 +1145,105 @@
         #region Comment providers and moderation
 
         /// <summary>
-        /// Comments provider
+        /// Specifies which comment system provider is used for displaying and managing comments.
         /// </summary>
+        /// <remarks>
+        /// The blog supports multiple comment providers, allowing integration with third-party comment systems
+        /// or using the built-in BlogEngine comment system. Each provider handles comment display, storage, and
+        /// moderation differently.
+        /// </remarks>
         public enum CommentsBy
         {
             /// <summary>
-            ///     Internal BlogEngine comments
+            ///     Comments are managed by the internal BlogEngine comment system.
             /// </summary>
             BlogEngine = 0,
             /// <summary>
-            ///     Comments by Disqus
+            ///     Comments are managed by the external Disqus service.
             /// </summary>
             Disqus = 1,
             /// <summary>
-            ///     Comments by Facebook
+            ///     Comments are managed by the external Facebook Comments plugin.
             /// </summary>
             Facebook = 2
         }
 
         /// <summary>
-        ///     Gets or sets a value indicating comment provider
+        ///     Gets or sets which comment provider system is used for the blog.
         /// </summary>
+        /// <remarks>
+        /// This setting determines whether the blog uses its built-in comment system (BlogEngine),
+        /// or outsources comments to a third-party provider like Disqus or Facebook. When using external
+        /// providers, additional configuration (API keys, site IDs) may be required.
+        /// </remarks>
         public CommentsBy CommentProvider { get; set; }
 
         /// <summary>
-        ///     Gets or sets a value indicating if comments moderation is used for posts.
+        ///     Gets or sets a value indicating whether comment moderation is enabled for posts.
         /// </summary>
         /// <value><b>true</b> if comments are moderated for posts, otherwise returns <b>false</b>.</value>
+        /// <remarks>
+        /// When enabled, new comments must be approved by an administrator before they appear on the blog.
+        /// This helps prevent spam and inappropriate content from being published. Disable for immediate comment
+        /// publication, but this may result in more spam. Consider enabling with TrustAuthenticatedUsers for a balance.
+        /// </remarks>
         public bool EnableCommentsModeration { get; set; }
 
         /// <summary>
-        ///     Enables to report mistakes back to service
+        ///     Gets or sets whether the blog should report detected spam/moderation issues to external services.
         /// </summary>
+        /// <remarks>
+        /// When enabled, the blog may share information about detected spam or problematic comments with
+        /// external moderation services to help improve spam detection. This helps the service learn about
+        /// attack patterns and improve protection for all users.
+        /// </remarks>
         public bool CommentReportMistakes { get; set; }
 
         /// <summary>
-        ///     Short website name that used to identify Disqus account
+        ///     Gets or sets the short website name/shortname used to identify the Disqus account.
         /// </summary>
+        /// <remarks>
+        /// This property is only used when CommentProvider is set to Disqus. The shortname is the unique
+        /// identifier for your Disqus forum, configured in your Disqus account settings. Leave empty
+        /// if not using Disqus for comments.
+        /// </remarks>
         public string DisqusWebsiteName { get; set; }
 
         /// <summary>
-        ///     Development mode to test disqus on local host
+        ///     Gets or sets a value indicating whether Disqus development mode is enabled.
         /// </summary>
+        /// <remarks>
+        /// When enabled, allows testing Disqus integration on localhost during development.
+        /// Should be disabled on production sites. Only applies when using Disqus as the comment provider.
+        /// </remarks>
         public bool DisqusDevMode { get; set; }
 
         /// <summary>
-        ///     Allow also to add comments to the pages
+        ///     Gets or sets a value indicating whether Disqus comments are also added to static pages.
         /// </summary>
+        /// <remarks>
+        /// When enabled, Disqus comments are displayed on both blog posts and static pages.
+        /// When disabled, comments appear only on blog posts. Only applies when using Disqus as the comment provider.
+        /// </remarks>
         public bool DisqusAddCommentsToPages { get; set; }
 
         /// <summary>
-        /// Facebook application ID
+        /// Gets or sets the Facebook Application ID for the Facebook Comments plugin.
         /// </summary>
+        /// <remarks>
+        /// This is the App ID for your Facebook application, which is required when using Facebook Comments
+        /// as the comment provider. Obtain this from your Facebook App Dashboard. Leave empty if not using
+        /// Facebook Comments.
+        /// </remarks>
         public string FacebookAppId { get; set; }
+
         /// <summary>
-        /// Facebook language
+        /// Gets or sets the language code for the Facebook Comments plugin.
         /// </summary>
+        /// <remarks>
+        /// Specifies the language that the Facebook Comments interface should be displayed in.
+        /// Use standard language codes like "en_US", "fr_FR", etc. Only applies when using Facebook Comments.
+        /// </remarks>
         public string FacebookLanguage { get; set; }
 
         #endregion
@@ -851,9 +1251,14 @@
         #region BlogrollMaxLength
 
         /// <summary>
-        ///     Gets or sets the maximum number of characters that are displayed from a blog-roll retrieved post.
+        ///     Gets or sets the maximum number of characters displayed from a blogroll-sourced post.
         /// </summary>
         /// <value>The maximum number of characters to display.</value>
+        /// <remarks>
+        /// When aggregating blog content from external sources (blogroll), post excerpts are truncated to this length.
+        /// This prevents very long posts from overwhelming the aggregation display. Longer values show more content
+        /// context, while shorter values save screen space. Consider setting this relative to your blogroll display area.
+        /// </remarks>
         public int BlogrollMaxLength { get; set; }
 
         #endregion
@@ -1256,6 +1661,17 @@
 
         #region Load()
 
+        /// <summary>
+        /// Builds a dictionary mapping property names to PropertyInfo objects for all settings properties.
+        /// </summary>
+        /// <remarks>
+        /// This helper method constructs a case-insensitive dictionary of all public properties on the BlogSettings class.
+        /// This is used during settings loading and saving to efficiently look up properties by name without reflection overhead
+        /// on each access. The dictionary is case-insensitive to accommodate different casing in stored settings.
+        /// </remarks>
+        /// <returns>
+        /// A case-insensitive dictionary mapping property names to their corresponding PropertyInfo objects.
+        /// </returns>
         private IDictionary<String, System.Reflection.PropertyInfo> GetSettingsTypePropertyDict()
         {
             var settingsType = this.GetType();
@@ -1272,8 +1688,15 @@
         }
 
         /// <summary>
-        /// Initializes the singleton instance of the <see cref="BlogSettings"/> class.
+        /// Initializes the singleton instance of the <see cref="BlogSettings"/> class with configuration values from storage.
         /// </summary>
+        /// <param name="blog">The blog instance to load settings for.</param>
+        /// <remarks>
+        /// This private method is called during initialization to populate all settings properties with values
+        /// from the blog's persistent settings storage. It uses reflection to dynamically map stored setting names to
+        /// class properties, converting string values to appropriate types (including enums). Any errors during property
+        /// conversion are logged but do not prevent the rest of the settings from loading.
+        /// </remarks>
         private void Load(Blog blog)
         {
 
@@ -1324,8 +1747,13 @@
         #region OnChanged()
 
         /// <summary>
-        /// Occurs when the settings have been changed.
+        /// Occurs when the settings have been changed and notifies all registered event handlers.
         /// </summary>
+        /// <remarks>
+        /// This private method is called after settings have been saved to disk. It triggers the Changed event,
+        /// which allows the rest of the application to respond to configuration changes. Event handlers can use this
+        /// to invalidate caches, update runtime behavior, or perform other necessary updates when settings change.
+        /// </remarks>
         private static void OnChanged()
         {
             // Execute event handler
@@ -1340,8 +1768,14 @@
         #region Save()
 
         /// <summary>
-        /// Saves the settings to disk.
+        /// Persists the current settings to the blog's settings storage.
         /// </summary>
+        /// <remarks>
+        /// This method saves all public property values from this BlogSettings instance to persistent storage
+        /// using the blog's configured settings provider. String representations of all property values are
+        /// stored, with null and default values being saved as empty strings. After saving, the theme cache
+        /// is invalidated and the Changed event is raised to notify other components of the configuration update.
+        /// </remarks>
         public void Save()
         {
             var dic = new StringDictionary();
