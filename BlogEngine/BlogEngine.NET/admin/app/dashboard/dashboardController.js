@@ -1,4 +1,4 @@
-﻿angular.module('blogAdmin').controller('DashboardController', ["$rootScope", "$scope", "$location", "$log", "$filter", "dataService", function ($rootScope, $scope, $location, $log, $filter, dataService) {
+angular.module('blogAdmin').controller('DashboardController', ["$rootScope", "$scope", "$location", "$log", "$filter", "dataService", function ($rootScope, $scope, $location, $log, $filter, dataService) {
     $scope.vm = {};
     $scope.itemToPurge = {};
     $scope.news = [];
@@ -29,7 +29,7 @@
             "IsPublished": false
         }  
         dataService.addItem('api/posts', draft)
-        .success(function (data) {
+        .then(function (response) { var data = response.data;
             $scope.qd = angular.copy(newDraft);
             var dft = {
                 "IsChecked": false,
@@ -47,7 +47,7 @@
             $scope.vm.DraftPosts.push(dft);
             toastr.success($rootScope.lbl.postAdded);
         })
-        .error(function () { toastr.error($rootScope.lbl.failedAddingNewPost); });
+        .catch(function () { toastr.error($rootScope.lbl.failedAddingNewPost); });
     }
 
     $scope.openTrash = function () {
@@ -61,13 +61,13 @@
     }
     $scope.purgeLog = function () {
         dataService.updateItem('/api/logs/purgelog/file', $scope.itemToPurge)
-        .success(function (data) {
+        .then(function (response) { var data = response.data;
             $scope.vm.Logs = [];
             $("#modal-log-file").modal('hide');
             toastr.success($rootScope.lbl.purged);
             return false;
         })
-        .error(function (data) {
+        .catch(function (response) { var data = response.data;
             toastr.error($rootScope.lbl.errorPurging);
         });
     }
@@ -77,7 +77,7 @@
             $scope.itemToPurge = findInArray($scope.vm.Trash, "Id", id);
         }
         dataService.updateItem('/api/trash/purge/' + id, $scope.itemToPurge)
-        .success(function (data) {
+        .then(function (response) { var data = response.data;
             for (var i = 0; i < $scope.vm.Trash.length; i++)
             if ($scope.vm.Trash[i].Id === id) {
                 $scope.vm.Trash.splice(i, 1);
@@ -86,19 +86,19 @@
             toastr.success($rootScope.lbl.purged);
             return false;
         })
-        .error(function (data) {
+        .catch(function (response) { var data = response.data;
             toastr.error($rootScope.lbl.errorPurging);
         });
     }
     $scope.purgeAll = function () {
         dataService.updateItem('/api/trash/purgeall/all')
-        .success(function (data) {
+        .then(function (response) { var data = response.data;
             $scope.vm.Trash = [];
             $("#modal-trash").modal('hide');
             toastr.success($rootScope.lbl.purged);
             return false;
         })
-        .error(function (data) {
+        .catch(function (response) { var data = response.data;
             toastr.error($rootScope.lbl.errorPurging);
         });
     }
@@ -107,7 +107,7 @@
             $scope.itemToPurge = findInArray($scope.vm.Trash, "Id", id);
         }
         dataService.updateItem('/api/trash/restore/' + id, $scope.itemToPurge)
-        .success(function (data) {
+        .then(function (response) { var data = response.data;
             for (var i = 0; i < $scope.vm.Trash.length; i++)
             if ($scope.vm.Trash[i].Id === id) {
                 $scope.vm.Trash.splice(i, 1);
@@ -116,7 +116,7 @@
             toastr.success($rootScope.lbl.restored);
             return false;
         })
-        .error(function (data) {
+        .catch(function (response) { var data = response.data;
             toastr.error($rootScope.lbl.errorRestoring);
         });
     }
@@ -132,11 +132,11 @@
         $scope.loadNewsFeed();
 
         dataService.getItems('/api/dashboard')
-        .success(function (data) {
+        .then(function (response) { var data = response.data;
             angular.copy(data, $scope.vm);
             spinOff();
         })
-        .error(function (data) {
+        .catch(function (response) { var data = response.data;
             toastr.success($rootScope.lbl.errorGettingStats);
             spinOff();
         });
@@ -146,24 +146,24 @@
             return;
         }
         dataService.getItems('/api/packages', { take: 5, skip: 0 })
-        .success(function (data) {
+        .then(function (response) { var data = response.data;
             $scope.packages = [];
             angular.copy(data, $scope.packages);
             $scope.checkNewVersion();
             $('#gal-spinner').hide();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.errorLoadingPackages);
             $('#gal-spinner').hide();
         });
     }
     $scope.loadNewsFeed = function () {
         dataService.getItems('/api/newsfeed', { take: 5, skip: 0 })
-        .success(function (data) {
+        .then(function (response) { var data = response.data;
             angular.copy(data, $scope.news);
             $('#news-spinner').hide();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.errorLoadingPackages);
             $('#news-spinner').hide();
         });
