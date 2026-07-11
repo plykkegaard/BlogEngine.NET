@@ -34,6 +34,13 @@
         /// <summary>
         ///     Gets the body of the post. Important: use this instead of Post.Content.
         /// </summary>
+        /// <remarks>
+        /// The returned body content is processed for display (e.g., excerpt handling, path conversion).
+        /// Output encoding should be applied in the theme template (PostView.ascx) when rendering this property
+        /// to ensure XSS protection. The Body property itself does not encode the HTML content, as themes
+        /// may intentionally render formatted HTML. Always encode Post.Title, Post.Author, Post.Description,
+        /// and other user-facing metadata in the template layer.
+        /// </remarks>
         public string Body
         {
             get
@@ -268,8 +275,15 @@
         #region Methods
 
         /// <summary>
-        /// Displays the Post's categories seperated by the specified string.
+        /// Displays the Post's categories separated by the specified string.
         /// </summary>
+        /// <remarks>
+        /// Category titles returned in the generated links should be HTML-encoded when rendered in templates.
+        /// This method generates anchor tags with category URLs and titles. The output is already wrapped in
+        /// HTML tag structure but titles should be treated as potentially untrusted content and encoded
+        /// to prevent XSS attacks. Consider using Utils.HtmlEncode() or Server.HtmlEncode() when rendering
+        /// the output of this method.
+        /// </remarks>
         /// <param name="separator">
         /// The separator.
         /// </param>
@@ -283,7 +297,8 @@
             for (var i = 0; i < Post.Categories.Count; i++)
             {
                 Category c = Post.Categories[i];
-                keywords[i] = string.Format(CultureInfo.InvariantCulture, Link, c.RelativeOrAbsoluteLink, c.Title);
+                // Encode category title to prevent XSS attacks
+                keywords[i] = string.Format(CultureInfo.InvariantCulture, Link, c.RelativeOrAbsoluteLink, Utils.HtmlEncode(c.Title));
             }
 
             return string.Join(separator, keywords);
