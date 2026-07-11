@@ -4,7 +4,11 @@
         <div class="comment-content <%= Post.Author.Equals(Comment.Author, StringComparison.OrdinalIgnoreCase) ? " self" : "" %>">
             <%= Gravatar(48)%>
             <div class="comment-author">
-                <%= Comment.Website != null ? "<a href=\"" + Comment.Website + "\" rel=\"nofollow\" class=\"url fn\">" + Comment.Author + "</a>" : "<a class=\"fn\">" +Comment.Author + "</a>" %>
+                <% if (!string.IsNullOrEmpty(SafeWebsiteUrl)) { %>
+                    <a href="<%=SafeWebsiteUrl%>" rel="nofollow" class="url fn"><%=EncodedAuthor%></a>
+                <% } else { %>
+                    <span class="fn"><%=EncodedAuthor%></span>
+                <% } %>
             </div>
             <div class="comment-text">
                 <%= Text %>

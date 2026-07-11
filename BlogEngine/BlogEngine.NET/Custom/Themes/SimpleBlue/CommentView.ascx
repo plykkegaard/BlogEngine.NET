@@ -4,7 +4,11 @@
         <div class="float-left gravatar"><%= Gravatar(72)%></div>
         <div class="float-left comment-content">
             <div class="comment-header clearfix">
-                <%= Comment.Website != null ? "<a href=\"" + Comment.Website + "\" rel=\"nofollow\" class=\"url fn\">" + Comment.Author + "</a>" : "<span class=\"fn\">" +Comment.Author + "</span>" %>
+                <% if (!string.IsNullOrEmpty(SafeWebsiteUrl)) { %>
+                    <a href="<%=SafeWebsiteUrl%>" rel="nofollow" class="url fn"><%=EncodedAuthor%></a>
+                <% } else { %>
+                    <span class="fn"><%=EncodedAuthor%></span>
+                <% } %>
                 <a class="comment-datetime float-right"><%= Comment.DateCreated  %></a>
             </div>
             <p><%= Text %></p>
