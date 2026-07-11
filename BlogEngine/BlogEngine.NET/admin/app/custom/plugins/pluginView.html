@@ -11,8 +11,8 @@
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="item-image">
-                                    <img ng-if="!package.PackageUrl" ng-src="{{package.IconUrl}}" alt="Package image" />
-                                    <a ng-if="package.PackageUrl" href="{{package.PackageUrl}}" target="_blank"><img class="pkg-img" ng-src="{{package.IconUrl}}" alt="Package image" /></a>
+                                    <img ng-if="!package.PackageUrl && package.IconUrl && package.IconUrl != '{}'" ng-src="{{package.IconUrl}}" alt="Package image" />
+                                    <a ng-if="package.PackageUrl && package.IconUrl && package.IconUrl != '{}'" href="{{package.PackageUrl}}" target="_blank"><img class="pkg-img" ng-src="{{package.IconUrl}}" alt="Package image" /></a>
                                 </div>
                             </div>
                             <div class="col-md-9">
