@@ -109,7 +109,7 @@
             </div>
             <div class="col-sm-8 col-md-9 widget-zone-wrapper" id="w-zones">
                 <div class="widget-zone" ng-if="widgetZones.titles && widgetZones.titles.length > 0">
-                    <h4>Widget Zone <span>({{widgetZones.titles[0]}})</span></h4>
+                    <h4>Widget Zone <span>({{lbl[widgetZones.titles[0]] || widgetZones.titles[0]}})</span></h4>
                     <ul class="sortable widgets-list widgets-list-active" droppable="widgetZones.list1" ng-move="moveObject(from, to, fromList, toList)" ng-create="createObject(object, to, list)" id="list1">
                         <li ng-if="widgetZones.list1.length < 1" class="sortable-empty">Drag widget here</li>
                         <li class="ui-state-default" ng-repeat="item in widgetZones.list1 track by item.Id">
@@ -122,7 +122,7 @@
                     </ul>
                 </div>
                 <div class="widget-zone" ng-if="widgetZones.titles && widgetZones.titles.length > 1">
-                    <h4>Widget Zone <span>({{widgetZones.titles[1]}})</span></h4>
+                    <h4>Widget Zone <span>({{lbl[widgetZones.titles[1]] || widgetZones.titles[1]}})</span></h4>
                     <ul class="sortable widgets-list widgets-list-active" droppable="widgetZones.list2" ng-move="moveObject(from, to, fromList, toList)" ng-create="createObject(object, to, list)" id="list2">
                         <li ng-if="widgetZones.list2.length < 1" class="sortable-empty">Drag widget here</li>
                         <li class="ui-state-default" ng-repeat="item in widgetZones.list2 track by item.Id">
@@ -135,7 +135,7 @@
                     </ul>
                 </div>
                 <div class="widget-zone" ng-if="widgetZones.titles && widgetZones.titles.length > 2">
-                    <h4>Widget Zone <span>({{widgetZones.titles[2]}})</span></h4>
+                    <h4>Widget Zone <span>({{lbl[widgetZones.titles[2]] || widgetZones.titles[2]}})</span></h4>
                     <ul class="sortable widgets-list widgets-list-active" droppable="widgetZones.list3" ng-move="moveObject(from, to, fromList, toList)" ng-create="createObject(object, to, list)" id="list3">
                         <li ng-if="widgetZones.list3.length < 1" class="sortable-empty">Drag widget here</li>
                         <li class="ui-state-default" ng-repeat="item in widgetZones.list3 track by item.Id">
@@ -148,7 +148,7 @@
                     </ul>
                 </div>
                 <div class="widget-zone" ng-if="widgetZones.titles && widgetZones.titles.length > 3">
-                    <h4>Widget Zone <span>({{widgetZones.titles[3]}})</span></h4>
+                    <h4>Widget Zone <span>({{lbl[widgetZones.titles[3]] || widgetZones.titles[3]}})</span></h4>
                     <ul class="sortable widgets-list widgets-list-active" droppable="widgetZones.list4" ng-move="moveObject(from, to, fromList, toList)" ng-create="createObject(object, to, list)" id="list4">
                         <li ng-if="widgetZones.list4.length < 1" class="sortable-empty">Drag widget here</li>
                         <li class="ui-state-default" ng-repeat="item in widgetZones.list4 track by item.Id">
@@ -161,7 +161,7 @@
                     </ul>
                 </div>
                 <div class="widget-zone" ng-if="widgetZones.titles && widgetZones.titles.length > 4">
-                    <h4>Widget Zone <span>({{widgetZones.titles[4]}})</span></h4>
+                    <h4>Widget Zone <span>({{lbl[widgetZones.titles[4]] || widgetZones.titles[4]}})</span></h4>
                     <ul class="sortable widgets-list widgets-list-active" droppable="widgetZones.list5" ng-move="moveObject(from, to, fromList, toList)" ng-create="createObject(object, to, list)" id="list5">
                         <li ng-if="widgetZones.list5.length < 1" class="sortable-empty">Drag widget here</li>
                         <li class="ui-state-default" ng-repeat="item in widgetZones.list5 track by item.Id">
@@ -174,7 +174,7 @@
                     </ul>
                 </div>
                 <div class="widget-zone" ng-if="widgetZones.titles && widgetZones.titles.length > 5">
-                    <h4>Widget Zone <span>({{widgetZones.titles[5]}})</span></h4>
+                    <h4>Widget Zone <span>({{lbl[widgetZones.titles[5]] || widgetZones.titles[5]}})</span></h4>
                     <ul class="sortable widgets-list widgets-list-active" droppable="widgetZones.list6" ng-move="moveObject(from, to, fromList, toList)" ng-create="createObject(object, to, list)" id="list6">
                         <li ng-if="widgetZones.list6.length < 1" class="sortable-empty">Drag widget here</li>
                         <li class="ui-state-default" ng-repeat="item in widgetZones.list6 track by item.Id">
@@ -187,7 +187,7 @@
                     </ul>
                 </div>
                 <div class="widget-zone" ng-if="widgetZones.titles && widgetZones.titles.length > 6">
-                    <h4>Widget Zone <span>({{widgetZones.titles[6]}})</span></h4>
+                    <h4>Widget Zone <span>({{lbl[widgetZones.titles[6]] || widgetZones.titles[6]}})</span></h4>
                     <ul class="sortable widgets-list widgets-list-active" droppable="widgetZones.list7" ng-move="moveObject(from, to, fromList, toList)" ng-create="createObject(object, to, list)" id="list7">
                         <li ng-if="widgetZones.list7.length < 1" class="sortable-empty">Drag widget here</li>
                         <li class="ui-state-default" ng-repeat="item in widgetZones.list7 track by item.Id">
@@ -200,7 +200,7 @@
                     </ul>
                 </div>
                 <div class="widget-zone" ng-if="widgetZones.titles && widgetZones.titles.length > 7">
-                    <h4>Widget Zone <span>({{widgetZones.titles[7]}})</span></h4>
+                    <h4>Widget Zone <span>({{lbl[widgetZones.titles[7]] || widgetZones.titles[7]}})</span></h4>
                     <ul class="sortable widgets-list widgets-list-active" droppable="widgetZones.list8" ng-move="moveObject(from, to, fromList, toList)" ng-create="createObject(object, to, list)" id="list8">
                         <li ng-if="widgetZones.list8.length < 1" class="sortable-empty">Drag widget here</li>
                         <li class="ui-state-default" ng-repeat="item in widgetZones.list8 track by item.Id">
@@ -213,7 +213,7 @@
                     </ul>
                 </div>
                 <div class="widget-zone" ng-if="widgetZones.titles && widgetZones.titles.length > 8">
-                    <h4>Widget Zone <span>({{widgetZones.titles[8]}})</span></h4>
+                    <h4>Widget Zone <span>({{lbl[widgetZones.titles[8]] || widgetZones.titles[8]}})</span></h4>
                     <ul class="sortable widgets-list widgets-list-active" droppable="widgetZones.list9" ng-move="moveObject(from, to, fromList, toList)" ng-create="createObject(object, to, list)" id="list9">
                         <li ng-if="widgetZones.list9.length < 1" class="sortable-empty">Drag widget here</li>
                         <li class="ui-state-default" ng-repeat="item in widgetZones.list9 track by item.Id">
@@ -226,7 +226,7 @@
                     </ul>
                 </div>
                 <div class="widget-zone" ng-if="widgetZones.titles && widgetZones.titles.length > 9">
-                    <h4>Widget Zone <span>({{widgetZones.titles[9]}})</span></h4>
+                    <h4>Widget Zone <span>({{lbl[widgetZones.titles[9]] || widgetZones.titles[9]}})</span></h4>
                     <ul class="sortable widgets-list widgets-list-active" droppable="widgetZones.list10" ng-move="moveObject(from, to, fromList, toList)" ng-create="createObject(object, to, list)" id="list10">
                         <li ng-if="widgetZones.list10.length < 1" class="sortable-empty">Drag widget here</li>
                         <li class="ui-state-default" ng-repeat="item in widgetZones.list10 track by item.Id">
