@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -2350,7 +2350,7 @@
   <data name="typeAndEnter" xml:space="preserve">
     <value>Napište a stiskněte Enter</value>
   </data>
-<data name="fontSize" xml:space="preserve">
+  <data name="fontSize" xml:space="preserve">
     <value>Velikost písma</value>
   </data>
   <data name="heading" xml:space="preserve">
@@ -2475,5 +2475,8 @@
   </data>
   <data name="addToPost" xml:space="preserve">
     <value>Přidat k příspěvku</value>
+  </data>
+  <data name="be_WIDGET_ZONE" xml:space="preserve">
+    <value>Side Bar</value>
   </data>
 </root>

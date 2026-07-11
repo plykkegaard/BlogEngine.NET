@@ -826,6 +826,15 @@ namespace Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Side Bara.
+        /// </summary>
+        internal static string be_WIDGET_ZONE {
+            get {
+                return ResourceManager.GetString("be_WIDGET_ZONE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Birthday.
         /// </summary>
         internal static string birthday {

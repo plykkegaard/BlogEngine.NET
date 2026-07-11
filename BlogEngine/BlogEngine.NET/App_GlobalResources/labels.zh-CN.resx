@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -3332,5 +3332,8 @@
   <data name="youHaveNoWrittenAnyPages" xml:space="preserve">
     <value>您还没有写过任何页面. 请使用右边菜单新建页面</value>
     <comment>You have not written any pages so far. To write a new page use the link in the right side menu.</comment>
+  </data>
+  <data name="be_WIDGET_ZONE" xml:space="preserve">
+    <value>Side Bar</value>
   </data>
 </root>

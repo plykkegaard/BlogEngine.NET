@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -574,5 +574,8 @@
   </data>
   <data name="youAlreadyRated" xml:space="preserve">
     <value>Вие вече оценихте тази публикация</value>
+  </data>
+  <data name="be_WIDGET_ZONE" xml:space="preserve">
+    <value>Side Bar</value>
   </data>
 </root>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -1001,5 +1001,8 @@
   <data name="youAlreadyRated" xml:space="preserve">
     <value>Bạn đã đánh giá bài viết này rồi</value>
     <comment>You already rated this post</comment>
+  </data>
+  <data name="be_WIDGET_ZONE" xml:space="preserve">
+    <value>Side Bar</value>
   </data>
 </root>

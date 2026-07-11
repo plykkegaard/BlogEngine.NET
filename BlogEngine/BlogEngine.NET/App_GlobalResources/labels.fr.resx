@@ -2002,4 +2002,7 @@
   <data name="authorDisplayPatternAggregated" xml:space="preserve">
     <value>Format d'affichage dans un blog agrégé (auteur, blog, nombre d'articles)</value>
   </data>
+  <data name="be_WIDGET_ZONE" xml:space="preserve">
+    <value>Side Bar</value>
+  </data>
 </root>
