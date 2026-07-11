@@ -3,6 +3,7 @@ using BlogEngine.Core.Data;
 using BlogEngine.Core.Data.Contracts;
 using System;
 using System.Globalization;
+using System.Net;
 using System.Threading;
 using System.Web;
 using System.Web.Http;
@@ -27,6 +28,9 @@ namespace BlogEngine.NET.App_Start
             lock (_SyncRoot)
             {
                 if (_initializedAlready) { return; }
+
+                // Enable modern TLS protocols for HTTPS requests (fixes SSL/TLS secure channel errors)
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
 
                 Utils.LoadExtensions();
 
