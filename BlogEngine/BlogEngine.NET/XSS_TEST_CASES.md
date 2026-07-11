@@ -155,3 +155,244 @@ This document outlines manual test cases to verify that XSS vulnerabilities have
 - This implementation maintains backward compatibility with existing code patterns
 - All encoding is null-safe with empty string fallback
 - Existing `Server.HtmlEncode()` in PostViewBase and themes now replaced with `Utils.HtmlEncode()` for consistency
+
+---
+
+# Comment Rendering XSS Test Cases
+
+## Test Case 6: XSS in Comment Author Name
+
+**Setup:**
+- Submit a comment with the following author name:
+  ```
+  <script>alert('XSS in Comment Author')</script>
+  ```
+
+**Expected Behavior:**
+- The author name should be displayed as literal text
+- No JavaScript alert should appear
+- The HTML source should show: `&lt;script&gt;alert('XSS in Comment Author')&lt;/script&gt;`
+
+**Files Updated for Protection:**
+- `BlogEngine.Core\Web\Controls\CommentViewBase.cs` - Added `EncodedAuthor` property using `Utils.HtmlEncode()`
+- `BlogEngine.NET\Custom\Themes\Standard-2017\CommentView.ascx` - Uses `<%=EncodedAuthor%>`
+- `BlogEngine.NET\Custom\Themes\Standard\CommentView.ascx` - Uses `<%=EncodedAuthor%>`
+- `BlogEngine.NET\Custom\Themes\SimpleBlue\CommentView.ascx` - Uses `<%=EncodedAuthor%>`
+- `BlogEngine.NET\Custom\Controls\Defaults\CommentView.ascx` - Uses `<%=EncodedAuthor%>`
+
+**Vulnerability Type:** Stored XSS (High Severity)
+
+---
+
+## Test Case 7: XSS via Comment Author Name - Attribute Injection
+
+**Setup:**
+- Submit a comment with author name:
+  ```
+  "><img src=x onerror="alert('XSS')">
+  ```
+
+**Expected Behavior:**
+- The author name should be displayed as plain text with all characters encoded
+- No image element should be created
+- The HTML source should show: `&quot;&gt;&lt;img src=x onerror=&quot;alert('XSS')&quot;&gt;`
+
+**Files Updated for Protection:**
+- Same as Test Case 6
+
+**Vulnerability Type:** Stored XSS (High Severity)
+
+---
+
+## Test Case 8: XSS via Comment Website - JavaScript Protocol
+
+**Setup:**
+- Submit a comment with the following website URL:
+  ```
+  javascript:alert('XSS in Website')
+  ```
+
+**Expected Behavior:**
+- The comment author name should be displayed as plain text (no link)
+- No `<a>` tag should be created for the website
+- The `SafeWebsiteUrl` property should return empty string, causing the template to render a `<span>` instead of an `<a>` element
+
+**Files Updated for Protection:**
+- `BlogEngine.Core\Web\Controls\CommentViewBase.cs` - Added `SafeWebsiteUrl` property with protocol validation
+- All CommentView.ascx templates updated to check `SafeWebsiteUrl` before rendering link
+
+**Blocked Protocols:**
+- `javascript:`
+- `data:`
+- `vbscript:`
+- `file:`
+
+**Allowed Protocols:**
+- `http://`
+- `https://`
+- `/` (relative URLs)
+
+**Vulnerability Type:** Stored XSS (High Severity)
+
+---
+
+## Test Case 9: XSS via Comment Website - Data URI
+
+**Setup:**
+- Submit a comment with website URL:
+  ```
+  data:text/html,<script>alert('XSS')</script>
+  ```
+
+**Expected Behavior:**
+- The website URL should be rejected by `SafeWebsiteUrl`
+- No link should be rendered
+- Author name displayed as plain text without hyperlink
+
+**Files Updated for Protection:**
+- Same as Test Case 8
+
+**Vulnerability Type:** Stored XSS (High Severity)
+
+---
+
+## Test Case 10: XSS via Comment Website - VBScript Protocol
+
+**Setup:**
+- Submit a comment with website URL:
+  ```
+  vbscript:msgbox("XSS")
+  ```
+
+**Expected Behavior:**
+- The website URL should be rejected by `SafeWebsiteUrl`
+- No link should be rendered
+- Author name displayed as plain text without hyperlink
+
+**Files Updated for Protection:**
+- Same as Test Case 8
+
+**Vulnerability Type:** Stored XSS (High Severity)
+
+---
+
+## Test Case 11: Valid Comment Website - HTTP
+
+**Setup:**
+- Submit a comment with a valid HTTP website:
+  ```
+  http://example.com
+  ```
+
+**Expected Behavior:**
+- The author name should be displayed as a clickable hyperlink
+- The URL should be HTML attribute-encoded in the href attribute
+- Link should have `rel="nofollow"` attribute
+- Link opens to `http://example.com`
+
+**Verification:**
+- Inspect HTML source to confirm proper encoding and attributes
+
+---
+
+## Test Case 12: Valid Comment Website - HTTPS
+
+**Setup:**
+- Submit a comment with a valid HTTPS website:
+  ```
+  https://secure-example.com
+  ```
+
+**Expected Behavior:**
+- Same as Test Case 11, but with HTTPS URL
+- Link should work correctly and securely
+
+---
+
+## Test Case 13: Comment Author Name - Unicode/Special Characters
+
+**Setup:**
+- Submit a comment with author name containing special characters:
+  ```
+  Author名前<>&"'
+  ```
+
+**Expected Behavior:**
+- All special characters should be HTML-encoded
+- `<` becomes `&lt;`
+- `>` becomes `&gt;`
+- `&` becomes `&amp;`
+- `"` becomes `&quot;`
+- Unicode characters display correctly
+- No script execution or attribute injection
+
+---
+
+## Manual Testing Procedure
+
+### Setup
+1. Navigate to a blog post page that accepts comments
+2. Fill out the comment form with test payloads
+3. Submit the comment
+4. Refresh the page to view the rendered comment
+
+### Validation Steps
+1. **Visual Inspection:** Verify malicious scripts are displayed as text, not executed
+2. **Browser DevTools:** Inspect HTML source to confirm encoding is applied
+3. **Browser Console:** Check for JavaScript errors or unexpected script execution
+4. **Network Tab:** Verify no unexpected network requests from injected scripts
+
+### Success Criteria
+- ✅ No JavaScript alerts or dialogs appear
+- ✅ HTML source shows encoded entities (`&lt;`, `&gt;`, `&quot;`, etc.)
+- ✅ No script tags or event handlers execute
+- ✅ Malicious URLs are blocked (no href created for dangerous protocols)
+- ✅ Valid HTTP/HTTPS URLs work correctly
+- ✅ User experience remains normal for legitimate comments
+
+---
+
+## Automated Testing Recommendations
+
+Consider adding unit tests for:
+
+1. **CommentViewBase.EncodedAuthor**
+   - Null/empty comment author
+   - Author with `<script>` tags
+   - Author with HTML entities
+   - Author with quotes and special characters
+
+2. **CommentViewBase.SafeWebsiteUrl**
+   - Null website (should return empty string)
+   - `javascript:` protocol (should return empty string)
+   - `data:` protocol (should return empty string)
+   - `vbscript:` protocol (should return empty string)
+   - `file:` protocol (should return empty string)
+   - `http://example.com` (should return encoded URL)
+   - `https://example.com` (should return encoded URL)
+   - Relative URL `/path` (should return encoded URL)
+   - URL with special characters needing attribute encoding
+
+**Test Location:** `BlogEngine.Tests\Security\CommentViewSecurityTests.cs` (to be created)
+
+---
+
+## Remediation Summary
+
+**Vulnerability:** Stored XSS in comment author names and website URLs  
+**Severity:** High  
+**CWE:** CWE-79 (Cross-Site Scripting)  
+
+**Root Cause:**  
+Comment templates rendered `Comment.Author` and `Comment.Website` directly in HTML without encoding, allowing malicious scripts stored in the database to execute in visitors' browsers.
+
+**Remediation:**
+1. Created `EncodedAuthor` property in `CommentViewBase.cs` with HTML encoding
+2. Created `SafeWebsiteUrl` property with URL protocol validation
+3. Updated all theme CommentView.ascx templates to use safe properties
+4. Blocked dangerous protocols: `javascript:`, `data:`, `vbscript:`, `file:`
+5. Applied HTML attribute encoding to URLs before output
+
+**Impact:**  
+All comment XSS attack vectors have been mitigated. Legitimate comments display correctly while malicious payloads are neutralized.
+

@@ -242,6 +242,171 @@ Refer to `BlogEngine\BlogEngine.NET\XSS_TEST_CASES.md` for comprehensive test sc
 - XSS in category names
 - XSS via query string parameters
 - XSS via pagination URLs
+- **XSS in comment author names** (added 2026-01-XX)
+- **XSS via comment website URLs** (added 2026-01-XX)
+
+---
+
+## Comment Rendering XSS Protection (Added 2026-01-XX)
+
+### Vulnerability Identified
+
+**Type:** Stored XSS (CWE-79)  
+**Severity:** HIGH  
+**Location:** All `CommentView.ascx` theme templates
+
+**Root Cause:**  
+Comment author names and website URLs were rendered directly in HTML without encoding:
+```html
+<!-- VULNERABLE CODE -->
+<%= Comment.Website != null ? "<a href=\"" + Comment.Website + "\" rel=\"nofollow\">" + Comment.Author + "</a>" : ... %>
+```
+
+This allowed attackers to:
+1. Inject malicious scripts via comment author names (e.g., `<script>alert('XSS')</script>`)
+2. Use dangerous URL protocols in website fields (e.g., `javascript:alert('XSS')`)
+3. Execute stored XSS attacks against all blog visitors
+
+### Remediation Implementation
+
+#### 1. **CommentViewBase.cs - Added Safe Properties**
+
+**File:** `BlogEngine.Core\Web\Controls\CommentViewBase.cs`
+
+Added two new public properties:
+
+```csharp
+/// <summary>
+/// Gets the HTML-encoded comment author name for safe rendering in templates.
+/// </summary>
+public string EncodedAuthor
+{
+    get { return Utils.HtmlEncode(this.Comment?.Author); }
+}
+
+/// <summary>
+/// Gets a safe, validated website URL or empty string if invalid/dangerous.
+/// </summary>
+public string SafeWebsiteUrl
+{
+    get
+    {
+        if (this.Comment?.Website == null) return string.Empty;
+        var url = this.Comment.Website.ToString();
+        if (string.IsNullOrWhiteSpace(url)) return string.Empty;
+
+        var lowerUrl = url.Trim().ToLowerInvariant();
+
+        // Block dangerous protocols
+        if (lowerUrl.StartsWith("javascript:") || 
+            lowerUrl.StartsWith("data:") || 
+            lowerUrl.StartsWith("vbscript:") ||
+            lowerUrl.StartsWith("file:"))
+        {
+            return string.Empty;
+        }
+
+        // Only allow http, https, or relative URLs
+        if (!lowerUrl.StartsWith("http://") && 
+            !lowerUrl.StartsWith("https://") && 
+            !lowerUrl.StartsWith("/"))
+        {
+            return string.Empty;
+        }
+
+        return Utils.AttributeEncode(url);
+    }
+}
+```
+
+**Security Features:**
+- `EncodedAuthor`: HTML-encodes author names to prevent script injection
+- `SafeWebsiteUrl`: Validates URL protocols and blocks dangerous schemes
+- Both properties are null-safe and return empty string for invalid input
+
+#### 2. **Updated All Theme Templates**
+
+**Files Modified:**
+- `BlogEngine.NET\Custom\Themes\Standard-2017\CommentView.ascx`
+- `BlogEngine.NET\Custom\Themes\Standard\CommentView.ascx`
+- `BlogEngine.NET\Custom\Themes\SimpleBlue\CommentView.ascx`
+- `BlogEngine.NET\Custom\Controls\Defaults\CommentView.ascx`
+
+**Before (Vulnerable):**
+```html
+<%= Comment.Website != null ? "<a href=\"" + Comment.Website + "\" rel=\"nofollow\">" + Comment.Author + "</a>" : "<span>" + Comment.Author + "</span>" %>
+```
+
+**After (Secure):**
+```html
+<% if (!string.IsNullOrEmpty(SafeWebsiteUrl)) { %>
+    <a href="<%=SafeWebsiteUrl%>" rel="nofollow" class="url fn"><%=EncodedAuthor%></a>
+<% } else { %>
+    <span class="fn"><%=EncodedAuthor%></span>
+<% } %>
+```
+
+**Protection:**
+- Author names are always HTML-encoded
+- Website URLs are validated for safe protocols
+- Dangerous protocols (`javascript:`, `data:`, `vbscript:`, `file:`) are blocked
+- Invalid URLs result in plain text display (no link)
+- Valid HTTP/HTTPS URLs work normally
+
+#### 3. **Blocked URL Protocols**
+
+The `SafeWebsiteUrl` property rejects these dangerous protocols:
+- ❌ `javascript:` - Script execution
+- ❌ `data:` - Data URI XSS
+- ❌ `vbscript:` - VBScript execution
+- ❌ `file:` - Local file access
+
+Allowed protocols:
+- ✅ `http://` - Standard web
+- ✅ `https://` - Secure web
+- ✅ `/` - Relative URLs
+
+### Test Coverage
+
+**Test Cases:** See `BlogEngine\BlogEngine.NET\XSS_TEST_CASES.md` for detailed scenarios
+
+**Manual Verification Guide:** `BlogEngine\BlogEngine.NET\COMMENT_XSS_VERIFICATION_GUIDE.md`
+
+**Test Scenarios:**
+1. Comment author with `<script>` tag - Displays as literal text
+2. Comment author with attribute injection - Properly encoded
+3. Website with `javascript:` protocol - Link not created
+4. Website with `data:` URI - Link not created
+5. Website with valid `http://` URL - Link works correctly
+6. Website with valid `https://` URL - Link works correctly
+7. Special characters in author name - Properly encoded
+
+### Impact
+
+**Before Fix:**
+- ⚠️ Attackers could inject persistent XSS via comment author names
+- ⚠️ Malicious JavaScript could execute in all visitors' browsers
+- ⚠️ Website URLs could use `javascript:` protocol for XSS
+- ⚠️ Session hijacking and credential theft possible
+
+**After Fix:**
+- ✅ All comment author names are HTML-encoded
+- ✅ Dangerous URL protocols are blocked
+- ✅ Stored XSS attack vectors eliminated
+- ✅ Legitimate comments display normally
+- ✅ User experience unchanged for valid data
+
+### Files Modified Summary
+
+| File | Change Type | Description |
+|------|-------------|-------------|
+| `BlogEngine.Core\Web\Controls\CommentViewBase.cs` | Code addition | Added `EncodedAuthor` and `SafeWebsiteUrl` properties |
+| `BlogEngine.NET\Custom\Themes\Standard-2017\CommentView.ascx` | Template update | Replace unsafe concatenation with safe properties |
+| `BlogEngine.NET\Custom\Themes\Standard\CommentView.ascx` | Template update | Replace unsafe concatenation with safe properties |
+| `BlogEngine.NET\Custom\Themes\SimpleBlue\CommentView.ascx` | Template update | Replace unsafe concatenation with safe properties |
+| `BlogEngine.NET\Custom\Controls\Defaults\CommentView.ascx` | Template update | Replace unsafe concatenation with safe properties |
+| `BlogEngine.NET\XSS_TEST_CASES.md` | Documentation | Added 8 comment XSS test cases |
+| `BlogEngine.NET\COMMENT_XSS_VERIFICATION_GUIDE.md` | Documentation | Created manual verification guide |
 
 ---
 
@@ -252,18 +417,35 @@ Refer to `BlogEngine\BlogEngine.NET\XSS_TEST_CASES.md` for comprehensive test sc
 1. Consider implementing Content Security Policy (CSP) headers
 2. Add input validation for theme names beyond path sanitization
 3. Implement automated XSS testing in CI/CD pipeline
-4. Review comment rendering for additional encoding needs
+4. ~~Review comment rendering for additional encoding needs~~ ✅ **Completed**
 
 ### Documentation
 
 - XML documentation added to all new encoding methods
 - PostViewBase.cs updated with encoding strategy notes
-- XSS_TEST_CASES.md provides testing guidelines
+- CommentViewBase.cs includes comprehensive property documentation
+- XSS_TEST_CASES.md provides testing guidelines for posts and comments
+- COMMENT_XSS_VERIFICATION_GUIDE.md provides manual testing procedures
 
 ---
 
 ## Implementation Complete
 
-✅ All 10 steps of the XSS Sanitization plan have been completed successfully.
+✅ All XSS Sanitization implementations have been completed successfully.
 
-The BlogEngine.NET post rendering pipeline now provides comprehensive XSS protection through consistent output encoding of user-generated and dynamic content.
+The BlogEngine.NET rendering pipeline now provides comprehensive XSS protection through consistent output encoding of user-generated and dynamic content in both **post rendering** and **comment rendering**.
+
+### Coverage Summary
+
+| Component | Protection Type | Status |
+|-----------|----------------|--------|
+| Post Titles | HTML Encoding | ✅ Protected |
+| Post Authors | HTML Encoding | ✅ Protected |
+| Category Names | HTML Encoding | ✅ Protected |
+| Pagination URLs | HTML Encoding | ✅ Protected |
+| **Comment Authors** | **HTML Encoding** | **✅ Protected** |
+| **Comment Websites** | **URL Protocol Validation** | **✅ Protected** |
+
+**Last Updated:** 2026-01-XX  
+**Security Status:** ✅ HIGH RISK VULNERABILITIES REMEDIATED
+
