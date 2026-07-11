@@ -1,4 +1,4 @@
-﻿angular.module('blogAdmin').controller('CustomWidgetsController', ["$rootScope", "$scope", "$location", "$filter", "DragDropHandler", "dataService", function ($rootScope, $scope, $location, $filter, DragDropHandler, dataService) {
+angular.module('blogAdmin').controller('CustomWidgetsController', ["$rootScope", "$scope", "$location", "$filter", "DragDropHandler", "dataService", function ($rootScope, $scope, $location, $filter, DragDropHandler, dataService) {
     $scope.widgetZones = {};
     $scope.vm = {};
     $scope.editSrc = {};
@@ -22,7 +22,7 @@
        
 
         dataService.getItems('/api/widgets', { })
-        .success(function (data) {
+        .then(function (response) { var data = response.data;
             angular.copy(data, $scope.vm);
             var zones = $scope.vm.WidgetZones;
             for (i = 0; i < zones.length; i++) {
@@ -34,7 +34,7 @@
 
             spinOff();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.errorLoadingPackages);
             spinOff();
         });
@@ -69,12 +69,12 @@
 
     $scope.loadInfoForm = function (id, name, title, zone) {
         dataService.getItems('/api/packages/' + id)
-        .success(function (data) {
+        .then(function (response) { var data = response.data;
             angular.copy(data, $scope.package);
             $scope.selectedRating = $scope.package.Rating;
             $scope.removeEmptyReviews();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.errorLoadingPackages);
         });
         $("#modal-info").modal();
@@ -111,12 +111,12 @@
 
     $scope.save = function () {
         dataService.updateItem("/api/widgets/update/item", $scope.vm.WidgetZones)
-        .success(function (data) {
+        .then(function (response) { var data = response.data;
             toastr.success($rootScope.lbl.completed);
             $scope.load();
             spinOff();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.updateFailed);
             spinOff();
         });
@@ -166,7 +166,7 @@
         var review = { "Name": author, "Rating": $scope.selectedRating, "Body": $("#txtReview").val() };
 
         dataService.updateItem("/api/packages/rate/" + $scope.package.Extra.Id, review)
-        .success(function (data) {
+        .then(function (response) { var data = response.data;
             if (data.length === 0) {
                 toastr.success($rootScope.lbl.completed);
             }
@@ -175,7 +175,7 @@
             }
             $("#modal-info").modal("hide");
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.failed);
             $("#modal-info").modal("hide");
         });
@@ -184,10 +184,10 @@
     $scope.upgradePackage = function (pkgId) {
         spinOn();
         dataService.updateItem("/api/packages/uninstall/" + pkgId, pkgId)
-        .success(function (data) {
+        .then(function (response) { var data = response.data;
             $scope.installPackage(pkgId);
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.failed);
             spinOff();
         });
@@ -196,11 +196,11 @@
     $scope.uninstallPackage = function (pkgId) {
         spinOn();
         dataService.updateItem("/api/packages/uninstall/" + pkgId, pkgId)
-        .success(function (data) {
+        .then(function (response) { var data = response.data;
             toastr.success($rootScope.lbl.completed);
             $scope.load();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.failed);
             spinOff();
         });
