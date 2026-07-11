@@ -184,6 +184,69 @@
             }
         }
 
+        /// <summary>
+        ///     Gets the HTML-encoded comment author name for safe rendering in templates.
+        /// </summary>
+        /// <remarks>
+        ///     This property prevents XSS attacks by encoding special characters in the author name.
+        ///     Use this property instead of Comment.Author when rendering in HTML context.
+        /// </remarks>
+        public string EncodedAuthor
+        {
+            get
+            {
+                return Utils.HtmlEncode(this.Comment?.Author);
+            }
+        }
+
+        /// <summary>
+        ///     Gets a safe, validated website URL or empty string if invalid/dangerous.
+        /// </summary>
+        /// <remarks>
+        ///     This property validates the URL protocol to prevent XSS attacks via javascript:, data:, or vbscript: schemes.
+        ///     Only http:// and https:// protocols are allowed. Returns empty string for null or invalid URLs.
+        /// </remarks>
+        public string SafeWebsiteUrl
+        {
+            get
+            {
+                if (this.Comment?.Website == null)
+                {
+                    return string.Empty;
+                }
+
+                var url = this.Comment.Website.ToString();
+
+                // Validate URL protocol - only allow http and https
+                if (string.IsNullOrWhiteSpace(url))
+                {
+                    return string.Empty;
+                }
+
+                var lowerUrl = url.Trim().ToLowerInvariant();
+
+                // Block dangerous protocols
+                if (lowerUrl.StartsWith("javascript:") || 
+                    lowerUrl.StartsWith("data:") || 
+                    lowerUrl.StartsWith("vbscript:") ||
+                    lowerUrl.StartsWith("file:"))
+                {
+                    return string.Empty;
+                }
+
+                // Only allow http and https protocols (or relative URLs starting with /)
+                if (!lowerUrl.StartsWith("http://") && 
+                    !lowerUrl.StartsWith("https://") && 
+                    !lowerUrl.StartsWith("/"))
+                {
+                    return string.Empty;
+                }
+
+                // Return HTML attribute-encoded URL
+                return Utils.AttributeEncode(url);
+            }
+        }
+
         #endregion
 
         #region Methods
