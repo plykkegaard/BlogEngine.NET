@@ -18,8 +18,8 @@
                         </div>
                     </div>
                     <div class="modal-package-image">
-                        <img ng-if="!package.PackageUrl" ng-src="{{package.IconUrl}}" alt="Package image" />
-                        <a ng-if="package.PackageUrl" href="{{package.PackageUrl}}" target="_blank"> <img class="pkg-img" ng-src="{{package.IconUrl}}" alt="Package image" /> </a>
+                        <img ng-if="!package.PackageUrl && package.IconUrl && package.IconUrl != '{}'" ng-src="{{package.IconUrl}}" alt="Package image" />
+                        <a ng-if="package.PackageUrl && package.IconUrl && package.IconUrl != '{}'" href="{{package.PackageUrl}}" target="_blank"> <img class="pkg-img" ng-src="{{package.IconUrl}}" alt="Package image" /> </a>
                     </div>
                     <div class="modal-package-review" ng-if="package.Extra.Reviews != null && package.Extra.Reviews.length > 0">
                         <div class="panel panel-default">
@@ -62,7 +62,7 @@
             <div data-ng-repeat="item in pagedItems[currentPage] | orderBy:sortingOrder:reverse" class="col-xs-6 col-md-6 col-lg-4">
                 <div class="gallery-item">
                     <div class="item-details-left">
-                        <div class="item-img-box"><span><img ng-if="item.IconUrl === ''" src="../Content/images/blog/pkg.png" /> <img ng-if="item.IconUrl != ''" ng-src="{{item.IconUrl}}" /></span></div>
+                        <div class="item-img-box"><span><img ng-if="item.IconUrl === ''" src="../Content/images/blog/pkg.png" /> <img ng-if="item.IconUrl != '' && item.IconUrl != '{}'" ng-src="{{item.IconUrl}}" /></span></div>
                         <div class="item-buttons">
                             <a ng-click="installPackage(item.Id)" class="btn btn-sm btn-default btn-left" angular-tooltip tooltip="lbl.download"><i class="fa fa-download"></i></a>
                             <a href="" ng-click="showInfo(item.Id)" class="btn btn-sm btn-default btn-right" angular-tooltip tooltip="lbl.view"><i class="fa fa-info-circle"></i></a>
