@@ -176,7 +176,11 @@
         /// </summary>
         private void InitPaging()
         {
-            var path = this.Request.RawUrl.Replace("Default.aspx", string.Empty);
+            // Get the base URL and remove Default.aspx if present
+            var rawUrl = this.Request.RawUrl.Replace("Default.aspx", string.Empty);
+
+            // HTML encode the raw URL to prevent XSS in pagination links
+            var path = Utils.HtmlEncode(rawUrl);
 
             path = path.Contains("?")
                        ? (path.Contains("page=")
