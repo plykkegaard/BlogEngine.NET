@@ -171,7 +171,7 @@
   <data name="be_WIDGET_ZONE" xml:space="preserve">
     <value>Side Bar</value>
   </data>
-  <data name="blogMLDescription"
+  <data name="blogMLDescription" xml:space="preserve">
     <value>BlogEngine.NET gebruik BlogML as die uitvoer formaat. die invoer ondersteun beide BlogML en RSS.</value>
   </data>
   <data name="blogroll" xml:space="preserve">

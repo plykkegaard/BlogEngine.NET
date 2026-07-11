@@ -165,7 +165,7 @@
   <data name="be_WIDGET_ZONE" xml:space="preserve">
     <value>Side Bar</value>
   </data>
-  <data name="blogMLDescription"
+  <data name="blogMLDescription" xml:space="preserve">
     <value>BlogEngine.NET benytter BlogML som eksporteringsformat. Importen kan både bruge BlogML og RSS.</value>
   </data>
   <data name="blogroll" xml:space="preserve">
