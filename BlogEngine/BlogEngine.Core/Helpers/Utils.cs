@@ -1677,6 +1677,64 @@ namespace BlogEngine.Core
             return text;
         }
 
+        /// <summary>
+        /// Encodes a string for safe HTML output.
+        /// </summary>
+        /// <remarks>
+        /// This method provides XSS protection by encoding HTML special characters.
+        /// It should be used for encoding user-generated or dynamic content before output in HTML context.
+        /// Uses System.Web.HttpUtility.HtmlEncode which is the standard ASP.NET encoding mechanism.
+        /// </remarks>
+        /// <param name="text">The text to HTML encode.</param>
+        /// <returns>The HTML-encoded text, or an empty string if input is null.</returns>
+        public static string HtmlEncode(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return string.Empty;
+            }
+
+            return HttpUtility.HtmlEncode(text);
+        }
+
+        /// <summary>
+        /// Encodes a string for safe URL output.
+        /// </summary>
+        /// <remarks>
+        /// This method uses System.Web.HttpUtility.UrlEncode for URL encoding. It should be used
+        /// when including user input or dynamic content in query strings or URL paths.
+        /// </remarks>
+        /// <param name="text">The text to URL encode.</param>
+        /// <returns>The URL-encoded text, or an empty string if input is null.</returns>
+        public static string UrlEncode(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return string.Empty;
+            }
+
+            return HttpUtility.UrlEncode(text);
+        }
+
+        /// <summary>
+        /// Encodes a string for safe use in HTML attributes.
+        /// </summary>
+        /// <remarks>
+        /// This method uses System.Web.HttpUtility.HtmlEncode for attribute encoding. It should be used
+        /// when including user input or dynamic content in HTML element attributes (e.g., title, alt, data-*).
+        /// </remarks>
+        /// <param name="text">The text to attribute encode.</param>
+        /// <returns>The attribute-encoded text, or an empty string if input is null.</returns>
+        public static string AttributeEncode(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return string.Empty;
+            }
+
+            return HttpUtility.HtmlEncode(text);
+        }
+
         #endregion
     }
 }
