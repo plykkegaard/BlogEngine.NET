@@ -2600,4 +2600,110 @@
   <data name="share" xml:space="preserve">
     <value>Share</value>
   </data>
+  <!-- SEO & GEO Settings Labels -->
+  <data name="seoGeoSettings" xml:space="preserve">
+    <value>SEO &amp; GEO</value>
+  </data>
+  <data name="seoBasics" xml:space="preserve">
+    <value>SEO Basics</value>
+  </data>
+  <data name="seoTitleSuffix" xml:space="preserve">
+    <value>Title Suffix</value>
+  </data>
+  <data name="seoTitleSuffixHelp" xml:space="preserve">
+    <value>Automatically appended to all page titles for SEO branding (e.g., ' | My Blog')</value>
+  </data>
+  <data name="seoCanonicalDomain" xml:space="preserve">
+    <value>Canonical Domain</value>
+  </data>
+  <data name="seoCanonicalDomainHelp" xml:space="preserve">
+    <value>The primary domain for your blog, used to prevent duplicate content issues (e.g., https://example.com)</value>
+  </data>
+  <data name="seoDefaultAuthor" xml:space="preserve">
+    <value>Default Author</value>
+  </data>
+  <data name="seoDefaultAuthorHelp" xml:space="preserve">
+    <value>Default author name used in metadata when not specified by the post</value>
+  </data>
+  <data name="seoDefaultImage" xml:space="preserve">
+    <value>Default Image</value>
+  </data>
+  <data name="seoDefaultImageHelp" xml:space="preserve">
+    <value>Default image URL for social sharing when a post doesn't have a featured image</value>
+  </data>
+  <data name="seoSocialMedia" xml:space="preserve">
+    <value>Social Media</value>
+  </data>
+  <data name="seoEnableOpenGraph" xml:space="preserve">
+    <value>Enable Open Graph</value>
+  </data>
+  <data name="seoEnableOpenGraphHelp" xml:space="preserve">
+    <value>Adds Open Graph meta tags for better social media sharing on Facebook, LinkedIn, etc.</value>
+  </data>
+  <data name="seoFacebookAppId" xml:space="preserve">
+    <value>Facebook App ID</value>
+  </data>
+  <data name="seoFacebookAppIdHelp" xml:space="preserve">
+    <value>Your Facebook App ID for Open Graph integration and analytics</value>
+  </data>
+  <data name="seoEnableTwitterCard" xml:space="preserve">
+    <value>Enable Twitter Card</value>
+  </data>
+  <data name="seoEnableTwitterCardHelp" xml:space="preserve">
+    <value>Adds Twitter Card meta tags for enhanced Twitter sharing with rich previews</value>
+  </data>
+  <data name="seoTwitterHandle" xml:space="preserve">
+    <value>Twitter Handle</value>
+  </data>
+  <data name="seoTwitterHandleHelp" xml:space="preserve">
+    <value>Your Twitter username (with @ symbol) for attribution in social cards</value>
+  </data>
+  <data name="seoStructuredData" xml:space="preserve">
+    <value>Structured Data</value>
+  </data>
+  <data name="seoEnableStructuredData" xml:space="preserve">
+    <value>Enable Structured Data (Schema.org)</value>
+  </data>
+  <data name="seoEnableStructuredDataHelp" xml:space="preserve">
+    <value>Adds Schema.org structured data markup for better search engine understanding and rich snippets</value>
+  </data>
+  <data name="seoOrganizationName" xml:space="preserve">
+    <value>Organization Name</value>
+  </data>
+  <data name="seoOrganizationNameHelp" xml:space="preserve">
+    <value>Your organization or blog name for structured data markup</value>
+  </data>
+  <data name="seoOrganizationLogo" xml:space="preserve">
+    <value>Organization Logo URL</value>
+  </data>
+  <data name="seoOrganizationLogoHelp" xml:space="preserve">
+    <value>URL to your organization or blog logo for structured data (600x60 pixels or larger recommended)</value>
+  </data>
+  <data name="geoOptimization" xml:space="preserve">
+    <value>GEO (Generative Engine Optimization)</value>
+  </data>
+  <data name="geoOptimizationEnabled" xml:space="preserve">
+    <value>Enable GEO Optimization</value>
+  </data>
+  <data name="geoOptimizationEnabledHelp" xml:space="preserve">
+    <value>Enables features for Generative Engine Optimization to improve visibility in AI-powered search engines</value>
+  </data>
+  <data name="geoOptimizationMode" xml:space="preserve">
+    <value>GEO Optimization Mode</value>
+  </data>
+  <data name="geoOptimizationModeHelp" xml:space="preserve">
+    <value>Select the optimization mode: Basic (standard features) or Advanced (enhanced AI optimization)</value>
+  </data>
+  <data name="geoMetadataRichness" xml:space="preserve">
+    <value>Metadata Richness Level</value>
+  </data>
+  <data name="geoMetadataRichnessHelp" xml:space="preserve">
+    <value>Control the level of metadata detail: Minimal, Standard, or Rich (more metadata = better AI understanding)</value>
+  </data>
+  <data name="geoEnableCitationOptimization" xml:space="preserve">
+    <value>Enable Citation Optimization</value>
+  </data>
+  <data name="geoEnableCitationOptimizationHelp" xml:space="preserve">
+    <value>Optimizes content structure for citation in generative AI outputs</value>
+  </data>
 </root>

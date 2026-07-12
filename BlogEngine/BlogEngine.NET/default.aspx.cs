@@ -5,6 +5,8 @@ using System.Xml;
 using System.Collections.Generic;
 using BlogEngine.Core;
 using System.Web.UI;
+using BlogEngine.Core.Metadata;
+using BlogEngine.Core.Metadata.Schemas;
 
 //TODO  Remove All URL redirects to Business layer? To speed up page loading instead of having the most visited page handling so many tasks
 public partial class _default : BlogEngine.Core.Web.Controls.BlogBasePage
@@ -48,19 +50,19 @@ public partial class _default : BlogEngine.Core.Web.Controls.BlogBasePage
         {
             DisplayApmlFiltering();
         }
-        else
-        {
-            if (!BlogSettings.Instance.UseBlogNameInPageTitles)
-                Page.Title = BlogSettings.Instance.Name + " | ";
+		else
+		{
+			if (!BlogSettings.Instance.UseBlogNameInPageTitles)
+				Page.Title = BlogSettings.Instance.Name + " | ";
 
-            if (!string.IsNullOrEmpty(BlogSettings.Instance.Description))
-                Page.Title += Server.HtmlEncode(BlogSettings.Instance.Description);
+			if (!string.IsNullOrEmpty(BlogSettings.Instance.Description))
+				Page.Title += Server.HtmlEncode(BlogSettings.Instance.Description);
 
-            AddMetaDescription(BlogSettings.Instance.Description);
-        }
+			// Note: SEO metadata is now handled by BlogBasePage.RenderSeoMetadata()
+			// which calls GetSeoMetadata() and GetStructuredData() overrides
+		}
 
-		AddMetaKeywords();
-		base.AddMetaTag("author", Server.HtmlEncode(BlogSettings.Instance.AuthorName));	
+		// Note: Metadata now handled by GetSeoMetadata() override	
 	}
 
     void CheckBrowserCaps()
@@ -191,6 +193,11 @@ public partial class _default : BlogEngine.Core.Web.Controls.BlogBasePage
 	/// <summary>
 	/// Adds the post's tags as meta keywords.
 	/// </summary>
+	/// <remarks>
+	/// DEPRECATED: This method is retained for backward compatibility but is no longer called.
+	/// Metadata is now handled by GetSeoMetadata() override and the SeoMetadataManager.
+	/// </remarks>
+	[Obsolete("Use GetSeoMetadata() override instead")]
 	private void AddMetaKeywords()
 	{
 		if (Category.Categories.Count > 0)
@@ -293,16 +300,73 @@ public partial class _default : BlogEngine.Core.Web.Controls.BlogBasePage
 			PostList1.Visible = false;
 			Title = Server.HtmlEncode(Resources.labels.calendar);
 		}
-        AddMetaDescription(Title + " - " + BlogSettings.Instance.Description);
-    }
+		// Note: SEO metadata is now handled by GetSeoMetadata() override
+	}
 
-    private void AddMetaDescription(string desc)
-    {
-        if (string.IsNullOrEmpty(desc))
-            desc = BlogSettings.Instance.Name + " - " + BlogSettings.Instance.Description;
-        else
-            desc = BlogSettings.Instance.Name + " - " + BlogSettings.Instance.Description + " - " + desc;
+	#region SEO/GEO Metadata Overrides
 
-        base.AddMetaTag("description", Server.HtmlEncode(desc));
-    }
+	/// <summary>
+	/// Gets SEO metadata for the homepage or listing pages.
+	/// </summary>
+	/// <returns>Metadata dictionary for the current page.</returns>
+	/// <remarks>
+	/// Provides metadata for homepage, category pages, tag pages, and archive pages.
+	/// Uses blog-level settings and appends specific filtering information where applicable.
+	/// </remarks>
+	protected override System.Collections.Generic.IDictionary<string, string> GetSeoMetadata()
+	{
+		var pageTitle = !string.IsNullOrEmpty(Title) ? Title : BlogSettings.Instance.Name;
+		var pageDescription = !string.IsNullOrEmpty(Title) 
+			? Title + " - " + BlogSettings.Instance.Description 
+			: BlogSettings.Instance.Description;
+
+		return MetadataBuilder.ForHomepage(BlogSettings.Instance, pageTitle, pageDescription);
+	}
+
+	/// <summary>
+	/// Gets Schema.org structured data for the homepage or blog listing.
+	/// </summary>
+	/// <returns>JSON-LD Blog or WebSite schema.</returns>
+	/// <remarks>
+	/// Returns WebSite schema for the main homepage with search action,
+	/// or Blog schema for category/tag/archive listings.
+	/// </remarks>
+	protected override string GetStructuredData()
+	{
+		var generator = new SchemaOrgGenerator(BlogSettings.Instance);
+
+		// Use WebSite schema for homepage, Blog schema for listings
+		if (string.IsNullOrEmpty(Title))
+		{
+			return generator.GenerateWebSiteSchema();
+		}
+		else
+		{
+			return generator.GenerateBlogSchema();
+		}
+	}
+
+	#endregion
+
+	#region Legacy Methods (Deprecated)
+
+	/// <summary>
+	/// Adds meta description tag.
+	/// </summary>
+	/// <remarks>
+	/// DEPRECATED: This method is retained for backward compatibility but is no longer called.
+	/// Metadata is now handled by GetSeoMetadata() override and the SeoMetadataManager.
+	/// </remarks>
+	[Obsolete("Use GetSeoMetadata() override instead")]
+	private void AddMetaDescription(string desc)
+	{
+		if (string.IsNullOrEmpty(desc))
+			desc = BlogSettings.Instance.Name + " - " + BlogSettings.Instance.Description;
+		else
+			desc = BlogSettings.Instance.Name + " - " + BlogSettings.Instance.Description + " - " + desc;
+
+		base.AddMetaTag("description", Server.HtmlEncode(desc));
+	}
+
+	#endregion
 }

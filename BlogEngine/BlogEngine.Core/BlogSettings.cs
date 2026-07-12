@@ -1676,6 +1676,150 @@
         }
         #endregion
 
+        #region SEO & GEO Settings
+
+        /// <summary>
+        /// Gets or sets the blog-wide SEO title suffix.
+        /// </summary>
+        /// <remarks>
+        /// This suffix is appended to page titles for consistent branding across all pages.
+        /// For example, " - My Blog" or " | Company Name". Applied when UseBlogNameInPageTitles is false.
+        /// </remarks>
+        public string SeoTitleSuffix { get; set; }
+
+        /// <summary>
+        /// Gets or sets the canonical domain for the blog.
+        /// </summary>
+        /// <remarks>
+        /// The canonical domain should be the preferred URL for the blog, including the protocol (https://example.com).
+        /// Used to generate canonical link tags that prevent duplicate content issues in search engines.
+        /// </remarks>
+        public string SeoCanonicalDomain { get; set; }
+
+        /// <summary>
+        /// Gets or sets the default author name for SEO metadata.
+        /// </summary>
+        /// <remarks>
+        /// Used as the default author value in meta tags and structured data when post-specific author
+        /// information is not available. Appears in Schema.org Article metadata and Open Graph tags.
+        /// </remarks>
+        public string SeoDefaultAuthor { get; set; }
+
+        /// <summary>
+        /// Gets or sets the default featured image URL for social sharing.
+        /// </summary>
+        /// <remarks>
+        /// This image is used in Open Graph and Twitter Card tags when content doesn't have a specific
+        /// featured image. Should be an absolute URL to a high-quality image representing the blog brand.
+        /// Recommended size: 1200x630 pixels for optimal social media display.
+        /// </remarks>
+        public string SeoDefaultImage { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Twitter handle for the blog (e.g., @username).
+        /// </summary>
+        /// <remarks>
+        /// Used in Twitter Card metadata to attribute content to the blog's Twitter account.
+        /// Should include the @ symbol. Enables Twitter to link mentions to your account.
+        /// </remarks>
+        public string SeoTwitterHandle { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Facebook App ID for social integration.
+        /// </summary>
+        /// <remarks>
+        /// Facebook App ID enables Facebook Insights for your blog's content shared on Facebook.
+        /// Provides analytics on how your content is shared and engaged with on Facebook.
+        /// </remarks>
+        public string SeoFacebookAppId { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether Open Graph meta tags are enabled.
+        /// </summary>
+        /// <remarks>
+        /// Open Graph tags provide rich preview information when content is shared on social platforms
+        /// like Facebook, LinkedIn, and others. Recommended for all blogs to enhance social media presence.
+        /// </remarks>
+        public bool SeoEnableOpenGraph { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether Twitter Card meta tags are enabled.
+        /// </summary>
+        /// <remarks>
+        /// Twitter Card tags enable rich media previews when content is shared on Twitter.
+        /// Supports both summary and large image card formats based on content.
+        /// </remarks>
+        public bool SeoEnableTwitterCard { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether Schema.org structured data is enabled.
+        /// </summary>
+        /// <remarks>
+        /// Structured data (JSON-LD) helps search engines and AI systems understand content semantics.
+        /// Enables rich snippets in search results and better content understanding by generative AI engines.
+        /// Critical for GEO (Generative Engine Optimization).
+        /// </remarks>
+        public bool SeoEnableStructuredData { get; set; }
+
+        /// <summary>
+        /// Gets or sets the organization name for Schema.org structured data.
+        /// </summary>
+        /// <remarks>
+        /// The legal or common name of the organization publishing the blog content.
+        /// Used in Schema.org Organization and Publisher schema. Enhances trust signals for search engines.
+        /// </remarks>
+        public string SeoOrganizationName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the organization logo URL for Schema.org structured data.
+        /// </summary>
+        /// <remarks>
+        /// URL to the organization's logo image. Should be a square image, minimum 112x112 pixels.
+        /// Used in Schema.org Publisher schema and may appear in Google search results.
+        /// </remarks>
+        public string SeoOrganizationLogo { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether GEO (Generative Engine Optimization) is enabled.
+        /// </summary>
+        /// <remarks>
+        /// Generative Engine Optimization targets AI-powered search engines and content discovery systems.
+        /// When enabled, additional metadata and hints are provided to help AI systems better understand
+        /// and utilize the blog's content in generated responses.
+        /// </remarks>
+        public bool GeoOptimizationEnabled { get; set; }
+
+        /// <summary>
+        /// Gets or sets the GEO optimization mode.
+        /// </summary>
+        /// <remarks>
+        /// Defines the optimization strategy for generative AI search engines.
+        /// Supported modes: "Standard", "AISearch", "Conversational", "Citation".
+        /// Each mode adjusts metadata richness and structured data for different AI use cases.
+        /// </remarks>
+        public string GeoOptimizationMode { get; set; }
+
+        /// <summary>
+        /// Gets or sets the metadata richness level for GEO.
+        /// </summary>
+        /// <remarks>
+        /// Controls how comprehensive the metadata output is for AI systems.
+        /// Values: "Minimal", "Standard", "Rich", "Maximum".
+        /// Higher richness provides more context but increases page size.
+        /// </remarks>
+        public string GeoMetadataRichness { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether content should be optimized for citation by AI systems.
+        /// </summary>
+        /// <remarks>
+        /// When enabled, additional citation metadata is included to help AI systems properly attribute
+        /// and reference the blog's content when used in generated responses.
+        /// </remarks>
+        public bool GeoEnableCitationOptimization { get; set; }
+
+        #endregion
+
         #region "Methods"
 
         #region Load()

@@ -7477,5 +7477,320 @@ namespace Resources {
                 return ResourceManager.GetString("default", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to SEO &amp; GEO.
+        /// </summary>
+        internal static string seoGeoSettings {
+            get {
+                return ResourceManager.GetString("seoGeoSettings", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to SEO Basics.
+        /// </summary>
+        internal static string seoBasics {
+            get {
+                return ResourceManager.GetString("seoBasics", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Title Suffix.
+        /// </summary>
+        internal static string seoTitleSuffix {
+            get {
+                return ResourceManager.GetString("seoTitleSuffix", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Automatically appended to all page titles for SEO branding (e.g., ' | My Blog').
+        /// </summary>
+        internal static string seoTitleSuffixHelp {
+            get {
+                return ResourceManager.GetString("seoTitleSuffixHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Canonical Domain.
+        /// </summary>
+        internal static string seoCanonicalDomain {
+            get {
+                return ResourceManager.GetString("seoCanonicalDomain", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The primary domain for your blog, used to prevent duplicate content issues (e.g., https://example.com).
+        /// </summary>
+        internal static string seoCanonicalDomainHelp {
+            get {
+                return ResourceManager.GetString("seoCanonicalDomainHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Default Author.
+        /// </summary>
+        internal static string seoDefaultAuthor {
+            get {
+                return ResourceManager.GetString("seoDefaultAuthor", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Default author name used in metadata when not specified by the post.
+        /// </summary>
+        internal static string seoDefaultAuthorHelp {
+            get {
+                return ResourceManager.GetString("seoDefaultAuthorHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Default Image.
+        /// </summary>
+        internal static string seoDefaultImage {
+            get {
+                return ResourceManager.GetString("seoDefaultImage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Default image URL for social sharing when a post doesn't have a featured image.
+        /// </summary>
+        internal static string seoDefaultImageHelp {
+            get {
+                return ResourceManager.GetString("seoDefaultImageHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Social Media.
+        /// </summary>
+        internal static string seoSocialMedia {
+            get {
+                return ResourceManager.GetString("seoSocialMedia", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enable Open Graph.
+        /// </summary>
+        internal static string seoEnableOpenGraph {
+            get {
+                return ResourceManager.GetString("seoEnableOpenGraph", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Adds Open Graph meta tags for better social media sharing on Facebook, LinkedIn, etc..
+        /// </summary>
+        internal static string seoEnableOpenGraphHelp {
+            get {
+                return ResourceManager.GetString("seoEnableOpenGraphHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Facebook App ID.
+        /// </summary>
+        internal static string seoFacebookAppId {
+            get {
+                return ResourceManager.GetString("seoFacebookAppId", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your Facebook App ID for Open Graph integration and analytics.
+        /// </summary>
+        internal static string seoFacebookAppIdHelp {
+            get {
+                return ResourceManager.GetString("seoFacebookAppIdHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enable Twitter Card.
+        /// </summary>
+        internal static string seoEnableTwitterCard {
+            get {
+                return ResourceManager.GetString("seoEnableTwitterCard", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Adds Twitter Card meta tags for enhanced Twitter sharing with rich previews.
+        /// </summary>
+        internal static string seoEnableTwitterCardHelp {
+            get {
+                return ResourceManager.GetString("seoEnableTwitterCardHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Twitter Handle.
+        /// </summary>
+        internal static string seoTwitterHandle {
+            get {
+                return ResourceManager.GetString("seoTwitterHandle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your Twitter username (with @ symbol) for attribution in social cards.
+        /// </summary>
+        internal static string seoTwitterHandleHelp {
+            get {
+                return ResourceManager.GetString("seoTwitterHandleHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Structured Data.
+        /// </summary>
+        internal static string seoStructuredData {
+            get {
+                return ResourceManager.GetString("seoStructuredData", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enable Structured Data (Schema.org).
+        /// </summary>
+        internal static string seoEnableStructuredData {
+            get {
+                return ResourceManager.GetString("seoEnableStructuredData", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Adds Schema.org structured data markup for better search engine understanding and rich snippets.
+        /// </summary>
+        internal static string seoEnableStructuredDataHelp {
+            get {
+                return ResourceManager.GetString("seoEnableStructuredDataHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Organization Name.
+        /// </summary>
+        internal static string seoOrganizationName {
+            get {
+                return ResourceManager.GetString("seoOrganizationName", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your organization or blog name for structured data markup.
+        /// </summary>
+        internal static string seoOrganizationNameHelp {
+            get {
+                return ResourceManager.GetString("seoOrganizationNameHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Organization Logo URL.
+        /// </summary>
+        internal static string seoOrganizationLogo {
+            get {
+                return ResourceManager.GetString("seoOrganizationLogo", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to URL to your organization or blog logo for structured data (600x60 pixels or larger recommended).
+        /// </summary>
+        internal static string seoOrganizationLogoHelp {
+            get {
+                return ResourceManager.GetString("seoOrganizationLogoHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to GEO (Generative Engine Optimization).
+        /// </summary>
+        internal static string geoOptimization {
+            get {
+                return ResourceManager.GetString("geoOptimization", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enable GEO Optimization.
+        /// </summary>
+        internal static string geoOptimizationEnabled {
+            get {
+                return ResourceManager.GetString("geoOptimizationEnabled", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enables features for Generative Engine Optimization to improve visibility in AI-powered search engines.
+        /// </summary>
+        internal static string geoOptimizationEnabledHelp {
+            get {
+                return ResourceManager.GetString("geoOptimizationEnabledHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to GEO Optimization Mode.
+        /// </summary>
+        internal static string geoOptimizationMode {
+            get {
+                return ResourceManager.GetString("geoOptimizationMode", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Select the optimization mode: Basic (standard features) or Advanced (enhanced AI optimization).
+        /// </summary>
+        internal static string geoOptimizationModeHelp {
+            get {
+                return ResourceManager.GetString("geoOptimizationModeHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Metadata Richness Level.
+        /// </summary>
+        internal static string geoMetadataRichness {
+            get {
+                return ResourceManager.GetString("geoMetadataRichness", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Control the level of metadata detail: Minimal, Standard, or Rich (more metadata = better AI understanding).
+        /// </summary>
+        internal static string geoMetadataRichnessHelp {
+            get {
+                return ResourceManager.GetString("geoMetadataRichnessHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enable Citation Optimization.
+        /// </summary>
+        internal static string geoEnableCitationOptimization {
+            get {
+                return ResourceManager.GetString("geoEnableCitationOptimization", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Optimizes content structure for citation in generative AI outputs.
+        /// </summary>
+        internal static string geoEnableCitationOptimizationHelp {
+            get {
+                return ResourceManager.GetString("geoEnableCitationOptimizationHelp", resourceCulture);
+            }
+        }
     }
 }

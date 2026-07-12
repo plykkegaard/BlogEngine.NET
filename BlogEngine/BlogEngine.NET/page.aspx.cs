@@ -4,6 +4,8 @@ using BlogEngine.Core;
 using BlogEngine.Core.Web.Controls;
 using Resources;
 using Page = BlogEngine.Core.Page;
+using BlogEngine.Core.Metadata;
+using BlogEngine.Core.Metadata.Schemas;
 
 /// <summary>
 /// The page.
@@ -24,15 +26,16 @@ public partial class page : BlogBasePage
         }
 
 		Guid id = GetPageId();
-        if (id != Guid.Empty)
-        {
-            ServePage(id);
-            AddMetaTags();
-        }
-        else if (!IsCallback)
-        {
-            Response.Redirect(Utils.RelativeWebRoot);
-        }
+		if (id != Guid.Empty)
+		{
+			ServePage(id);
+			// Note: SEO metadata is now handled by BlogBasePage.RenderSeoMetadata()
+			// which calls GetSeoMetadata() and GetStructuredData() overrides
+		}
+		else if (!IsCallback)
+		{
+			Response.Redirect(Utils.RelativeWebRoot);
+		}
 
         base.OnInit(e);
     }
@@ -79,21 +82,6 @@ public partial class page : BlogBasePage
         {
             this.divText.InnerHtml = arg.Body;
         }
-    }
-
-    /// <summary>
-    /// Adds the meta tags and title to the HTML header.
-    /// </summary>
-    private void AddMetaTags()
-    {
-        if (Page == null)
-            return;
-
-        Title = Server.HtmlEncode(Page.Title);
-        AddMetaTag("keywords", Server.HtmlEncode(Page.Keywords));
-
-        var desc = BlogSettings.Instance.Name + " - " + BlogSettings.Instance.Description + " - " + Page.Description;
-        AddMetaTag("description", Server.HtmlEncode(desc));
     }
 
     /// <summary>
@@ -202,4 +190,63 @@ public partial class page : BlogBasePage
             return $"{Utils.AbsoluteWebRoot}page.aspx?id={Page.Id}";
         }
     }
+
+    #region SEO/GEO Metadata Overrides
+
+    /// <summary>
+    /// Gets SEO metadata for the page.
+    /// </summary>
+    /// <returns>Metadata dictionary for the current page.</returns>
+    /// <remarks>
+    /// Provides metadata including title, description, keywords, and URL for static pages.
+    /// </remarks>
+    protected override System.Collections.Generic.IDictionary<string, string> GetSeoMetadata()
+    {
+        if (Page == null)
+            return base.GetSeoMetadata();
+
+        return MetadataBuilder.FromPage(Page, BlogSettings.Instance);
+    }
+
+    /// <summary>
+    /// Gets Schema.org structured data for the page.
+    /// </summary>
+    /// <returns>JSON-LD WebPage schema for the current page.</returns>
+    /// <remarks>
+    /// Generates WebPage structured data for static content pages like About, Contact, etc.
+    /// </remarks>
+    protected override string GetStructuredData()
+    {
+        if (Page == null)
+            return base.GetStructuredData();
+
+        var generator = new SchemaOrgGenerator(BlogSettings.Instance);
+        return generator.GenerateWebPageSchema(Page);
+    }
+
+    #endregion
+
+    #region Legacy Methods (Deprecated)
+
+    /// <summary>
+    /// Adds the meta tags and title to the HTML header.
+    /// </summary>
+    /// <remarks>
+    /// DEPRECATED: This method is retained for backward compatibility but is no longer called.
+    /// Metadata is now handled by GetSeoMetadata() override and the SeoMetadataManager.
+    /// </remarks>
+    [Obsolete("Use GetSeoMetadata() override instead")]
+    private void AddMetaTags()
+    {
+        if (Page == null)
+            return;
+
+        Title = Server.HtmlEncode(Page.Title);
+        AddMetaTag("keywords", Server.HtmlEncode(Page.Keywords));
+
+        var desc = BlogSettings.Instance.Name + " - " + BlogSettings.Instance.Description + " - " + Page.Description;
+        AddMetaTag("description", Server.HtmlEncode(desc));
+    }
+
+    #endregion
 }

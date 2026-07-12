@@ -10,6 +10,11 @@
 - **[Custom Design Theme](https://blogengine.io/themes/custom/)**
 - **[Contact us](https://blogengine.io/support/)**
   <br>
+
+## Documentation
+
+- **[Settings.xml Configuration Reference](docs/SETTINGS-XML-REFERENCE.md)** — Complete guide to configuring SEO and Generative Engine Optimization (GEO) settings
+  <br>
   <br>
 
 ## Get Started

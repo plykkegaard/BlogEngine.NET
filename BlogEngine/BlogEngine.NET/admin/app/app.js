@@ -3,25 +3,16 @@
 
     // Log routing errors
     app.run(['$rootScope', '$location', function($rootScope, $location) {
-        // console.log('Angular app.run() executing...');
-        // console.log('Current location:', $location.url());
-
         $rootScope.$on('$routeChangeError', function(event, current, previous, rejection) {
-            // console.error('Route change error:', rejection);
-            // console.error('Attempted route:', current);
         });
 
         $rootScope.$on('$routeChangeStart', function(event, next, current) {
-            // console.log('Route changing to:', next.$$route ? next.$$route.originalPath : 'unknown');
-            // console.log('Full next object:', next);
         });
 
         $rootScope.$on('$routeChangeSuccess', function(event, current, previous) {
-            // console.log('Route change SUCCESS:', current.$$route ? current.$$route.originalPath : 'unknown');
         });
 
         $rootScope.$on('$locationChangeStart', function(event, newUrl, oldUrl) {
-            // console.log('Location changing from:', oldUrl, 'to:', newUrl);
         });
     }]);
 
@@ -69,6 +60,7 @@
         .when("/settings/comments", { templateUrl: "app/settings/commentView.html" })
         .when("/settings/controls", { templateUrl: "app/settings/controlView.html" })
         .when("/settings/advanced", { templateUrl: "app/settings/advancedView.html" })
+        .when("/settings/seo", { templateUrl: "app/settings/seoView.html" + cacheBuster })
         .when("/settings/controls/blogroll", { templateUrl: "app/settings/controls/blogrollView.html" })
         .when("/settings/controls/pings", { templateUrl: "app/settings/controls/pingView.html" })
         .when("/settings/tools", { templateUrl: "app/settings/tools/checkView.html" })

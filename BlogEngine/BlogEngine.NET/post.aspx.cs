@@ -3,6 +3,8 @@ using System.Web.UI;
 using BlogEngine.Core;
 using BlogEngine.Core.Web.Controls;
 using System.Collections.Generic;
+using BlogEngine.Core.Metadata;
+using BlogEngine.Core.Metadata.Schemas;
 
 public partial class post : BlogBasePage
 {
@@ -99,8 +101,10 @@ public partial class post : BlogBasePage
                     ucCommentList.Post = Post;
 
                     Page.Title = encodedPostTitle;
-                    AddMetaKeywords();
-                    AddMetaDescription();
+
+                    // Note: SEO metadata is now handled by BlogBasePage.RenderSeoMetadata()
+                    // which calls GetSeoMetadata() and GetStructuredData() overrides below
+
                     base.AddMetaTag("author", Server.HtmlEncode(Post.AuthorProfile == null ? Post.Author : Post.AuthorProfile.FullName));
 
                     List<Post> visiblePosts = Post.Posts.FindAll(delegate(Post p) { return p.IsVisible; });
@@ -215,30 +219,81 @@ public partial class post : BlogBasePage
 		}
 	}
 
+	#region SEO/GEO Metadata Overrides
+
+	/// <summary>
+	/// Gets SEO metadata for the post page.
+	/// </summary>
+	/// <returns>Metadata dictionary for the current post.</returns>
+	/// <remarks>
+	/// Provides comprehensive metadata including title, description, author, dates,
+	/// categories, tags, and images extracted from the post content.
+	/// </remarks>
+	protected override System.Collections.Generic.IDictionary<string, string> GetSeoMetadata()
+	{
+		if (Post == null)
+			return base.GetSeoMetadata();
+
+		return MetadataBuilder.FromPost(Post, BlogSettings.Instance);
+	}
+
+	/// <summary>
+	/// Gets Schema.org structured data for the post.
+	/// </summary>
+	/// <returns>JSON-LD BlogPosting schema for the current post.</returns>
+	/// <remarks>
+	/// Generates BlogPosting structured data to help search engines and AI systems
+	/// understand the post content semantics. Critical for GEO optimization.
+	/// </remarks>
+	protected override string GetStructuredData()
+	{
+		if (Post == null)
+			return base.GetStructuredData();
+
+		var generator = new SchemaOrgGenerator(BlogSettings.Instance);
+		return generator.GenerateArticleSchema(Post);
+	}
+
+	#endregion
+
+	#region Legacy Methods (Deprecated)
+
 	/// <summary>
 	/// Adds the post's description as the description metatag.
 	/// </summary>
+	/// <remarks>
+	/// DEPRECATED: This method is retained for backward compatibility but is no longer called.
+	/// Metadata is now handled by GetSeoMetadata() override and the SeoMetadataManager.
+	/// </remarks>
+	[Obsolete("Use GetSeoMetadata() override instead")]
 	private void AddMetaDescription()
 	{
-        var desc = BlogSettings.Instance.Name + " - " + BlogSettings.Instance.Description + " - " + Post.Description;
-        base.AddMetaTag("description", Server.HtmlEncode(desc));
+		var desc = BlogSettings.Instance.Name + " - " + BlogSettings.Instance.Description + " - " + Post.Description;
+		base.AddMetaTag("description", Server.HtmlEncode(desc));
 	}
 
 	/// <summary>
 	/// Adds the post's tags as meta keywords.
 	/// </summary>
+	/// <remarks>
+	/// DEPRECATED: This method is retained for backward compatibility but is no longer called.
+	/// Metadata is now handled by GetSeoMetadata() override and the SeoMetadataManager.
+	/// </remarks>
+	[Obsolete("Use GetSeoMetadata() override instead")]
 	private void AddMetaKeywords()
 	{
-        if (Post.Tags.Count > 0)
+		if (Post.Tags.Count > 0)
 		{
-            base.AddMetaTag("keywords", Server.HtmlEncode(string.Join(",", Post.Tags.ToArray())));
+			base.AddMetaTag("keywords", Server.HtmlEncode(string.Join(",", Post.Tags.ToArray())));
 		}
-        if (ShowFacebookComments)
-        {
-            var tag = "\n\t<meta property=\"fb:app_id\" content=\"{0}\" />";
-            Header.Controls.Add(new LiteralControl(string.Format(tag, BlogSettings.Instance.FacebookAppId)));
-        }
-    }
+		if (ShowFacebookComments)
+		{
+			var tag = "\n\t<meta property=\"fb:app_id\" content=\"{0}\" />";
+			Header.Controls.Add(new LiteralControl(string.Format(tag, BlogSettings.Instance.FacebookAppId)));
+		}
+	}
+
+	#endregion
 
 	public Post Post;
 
