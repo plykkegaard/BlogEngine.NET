@@ -176,5 +176,67 @@
 
         // custom filters
         public bool TrustAuthenticatedUsers { get; set; }
+
+        // SEO & GEO Settings
+        /// <summary>
+        /// Gets or sets the blog-wide SEO title suffix.
+        /// </summary>
+        public string SeoTitleSuffix { get; set; }
+        /// <summary>
+        /// Gets or sets the canonical domain for SEO purposes.
+        /// </summary>
+        public string SeoCanonicalDomain { get; set; }
+        /// <summary>
+        /// Gets or sets the default author name for SEO metadata.
+        /// </summary>
+        public string SeoDefaultAuthor { get; set; }
+        /// <summary>
+        /// Gets or sets the default image URL for social sharing and SEO.
+        /// </summary>
+        public string SeoDefaultImage { get; set; }
+        /// <summary>
+        /// Gets or sets the Twitter handle for social cards.
+        /// </summary>
+        public string SeoTwitterHandle { get; set; }
+        /// <summary>
+        /// Gets or sets the Facebook App ID for Open Graph integration.
+        /// </summary>
+        public string SeoFacebookAppId { get; set; }
+        /// <summary>
+        /// Gets or sets a value indicating whether Open Graph metadata is enabled.
+        /// </summary>
+        public bool SeoEnableOpenGraph { get; set; }
+        /// <summary>
+        /// Gets or sets a value indicating whether Twitter Card metadata is enabled.
+        /// </summary>
+        public bool SeoEnableTwitterCard { get; set; }
+        /// <summary>
+        /// Gets or sets a value indicating whether structured data (Schema.org) is enabled.
+        /// </summary>
+        public bool SeoEnableStructuredData { get; set; }
+        /// <summary>
+        /// Gets or sets the organization name for structured data.
+        /// </summary>
+        public string SeoOrganizationName { get; set; }
+        /// <summary>
+        /// Gets or sets the organization logo URL for structured data.
+        /// </summary>
+        public string SeoOrganizationLogo { get; set; }
+        /// <summary>
+        /// Gets or sets a value indicating whether GEO (Generative Engine Optimization) is enabled.
+        /// </summary>
+        public bool GeoOptimizationEnabled { get; set; }
+        /// <summary>
+        /// Gets or sets the GEO optimization mode (e.g., "Basic", "Advanced").
+        /// </summary>
+        public string GeoOptimizationMode { get; set; }
+        /// <summary>
+        /// Gets or sets the metadata richness level for GEO (e.g., "Minimal", "Standard", "Rich").
+        /// </summary>
+        public string GeoMetadataRichness { get; set; }
+        /// <summary>
+        /// Gets or sets a value indicating whether citation optimization is enabled for GEO.
+        /// </summary>
+        public bool GeoEnableCitationOptimization { get; set; }
     }
 }
