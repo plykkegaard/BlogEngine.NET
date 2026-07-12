@@ -1,0 +1,118 @@
+<div class="settings-view" data-ng-controller="SettingsController">
+    <form id="form" action="">
+        <div class="main-header clearfix">
+            <h2 class="page-title pull-left">{{lbl.seoGeoSettings}}</h2>
+            <button data-ng-click="save()" class="btn btn-success btn-sm btn-hasicon pull-left" type="button"><i class="fa fa-check"></i>{{lbl.save}}</button>
+        </div>
+        <div class="content-inner">
+            <div class="form-content">
+
+                <!-- SEO Basics Section -->
+                <div class="settings-section">
+                    <h3>{{lbl.seoBasics}}</h3>
+
+                    <div class="form-group">
+                        <label for="txtSeoTitleSuffix">{{lbl.seoTitleSuffix}}</label>
+                        <input type="text" class="form-control" id="txtSeoTitleSuffix" name="txtSeoTitleSuffix" data-ng-model="settings.SeoTitleSuffix" placeholder="e.g., ' | My Blog'" />
+                        <small class="form-text text-muted">{{lbl.seoTitleSuffixHelp}}</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="txtSeoCanonicalDomain">{{lbl.seoCanonicalDomain}}</label>
+                        <input type="text" class="form-control" id="txtSeoCanonicalDomain" name="txtSeoCanonicalDomain" data-ng-model="settings.SeoCanonicalDomain" placeholder="e.g., https://example.com" />
+                        <small class="form-text text-muted">{{lbl.seoCanonicalDomainHelp}}</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="txtSeoDefaultAuthor">{{lbl.seoDefaultAuthor}}</label>
+                        <input type="text" class="form-control" id="txtSeoDefaultAuthor" name="txtSeoDefaultAuthor" data-ng-model="settings.SeoDefaultAuthor" placeholder="e.g., John Doe" />
+                        <small class="form-text text-muted">{{lbl.seoDefaultAuthorHelp}}</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="txtSeoDefaultImage">{{lbl.seoDefaultImage}}</label>
+                        <input type="text" class="form-control" id="txtSeoDefaultImage" name="txtSeoDefaultImage" data-ng-model="settings.SeoDefaultImage" placeholder="e.g., https://example.com/image.jpg" />
+                        <small class="form-text text-muted">{{lbl.seoDefaultImageHelp}}</small>
+                    </div>
+                </div>
+
+                <!-- Social Media Section -->
+                <div class="settings-section">
+                    <h3>{{lbl.seoSocialMedia}}</h3>
+
+                    <div class="form-group">
+                        <label><input type="checkbox" name="ckSeoEnableOpenGraph" data-ng-model="settings.SeoEnableOpenGraph" /> {{lbl.seoEnableOpenGraph}}</label>
+                        <small class="form-text text-muted">{{lbl.seoEnableOpenGraphHelp}}</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="txtSeoFacebookAppId">{{lbl.seoFacebookAppId}}</label>
+                        <input type="text" class="form-control" id="txtSeoFacebookAppId" name="txtSeoFacebookAppId" data-ng-model="settings.SeoFacebookAppId" placeholder="e.g., 123456789" />
+                        <small class="form-text text-muted">{{lbl.seoFacebookAppIdHelp}}</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label><input type="checkbox" name="ckSeoEnableTwitterCard" data-ng-model="settings.SeoEnableTwitterCard" /> {{lbl.seoEnableTwitterCard}}</label>
+                        <small class="form-text text-muted">{{lbl.seoEnableTwitterCardHelp}}</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="txtSeoTwitterHandle">{{lbl.seoTwitterHandle}}</label>
+                        <input type="text" class="form-control" id="txtSeoTwitterHandle" name="txtSeoTwitterHandle" data-ng-model="settings.SeoTwitterHandle" placeholder="e.g., @yourusername" />
+                        <small class="form-text text-muted">{{lbl.seoTwitterHandleHelp}}</small>
+                    </div>
+                </div>
+
+                <!-- Structured Data Section -->
+                <div class="settings-section">
+                    <h3>{{lbl.seoStructuredData}}</h3>
+
+                    <div class="form-group">
+                        <label><input type="checkbox" name="ckSeoEnableStructuredData" data-ng-model="settings.SeoEnableStructuredData" /> {{lbl.seoEnableStructuredData}}</label>
+                        <small class="form-text text-muted">{{lbl.seoEnableStructuredDataHelp}}</small>
+                    </div>
+
+                    <div ng-if="settings.SeoEnableStructuredData" class="form-group">
+                        <label for="txtSeoOrganizationName">{{lbl.seoOrganizationName}}</label>
+                        <input type="text" class="form-control" id="txtSeoOrganizationName" name="txtSeoOrganizationName" data-ng-model="settings.SeoOrganizationName" placeholder="e.g., My Company" />
+                        <small class="form-text text-muted">{{lbl.seoOrganizationNameHelp}}</small>
+                    </div>
+
+                    <div ng-if="settings.SeoEnableStructuredData" class="form-group">
+                        <label for="txtSeoOrganizationLogo">{{lbl.seoOrganizationLogo}}</label>
+                        <input type="text" class="form-control" id="txtSeoOrganizationLogo" name="txtSeoOrganizationLogo" data-ng-model="settings.SeoOrganizationLogo" placeholder="e.g., https://example.com/logo.png" />
+                        <small class="form-text text-muted">{{lbl.seoOrganizationLogoHelp}}</small>
+                    </div>
+                </div>
+
+                <!-- GEO Optimization Section -->
+                <div class="settings-section">
+                    <h3>{{lbl.geoOptimization}}</h3>
+
+                    <div class="form-group">
+                        <label><input type="checkbox" name="ckGeoOptimizationEnabled" data-ng-model="settings.GeoOptimizationEnabled" /> {{lbl.geoOptimizationEnabled}}</label>
+                        <small class="form-text text-muted">{{lbl.geoOptimizationEnabledHelp}}</small>
+                    </div>
+
+                    <div ng-if="settings.GeoOptimizationEnabled" class="form-group">
+                        <label for="selGeoOptimizationMode">{{lbl.geoOptimizationMode}}</label>
+                        <select id="selGeoOptimizationMode" class="form-control" data-ng-options="o.OptionName for o in geoOptimizationModeOptions" data-ng-model="selectedGeoOptimizationMode"></select>
+                        <small class="form-text text-muted">{{lbl.geoOptimizationModeHelp}}</small>
+                    </div>
+
+                    <div ng-if="settings.GeoOptimizationEnabled" class="form-group">
+                        <label for="selGeoMetadataRichness">{{lbl.geoMetadataRichness}}</label>
+                        <select id="selGeoMetadataRichness" class="form-control" data-ng-options="o.OptionName for o in geoMetadataRichnessOptions" data-ng-model="selectedGeoMetadataRichness"></select>
+                        <small class="form-text text-muted">{{lbl.geoMetadataRichnessHelp}}</small>
+                    </div>
+
+                    <div ng-if="settings.GeoOptimizationEnabled" class="form-group">
+                        <label><input type="checkbox" name="ckGeoEnableCitationOptimization" data-ng-model="settings.GeoEnableCitationOptimization" /> {{lbl.geoEnableCitationOptimization}}</label>
+                        <small class="form-text text-muted">{{lbl.geoEnableCitationOptimizationHelp}}</small>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </form>
+</div>
