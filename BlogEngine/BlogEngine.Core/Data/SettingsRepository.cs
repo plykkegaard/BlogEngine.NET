@@ -135,6 +135,23 @@ namespace BlogEngine.Core.Data
             // custom filters
             bs.TrustAuthenticatedUsers = ns.TrustAuthenticatedUsers;
 
+            // SEO & GEO settings
+            bs.SeoTitleSuffix = ns.SeoTitleSuffix;
+            bs.SeoCanonicalDomain = ns.SeoCanonicalDomain;
+            bs.SeoDefaultAuthor = ns.SeoDefaultAuthor;
+            bs.SeoDefaultImage = ns.SeoDefaultImage;
+            bs.SeoTwitterHandle = ns.SeoTwitterHandle;
+            bs.SeoFacebookAppId = ns.SeoFacebookAppId;
+            bs.SeoEnableOpenGraph = ns.SeoEnableOpenGraph;
+            bs.SeoEnableTwitterCard = ns.SeoEnableTwitterCard;
+            bs.SeoEnableStructuredData = ns.SeoEnableStructuredData;
+            bs.SeoOrganizationName = ns.SeoOrganizationName;
+            bs.SeoOrganizationLogo = ns.SeoOrganizationLogo;
+            bs.GeoOptimizationEnabled = ns.GeoOptimizationEnabled;
+            bs.GeoOptimizationMode = ns.GeoOptimizationMode;
+            bs.GeoMetadataRichness = ns.GeoMetadataRichness;
+            bs.GeoEnableCitationOptimization = ns.GeoEnableCitationOptimization;
+
             bs.Save();
             return true;
         }
@@ -250,6 +267,23 @@ namespace BlogEngine.Core.Data
 
             // custom filters
             ns.TrustAuthenticatedUsers = bs.TrustAuthenticatedUsers;
+
+            // SEO & GEO settings
+            ns.SeoTitleSuffix = bs.SeoTitleSuffix;
+            ns.SeoCanonicalDomain = bs.SeoCanonicalDomain;
+            ns.SeoDefaultAuthor = bs.SeoDefaultAuthor;
+            ns.SeoDefaultImage = bs.SeoDefaultImage;
+            ns.SeoTwitterHandle = bs.SeoTwitterHandle;
+            ns.SeoFacebookAppId = bs.SeoFacebookAppId;
+            ns.SeoEnableOpenGraph = bs.SeoEnableOpenGraph;
+            ns.SeoEnableTwitterCard = bs.SeoEnableTwitterCard;
+            ns.SeoEnableStructuredData = bs.SeoEnableStructuredData;
+            ns.SeoOrganizationName = bs.SeoOrganizationName;
+            ns.SeoOrganizationLogo = bs.SeoOrganizationLogo;
+            ns.GeoOptimizationEnabled = bs.GeoOptimizationEnabled;
+            ns.GeoOptimizationMode = bs.GeoOptimizationMode;
+            ns.GeoMetadataRichness = bs.GeoMetadataRichness;
+            ns.GeoEnableCitationOptimization = bs.GeoEnableCitationOptimization;
 
             return ns;
         }
