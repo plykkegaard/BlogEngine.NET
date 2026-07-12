@@ -1,4 +1,6 @@
 ﻿using System.IO;
+using BlogEngine.Core.Metadata;
+using BlogEngine.Core.Metadata.Schemas;
 
 namespace BlogEngine.Core.Web.Controls
 {
@@ -173,6 +175,9 @@ namespace BlogEngine.Core.Web.Controls
 
                 AddMetaContentType();
 
+                // Add SEO/GEO metadata
+                RenderSeoMetadata();
+
                 Scripting.Helpers.AddCustomCodeToHead(this);
                 Scripting.Helpers.AddTrackingScript(this);
             }
@@ -292,5 +297,68 @@ namespace BlogEngine.Core.Web.Controls
         {
             return Request.FilePath.Contains(path, StringComparison.InvariantCultureIgnoreCase);
         }
+
+        #region SEO/GEO Metadata Support
+
+        /// <summary>
+        /// Renders SEO and GEO metadata for the current page.
+        /// </summary>
+        /// <remarks>
+        /// This method is called during OnLoad to add SEO metadata, Open Graph tags,
+        /// Twitter Card tags, and structured data to the page header. Derived pages
+        /// can override GetSeoMetadata() to provide page-specific metadata.
+        /// </remarks>
+        protected virtual void RenderSeoMetadata()
+        {
+            // Get page-specific metadata (override in derived pages)
+            var metadata = GetSeoMetadata();
+            if (metadata == null || metadata.Count == 0)
+                return;
+
+            // Render metadata using the manager
+            var manager = new SeoMetadataManager(this, BlogSettings.Instance);
+            manager.RenderMetadata(metadata);
+
+            // Render structured data if enabled
+            if (BlogSettings.Instance.SeoEnableStructuredData)
+            {
+                var jsonLd = GetStructuredData();
+                if (!string.IsNullOrEmpty(jsonLd))
+                {
+                    manager.RenderStructuredData(jsonLd);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the SEO metadata for the current page.
+        /// </summary>
+        /// <returns>A dictionary of metadata key-value pairs.</returns>
+        /// <remarks>
+        /// Override this method in derived pages (post.aspx.cs, default.aspx.cs, page.aspx.cs)
+        /// to provide page-specific metadata. The base implementation returns basic blog metadata.
+        /// </remarks>
+        protected virtual System.Collections.Generic.IDictionary<string, string> GetSeoMetadata()
+        {
+            // Default: Return basic blog-level metadata
+            return MetadataBuilder.ForHomepage(BlogSettings.Instance);
+        }
+
+        /// <summary>
+        /// Gets the Schema.org structured data (JSON-LD) for the current page.
+        /// </summary>
+        /// <returns>JSON-LD string, or null if no structured data.</returns>
+        /// <remarks>
+        /// Override this method in derived pages to provide page-specific structured data.
+        /// The base implementation returns WebSite schema for the homepage.
+        /// </remarks>
+        protected virtual string GetStructuredData()
+        {
+            // Default: Return WebSite schema for homepage
+            var generator = new SchemaOrgGenerator(BlogSettings.Instance);
+            return generator.GenerateWebSiteSchema();
+        }
+
+        #endregion
     }
 }
