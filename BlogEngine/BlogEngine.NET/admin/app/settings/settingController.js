@@ -16,12 +16,28 @@
         dataService.getItems('/api/lookups')
         .then(function (response) {
             angular.copy(response.data, $scope.lookups);
+            $scope.initializeGeoOptions();
             $scope.loadSettings();
         })
         .catch(function () {
             toastr.error($rootScope.lbl.errorLoadingSettings);
             spinOff();
         });
+    }
+
+    $scope.initializeGeoOptions = function () {
+        // Initialize GEO optimization mode options
+        $scope.geoOptimizationModeOptions = [
+            { OptionName: 'Basic', OptionValue: 'Basic' },
+            { OptionName: 'Advanced', OptionValue: 'Advanced' }
+        ];
+
+        // Initialize GEO metadata richness options
+        $scope.geoMetadataRichnessOptions = [
+            { OptionName: 'Minimal', OptionValue: 'Minimal' },
+            { OptionName: 'Standard', OptionValue: 'Standard' },
+            { OptionName: 'Rich', OptionValue: 'Rich' }
+        ];
     }
 
     $scope.loadSettings = function () {
@@ -39,6 +55,11 @@
             $scope.selCommentsPerPage = selectedOption($scope.vm.CommentsPerPageOptions, $scope.settings.CommentsPerPage);
             $scope.selTimeZone = selectedOption($scope.timeZoneOptions, $scope.settings.TimeZoneId);
             $scope.selFacebookLanguage = selectedOption($scope.vm.FacebookLanguages, $scope.settings.FacebookLanguage);
+
+            // Initialize GEO dropdown selections
+            $scope.selectedGeoOptimizationMode = selectedOption($scope.geoOptimizationModeOptions, $scope.settings.GeoOptimizationMode || 'Basic');
+            $scope.selectedGeoMetadataRichness = selectedOption($scope.geoMetadataRichnessOptions, $scope.settings.GeoMetadataRichness || 'Standard');
+
             $scope.setCommentProviders($scope.settings.CommentProvider);
             spinOff();
         })
@@ -62,6 +83,15 @@
         $scope.settings.CommentsPerPage = $scope.selCommentsPerPage.OptionValue;
         $scope.settings.TimeZoneId = $scope.selTimeZone.OptionValue;
         $scope.settings.FacebookLanguage = $scope.selFacebookLanguage.OptionValue;
+
+        // Map GEO dropdown selections
+        if ($scope.selectedGeoOptimizationMode) {
+            $scope.settings.GeoOptimizationMode = $scope.selectedGeoOptimizationMode.OptionValue;
+        }
+        if ($scope.selectedGeoMetadataRichness) {
+            $scope.settings.GeoMetadataRichness = $scope.selectedGeoMetadataRichness.OptionValue;
+        }
+
         $scope.settings.txtErrorTitle = $scope.txtErrorTitle;
 
         dataService.updateItem("/api/settings", $scope.settings)
@@ -176,7 +206,11 @@
                 txtpostsPerFeed: { number: true },
                 txtEmail: { email: true },
                 txtSmtpServerPort: { number: true },
-                txtThemeCookieName: { required: true }
+                txtThemeCookieName: { required: true },
+                // SEO/GEO validation rules
+                txtSeoCanonicalDomain: { url: false },
+                txtSeoDefaultImage: { url: false },
+                txtSeoOrganizationLogo: { url: false }
             }
         });
     });
