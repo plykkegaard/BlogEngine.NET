@@ -52,41 +52,63 @@ namespace BlogEngine.Core.Metadata.Schemas
         /// Creates a BlogPosting schema (subtype of Article) with all relevant properties
         /// including headline, description, author, dates, publisher, and image.
         /// Used for individual blog post pages.
+        /// 
+        /// GEO OPTIMIZATION: Includes critical fields for generative AI systems:
+        /// - articleBody: Full content for AI extraction (CRITICAL)
+        /// - inLanguage: Language classification for multilingual AI
+        /// - isAccessibleForFree: Recommended by Google for AI Overview
+        /// - keywords: Array format (preferred for GEO)
+        /// - publisher.logo: Authority signal for AI systems
+        /// - commentCount, identifier, interactionStatistic: Optional but recommended
         /// </remarks>
         public string GenerateArticleSchema(Post post)
         {
             if (post == null)
                 throw new ArgumentNullException(nameof(post));
 
+            // Determine schema type from Post.SchemaType or default to BlogPosting
+            var schemaType = !string.IsNullOrEmpty(post.SchemaType) ? post.SchemaType : "BlogPosting";
+
             var schema = new Dictionary<string, object>
             {
                 ["@context"] = "https://schema.org",
-                ["@type"] = "BlogPosting",
+                ["@type"] = schemaType,
                 ["headline"] = TruncateHeadline(post.Title),
                 ["description"] = GetPlainTextDescription(post.Description ?? post.Content, 200),
+
+                // GEO CRITICAL: articleBody - full content for AI extraction
+                ["articleBody"] = GetPlainTextContent(post.Content),
+
                 ["datePublished"] = post.DateCreated.ToString("yyyy-MM-ddTHH:mm:sszzz"),
                 ["dateModified"] = post.DateModified.ToString("yyyy-MM-ddTHH:mm:sszzz"),
-                ["author"] = CreatePersonSchema(post.Author ?? _settings.SeoDefaultAuthor),
-                ["publisher"] = CreateOrganizationSchema(),
-                ["url"] = post.AbsoluteLink.ToString(),
+                ["author"] = CreatePersonSchema(post.Author ?? _settings.SeoDefaultAuthor, post),
+                ["publisher"] = CreateOrganizationSchema(), // Now includes logo
+                ["url"] = !string.IsNullOrEmpty(post.CanonicalUrl) ? post.CanonicalUrl : post.AbsoluteLink.ToString(),
                 ["mainEntityOfPage"] = new Dictionary<string, object>
                 {
                     ["@type"] = "WebPage",
-                    ["@id"] = post.AbsoluteLink.ToString()
-                }
+                    ["@id"] = !string.IsNullOrEmpty(post.CanonicalUrl) ? post.CanonicalUrl : post.AbsoluteLink.ToString()
+                },
+
+                // GEO CRITICAL: inLanguage for multilingual generative summaries
+                ["inLanguage"] = DetermineLanguage(post),
+
+                // GEO RECOMMENDED: isAccessibleForFree (Google AI Overview)
+                ["isAccessibleForFree"] = DetermineAccessibility(post)
             };
 
             // Add image if available
-            var imageUrl = ExtractFirstImage(post.Content) ?? _settings.SeoDefaultImage;
+            var imageUrl = post.FirstImgSrc ?? ExtractFirstImage(post.Content) ?? _settings.SeoDefaultImage;
             if (!string.IsNullOrEmpty(imageUrl))
             {
                 schema["image"] = CreateImageSchema(imageUrl);
             }
 
-            // Add keywords from tags
-            if (post.Tags.Any())
+            // GEO PRIORITY: Keywords as array (preferred format for generative engines)
+            var keywords = ExtractKeywordsArray(post);
+            if (keywords != null && keywords.Count > 0)
             {
-                schema["keywords"] = string.Join(", ", post.Tags);
+                schema["keywords"] = keywords; // Array format, not comma-separated string
             }
 
             // Add article section from first category
@@ -101,6 +123,71 @@ namespace BlogEngine.Core.Metadata.Schemas
                 schema["wordCount"] = EstimateWordCount(post.Content);
             }
 
+            // GEO RECOMMENDED: identifier (DOI, ISBN, or unique ID)
+            if (!string.IsNullOrEmpty(post.Id.ToString()))
+            {
+                schema["identifier"] = new Dictionary<string, object>
+                {
+                    ["@type"] = "PropertyValue",
+                    ["propertyID"] = "BlogEngine_Post_ID",
+                    ["value"] = post.Id.ToString()
+                };
+            }
+
+            // GEO RECOMMENDED: commentCount for engagement signals
+            if (post.ApprovedComments.Count > 0)
+            {
+                schema["commentCount"] = post.ApprovedComments.Count;
+            }
+
+            // GEO RECOMMENDED: interactionStatistic for engagement metrics
+            if (_settings.GeoOptimizationEnabled && post.ApprovedComments.Count > 0)
+            {
+                schema["interactionStatistic"] = new Dictionary<string, object>
+                {
+                    ["@type"] = "InteractionCounter",
+                    ["interactionType"] = "https://schema.org/CommentAction",
+                    ["userInteractionCount"] = post.ApprovedComments.Count
+                };
+            }
+
+            // GEO EXTENDED: Key entities for semantic understanding
+            if (!string.IsNullOrEmpty(post.KeyEntities))
+            {
+                var entities = post.KeyEntities.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                              .Select(e => e.Trim())
+                                              .Where(e => !string.IsNullOrEmpty(e))
+                                              .ToList();
+
+                if (entities.Any())
+                {
+                    schema["about"] = entities.Select(e => new Dictionary<string, object>
+                    {
+                        ["@type"] = "Thing",
+                        ["name"] = e
+                    }).ToList();
+                }
+            }
+
+            // GEO EXTENDED: Semantic summary (if provided)
+            if (!string.IsNullOrEmpty(post.SemanticSummary))
+            {
+                schema["abstract"] = post.SemanticSummary;
+            }
+
+            // GEO EXTENDED: Main subject line for topic classification
+            if (!string.IsNullOrEmpty(post.ContentMSL))
+            {
+                if (!schema.ContainsKey("about"))
+                {
+                    schema["about"] = new Dictionary<string, object>
+                    {
+                        ["@type"] = "Thing",
+                        ["name"] = post.ContentMSL
+                    };
+                }
+            }
+
             return JsonConvert.SerializeObject(schema, Formatting.None);
         }
 
@@ -112,6 +199,13 @@ namespace BlogEngine.Core.Metadata.Schemas
         /// <remarks>
         /// Creates a NewsArticle schema (subtype of Article) with additional properties
         /// relevant to news content. Use this for time-sensitive, news-oriented blog posts.
+        /// 
+        /// GEO OPTIMIZATION: Includes critical fields for generative AI systems:
+        /// - articleBody: Full content for AI extraction (CRITICAL)
+        /// - inLanguage: Language classification for multilingual AI
+        /// - isAccessibleForFree: Recommended by Google for AI Overview
+        /// - keywords: Array format (preferred for GEO)
+        /// - publisher.logo: Authority signal for AI systems
         /// </remarks>
         public string GenerateNewsArticleSchema(Post post)
         {
@@ -124,18 +218,58 @@ namespace BlogEngine.Core.Metadata.Schemas
                 ["@type"] = "NewsArticle",
                 ["headline"] = TruncateHeadline(post.Title),
                 ["description"] = GetPlainTextDescription(post.Description ?? post.Content, 200),
+
+                // GEO CRITICAL: articleBody - full content for AI extraction
+                ["articleBody"] = GetPlainTextContent(post.Content),
+
                 ["datePublished"] = post.DateCreated.ToString("yyyy-MM-ddTHH:mm:sszzz"),
                 ["dateModified"] = post.DateModified.ToString("yyyy-MM-ddTHH:mm:sszzz"),
-                ["author"] = CreatePersonSchema(post.Author ?? _settings.SeoDefaultAuthor),
-                ["publisher"] = CreateOrganizationSchema(),
-                ["url"] = post.AbsoluteLink.ToString()
+                ["author"] = CreatePersonSchema(post.Author ?? _settings.SeoDefaultAuthor, post),
+                ["publisher"] = CreateOrganizationSchema(), // Now includes logo
+                ["url"] = !string.IsNullOrEmpty(post.CanonicalUrl) ? post.CanonicalUrl : post.AbsoluteLink.ToString(),
+
+                // GEO CRITICAL: inLanguage for multilingual generative summaries
+                ["inLanguage"] = DetermineLanguage(post),
+
+                // GEO RECOMMENDED: isAccessibleForFree (Google AI Overview)
+                ["isAccessibleForFree"] = DetermineAccessibility(post)
             };
 
             // Add image if available
-            var imageUrl = ExtractFirstImage(post.Content) ?? _settings.SeoDefaultImage;
+            var imageUrl = post.FirstImgSrc ?? ExtractFirstImage(post.Content) ?? _settings.SeoDefaultImage;
             if (!string.IsNullOrEmpty(imageUrl))
             {
                 schema["image"] = CreateImageSchema(imageUrl);
+            }
+
+            // GEO PRIORITY: Keywords as array (preferred format for generative engines)
+            var keywords = ExtractKeywordsArray(post);
+            if (keywords != null && keywords.Count > 0)
+            {
+                schema["keywords"] = keywords;
+            }
+
+            // Add article section from first category
+            if (post.Categories.Any())
+            {
+                schema["articleSection"] = post.Categories.First().Title;
+            }
+
+            // GEO RECOMMENDED: identifier
+            if (!string.IsNullOrEmpty(post.Id.ToString()))
+            {
+                schema["identifier"] = new Dictionary<string, object>
+                {
+                    ["@type"] = "PropertyValue",
+                    ["propertyID"] = "BlogEngine_Post_ID",
+                    ["value"] = post.Id.ToString()
+                };
+            }
+
+            // GEO RECOMMENDED: commentCount
+            if (post.ApprovedComments.Count > 0)
+            {
+                schema["commentCount"] = post.ApprovedComments.Count;
             }
 
             return JsonConvert.SerializeObject(schema, Formatting.None);
@@ -153,23 +287,78 @@ namespace BlogEngine.Core.Metadata.Schemas
         /// <remarks>
         /// Creates a WebPage schema for static content pages (About, Contact, etc.).
         /// Uses simpler schema structure than Article since pages are typically not time-based content.
+        /// 
+        /// GEO OPTIMIZATION: Includes critical fields for generative AI systems:
+        /// - inLanguage: Language classification for multilingual AI
+        /// - isAccessibleForFree: Recommended by Google for AI Overview
+        /// - keywords: Array format (preferred for GEO)
+        /// - publisher.logo: Authority signal for AI systems
         /// </remarks>
         public string GenerateWebPageSchema(Page page)
         {
             if (page == null)
                 throw new ArgumentNullException(nameof(page));
 
+            // Determine schema type from Page.SchemaType or default to WebPage
+            var schemaType = !string.IsNullOrEmpty(page.SchemaType) ? page.SchemaType : "WebPage";
+
             var schema = new Dictionary<string, object>
             {
                 ["@context"] = "https://schema.org",
-                ["@type"] = "WebPage",
+                ["@type"] = schemaType,
                 ["name"] = page.Title,
                 ["description"] = GetPlainTextDescription(page.Description ?? page.Content, 200),
-                ["url"] = page.AbsoluteLink.ToString(),
+                ["url"] = !string.IsNullOrEmpty(page.CanonicalUrl) ? page.CanonicalUrl : page.AbsoluteLink.ToString(),
                 ["datePublished"] = page.DateCreated.ToString("yyyy-MM-ddTHH:mm:sszzz"),
                 ["dateModified"] = page.DateModified.ToString("yyyy-MM-ddTHH:mm:sszzz"),
-                ["publisher"] = CreateOrganizationSchema()
+                ["publisher"] = CreateOrganizationSchema(), // Now includes logo
+
+                // GEO CRITICAL: inLanguage for multilingual generative summaries
+                ["inLanguage"] = DetermineLanguagePage(page),
+
+                // GEO RECOMMENDED: isAccessibleForFree (Google AI Overview)
+                ["isAccessibleForFree"] = true // Pages are typically free access
             };
+
+            // Add image if available
+            var imageUrl = ExtractFirstImage(page.Content) ?? _settings.SeoDefaultImage;
+            if (!string.IsNullOrEmpty(imageUrl))
+            {
+                schema["image"] = CreateImageSchema(imageUrl);
+            }
+
+            // GEO PRIORITY: Keywords as array (preferred format for generative engines)
+            if (!string.IsNullOrEmpty(page.Keywords))
+            {
+                var keywords = page.Keywords
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(k => k.Trim())
+                    .Where(k => !string.IsNullOrEmpty(k))
+                    .ToList();
+
+                if (keywords.Any())
+                {
+                    schema["keywords"] = keywords;
+                }
+            }
+
+            // GEO EXTENDED: Key entities for semantic understanding
+            if (!string.IsNullOrEmpty(page.KeyEntities))
+            {
+                var entities = page.KeyEntities.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                              .Select(e => e.Trim())
+                                              .Where(e => !string.IsNullOrEmpty(e))
+                                              .ToList();
+
+                if (entities.Any())
+                {
+                    schema["about"] = entities.Select(e => new Dictionary<string, object>
+                    {
+                        ["@type"] = "Thing",
+                        ["name"] = e
+                    }).ToList();
+                }
+            }
 
             return JsonConvert.SerializeObject(schema, Formatting.None);
         }
@@ -198,9 +387,62 @@ namespace BlogEngine.Core.Metadata.Schemas
                 ["publisher"] = CreateOrganizationSchema()
             };
 
-            if (!string.IsNullOrEmpty(_settings.SeoDefaultImage))
+            // Add GEO extended settings
+            if (!string.IsNullOrEmpty(_settings.InLanguage))
             {
-                schema["image"] = _settings.SeoDefaultImage;
+                schema["inLanguage"] = _settings.InLanguage;
+            }
+
+            if (!string.IsNullOrEmpty(_settings.GEOImage))
+            {
+                schema["image"] = CreateImageSchema(_settings.GEOImage);
+            }
+
+            // Add Keywords with intelligent fallback strategy
+            var keywords = ExtractKeywords();
+            if (keywords != null && keywords.Count > 0)
+            {
+                schema["keywords"] = keywords;
+            }
+
+            // Add sameAs (social/profile links) if provided
+            if (!string.IsNullOrEmpty(_settings.SameAs))
+            {
+                try
+                {
+                    var sameAsArray = JsonConvert.DeserializeObject<List<string>>(_settings.SameAs);
+                    if (sameAsArray != null && sameAsArray.Count > 0)
+                    {
+                        schema["sameAs"] = sameAsArray;
+                    }
+                }
+                catch
+                {
+                    // If JSON is malformed, skip this field
+                }
+            }
+
+            // Add potential actions if provided (parsed JSON)
+            if (!string.IsNullOrEmpty(_settings.GEOPotentialActions))
+            {
+                try
+                {
+                    var potentialActions = JsonConvert.DeserializeObject(_settings.GEOPotentialActions);
+                    schema["potentialAction"] = potentialActions;
+                }
+                catch
+                {
+                    // If JSON is malformed, skip this field
+                }
+            }
+            else
+            {
+                // Provide default ReadAction if not specified
+                schema["potentialAction"] = new Dictionary<string, object>
+                {
+                    ["@type"] = "ReadAction",
+                    ["target"] = Utils.AbsoluteWebRoot.ToString()
+                };
             }
 
             return JsonConvert.SerializeObject(schema, Formatting.None);
@@ -242,18 +484,60 @@ namespace BlogEngine.Core.Metadata.Schemas
         /// Creates a Schema.org Person object for author representation.
         /// </summary>
         /// <param name="name">The person's name.</param>
+        /// <param name="post">Optional post object for author-specific metadata.</param>
         /// <returns>A dictionary representing a Person schema.</returns>
         /// <remarks>
         /// Person schema is used for author and creator properties in Article schemas.
-        /// Can be extended with additional properties like email, URL, or image.
+        /// GEO ENHANCEMENT: Can be extended with sameAs for author social profiles (authority signal).
+        /// Currently uses basic person info from AuthorProfile (name, photo, URL).
         /// </remarks>
-        private Dictionary<string, object> CreatePersonSchema(string name)
+        private Dictionary<string, object> CreatePersonSchema(string name, Post post = null)
         {
             var person = new Dictionary<string, object>
             {
                 ["@type"] = "Person",
                 ["name"] = name
             };
+
+            // GEO RECOMMENDED: Add author metadata if available
+            // Try to get author profile for additional details
+            if (!string.IsNullOrEmpty(name))
+            {
+                try
+                {
+                    var authorProfile = AuthorProfile.GetProfile(name);
+                    if (authorProfile != null)
+                    {
+                        // Add author photo if available
+                        if (!string.IsNullOrEmpty(authorProfile.PhotoUrl))
+                        {
+                            person["image"] = authorProfile.PhotoUrl;
+                        }
+
+                        // Add author URL (their profile page or website)
+                        if (!string.IsNullOrEmpty(authorProfile.RelativeLink))
+                        {
+                            person["url"] = Utils.AbsoluteWebRoot.ToString().TrimEnd('/') + authorProfile.RelativeLink;
+                        }
+
+                        // TODO: GEO RECOMMENDED - Add sameAs array for author social profiles
+                        // This requires extending AuthorProfile with social media fields:
+                        // - TwitterHandle or TwitterUrl
+                        // - FacebookProfileUrl
+                        // - LinkedInProfileUrl
+                        // - GitHubUrl
+                        // Example implementation when fields are available:
+                        // var sameAsList = new List<string>();
+                        // if (!string.IsNullOrEmpty(authorProfile.TwitterUrl)) sameAsList.Add(authorProfile.TwitterUrl);
+                        // if (!string.IsNullOrEmpty(authorProfile.LinkedInUrl)) sameAsList.Add(authorProfile.LinkedInUrl);
+                        // if (sameAsList.Any()) person["sameAs"] = sameAsList;
+                    }
+                }
+                catch
+                {
+                    // If author profile not found, skip additional metadata
+                }
+            }
 
             return person;
         }
@@ -293,14 +577,29 @@ namespace BlogEngine.Core.Metadata.Schemas
         /// <remarks>
         /// ImageObject schema provides structured data for images referenced in articles.
         /// Helps search engines display images correctly in rich results.
+        /// Includes width, height, and name properties for optimal GEO performance.
         /// </remarks>
         private Dictionary<string, object> CreateImageSchema(string imageUrl)
         {
-            return new Dictionary<string, object>
+            var imageSchema = new Dictionary<string, object>
             {
                 ["@type"] = "ImageObject",
                 ["url"] = imageUrl
             };
+
+            // Add standard image dimensions for better indexing
+            // Using common responsive image dimensions
+            imageSchema["width"] = 1200;
+            imageSchema["height"] = 630;
+
+            // Add image name derived from URL filename or generic name
+            var imageName = ExtractImageName(imageUrl);
+            if (!string.IsNullOrEmpty(imageName))
+            {
+                imageSchema["name"] = imageName;
+            }
+
+            return imageSchema;
         }
 
         #endregion
@@ -407,6 +706,42 @@ namespace BlogEngine.Core.Metadata.Schemas
         }
 
         /// <summary>
+        /// Extracts a friendly name from an image URL for use in structured data.
+        /// </summary>
+        /// <param name="imageUrl">The image URL.</param>
+        /// <returns>A friendly image name derived from the filename.</returns>
+        /// <remarks>
+        /// Extracts the filename from the URL, removes file extension, and converts
+        /// hyphens/underscores to spaces for readability in structured data.
+        /// </remarks>
+        private string ExtractImageName(string imageUrl)
+        {
+            if (string.IsNullOrEmpty(imageUrl))
+                return null;
+
+            try
+            {
+                // Extract filename from URL
+                var uri = new Uri(imageUrl);
+                var filename = System.IO.Path.GetFileNameWithoutExtension(uri.LocalPath);
+
+                if (string.IsNullOrEmpty(filename))
+                    return null;
+
+                // Convert hyphens and underscores to spaces and capitalize
+                var friendlyName = System.Text.RegularExpressions.Regex.Replace(filename, @"[-_]", " ");
+
+                // Capitalize first letter of each word
+                var textInfo = System.Globalization.CultureInfo.CurrentCulture.TextInfo;
+                return textInfo.ToTitleCase(friendlyName.ToLower());
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Estimates word count for content.
         /// </summary>
         /// <param name="htmlContent">The HTML content.</param>
@@ -429,6 +764,212 @@ namespace BlogEngine.Core.Metadata.Schemas
             // Count words
             var words = decoded.Split(new[] { ' ', '\t', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
             return words.Length;
+        }
+
+        #endregion
+
+        #region Private Methods - Keyword Extraction
+
+        /// <summary>
+        /// Extracts keywords for the blog schema from category titles (primary) and GEO Keywords (supplement).
+        /// </summary>
+        /// <returns>A list of keywords, or null if no keywords are available.</returns>
+        /// <remarks>
+        /// Keyword extraction strategy:
+        /// 1. Category Keywords (PRIMARY): Extracts titles from blog categories
+        /// 2. GEO Keywords (SUPPLEMENT): Adds explicit GEO keywords configured in admin settings
+        /// 
+        /// This ensures the schema reflects the actual organizational structure of the blog
+        /// (via categories) while allowing for supplemental explicit keywords for GEO optimization.
+        /// </remarks>
+        private List<string> ExtractKeywords()
+        {
+            var keywords = new List<string>();
+
+            // Priority 1: Extract keywords from blog categories (primary source)
+            try
+            {
+                var categories = Category.Categories;
+                if (categories != null && categories.Count > 0)
+                {
+                    var categoryKeywords = categories
+                        .Where(c => !string.IsNullOrEmpty(c.Title))
+                        .Select(c => c.Title.ToLower())
+                        .Distinct(System.StringComparer.OrdinalIgnoreCase)
+                        .ToList();
+
+                    keywords.AddRange(categoryKeywords);
+                }
+            }
+            catch
+            {
+                // If category retrieval fails, continue with other sources
+            }
+
+            // Priority 2: GEO Keywords (supplement to category keywords)
+            if (!string.IsNullOrEmpty(_settings.GEOKeywords))
+            {
+                var geoKeywords = _settings.GEOKeywords
+                    .Split(new[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries)
+                    .Select(k => k.Trim())
+                    .Where(k => !string.IsNullOrEmpty(k) && !keywords.Contains(k, System.StringComparer.OrdinalIgnoreCase))
+                    .ToList();
+
+                keywords.AddRange(geoKeywords);
+            }
+
+            return keywords.Count > 0 ? keywords : null;
+        }
+
+        /// <summary>
+        /// Extracts keywords array from a post for GEO-optimized schema.
+        /// </summary>
+        /// <param name="post">The post to extract keywords from.</param>
+        /// <returns>A list of keywords, or null if no keywords are available.</returns>
+        /// <remarks>
+        /// GEO PRIORITY: Keywords as array format (preferred by generative engines).
+        /// Keyword extraction strategy for posts:
+        /// 1. Post MetaKeywords (PRIMARY): Explicit SEO keywords set by author
+        /// 2. Post Tags (SUPPLEMENT): Tags assigned to the post
+        /// 3. Category Titles (FALLBACK): Categories assigned to the post
+        /// </remarks>
+        private List<string> ExtractKeywordsArray(Post post)
+        {
+            var keywords = new List<string>();
+
+            // Priority 1: MetaKeywords (explicit SEO keywords)
+            if (!string.IsNullOrEmpty(post.MetaKeywords))
+            {
+                var metaKeywords = post.MetaKeywords
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(k => k.Trim())
+                    .Where(k => !string.IsNullOrEmpty(k))
+                    .ToList();
+
+                keywords.AddRange(metaKeywords);
+            }
+
+            // Priority 2: Post Tags (supplement)
+            if (post.Tags.Any())
+            {
+                var tagKeywords = post.Tags
+                    .Where(t => !keywords.Contains(t, StringComparer.OrdinalIgnoreCase))
+                    .ToList();
+
+                keywords.AddRange(tagKeywords);
+            }
+
+            // Priority 3: Post Categories (fallback)
+            if (post.Categories.Any())
+            {
+                var categoryKeywords = post.Categories
+                    .Select(c => c.Title)
+                    .Where(t => !string.IsNullOrEmpty(t) && !keywords.Contains(t, StringComparer.OrdinalIgnoreCase))
+                    .ToList();
+
+                keywords.AddRange(categoryKeywords);
+            }
+
+            return keywords.Count > 0 ? keywords : null;
+        }
+
+        /// <summary>
+        /// Extracts full plain text content from HTML for articleBody schema property.
+        /// </summary>
+        /// <param name="htmlContent">The HTML content.</param>
+        /// <returns>Full plain text content without HTML tags.</returns>
+        /// <remarks>
+        /// GEO CRITICAL: articleBody is the single most important field for generative engines.
+        /// Without it, AI systems cannot extract summaries reliably.
+        /// This method strips all HTML tags and entities to produce clean text for AI processing.
+        /// </remarks>
+        private string GetPlainTextContent(string htmlContent)
+        {
+            if (string.IsNullOrEmpty(htmlContent))
+                return string.Empty;
+
+            // Remove HTML tags
+            var withoutTags = System.Text.RegularExpressions.Regex.Replace(htmlContent, "<.*?>", string.Empty);
+
+            // Decode HTML entities
+            var decoded = HttpUtility.HtmlDecode(withoutTags);
+
+            // Remove multiple whitespace and normalize line breaks
+            var normalized = System.Text.RegularExpressions.Regex.Replace(decoded, @"\s+", " ").Trim();
+
+            return normalized;
+        }
+
+        /// <summary>
+        /// Determines the language of the content for inLanguage schema property.
+        /// </summary>
+        /// <param name="post">The post to determine language for.</param>
+        /// <returns>Language code (e.g., "en-US", "es", "fr").</returns>
+        /// <remarks>
+        /// GEO CRITICAL: Search engines use inLanguage to classify content for multilingual generative summaries.
+        /// Priority: settings.InLanguage > system culture > default "en-US"
+        /// </remarks>
+        private string DetermineLanguage(Post post)
+        {
+            // Priority 1: Blog settings InLanguage
+            if (!string.IsNullOrEmpty(_settings.InLanguage))
+                return _settings.InLanguage;
+
+            // Priority 2: System culture
+            try
+            {
+                return System.Globalization.CultureInfo.CurrentCulture.Name;
+            }
+            catch
+            {
+                // Fallback to default
+                return "en-US";
+            }
+        }
+
+        /// <summary>
+        /// Determines the language of the content for inLanguage schema property (Page version).
+        /// </summary>
+        /// <param name="page">The page to determine language for.</param>
+        /// <returns>Language code (e.g., "en-US", "es", "fr").</returns>
+        /// <remarks>
+        /// GEO CRITICAL: Search engines use inLanguage to classify content for multilingual generative summaries.
+        /// Priority: settings.InLanguage > system culture > default "en-US"
+        /// </remarks>
+        private string DetermineLanguagePage(Page page)
+        {
+            // Priority 1: Blog settings InLanguage
+            if (!string.IsNullOrEmpty(_settings.InLanguage))
+                return _settings.InLanguage;
+
+            // Priority 2: System culture
+            try
+            {
+                return System.Globalization.CultureInfo.CurrentCulture.Name;
+            }
+            catch
+            {
+                // Fallback to default
+                return "en-US";
+            }
+        }
+
+        /// <summary>
+        /// Determines accessibility for isAccessibleForFree schema property.
+        /// </summary>
+        /// <param name="post">The post to determine accessibility for.</param>
+        /// <returns>True if content is free, false if paywalled.</returns>
+        /// <remarks>
+        /// GEO RECOMMENDED: Google uses isAccessibleForFree for AI Overview.
+        /// Currently defaults to true (free access) for all posts.
+        /// Can be extended to check post metadata for paywall status.
+        /// </remarks>
+        private bool DetermineAccessibility(Post post)
+        {
+            // Check if post has a field indicating paywall status
+            // For now, default to true (free access) for all posts
+            // TODO: Add paywall detection based on post metadata or categories
+            return true;
         }
 
         #endregion
