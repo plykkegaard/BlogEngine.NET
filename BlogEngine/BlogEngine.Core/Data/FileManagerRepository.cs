@@ -6,9 +6,28 @@ using System.Collections.Generic;
 
 namespace BlogEngine.Core.Data
 {
+    /// <summary>
+    /// Repository for managing file instances in the file manager.
+    /// </summary>
+    /// <remarks>
+    /// This repository provides methods to interact with the file system, allowing for the retrieval
+    /// and management of file instances within the file manager. It ensures that only authorized users
+    /// can access and manipulate the files.
+    /// </remarks>
     public class FileManagerRepository : IFileManagerRepository
     {
-
+        /// <summary>
+        /// Finds file instances based on the specified parameters.
+        /// </summary>
+        /// <param name="take"></param>
+        /// <param name="skip"></param>
+        /// <param name="path"></param>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        /// <exception cref="UnauthorizedAccessException"></exception>
+        /// <remarks>
+        /// The method returns an enumerable collection of file instances that match the specified criteria.
+        /// </remarks>
         public IEnumerable<FileInstance> Find(int take = 10, int skip = 0, string path = "", string order = "")
         {
             if (!Security.IsAuthorizedTo(Rights.EditOwnPosts))
@@ -16,7 +35,7 @@ namespace BlogEngine.Core.Data
 
             var list = new List<FileInstance>();
             var rwr = Utils.RelativeWebRoot;
-            var responsePath = "root";
+            // var responsePath = "root";
 
             path = path.SanitizePath();
 
@@ -35,7 +54,7 @@ namespace BlogEngine.Core.Data
                     FullPath = directory.Parent.FullPath,
                     Name = "..."
                 });
-                responsePath = "root" + directory.FullPath;
+                // responsePath = "root" + directory.FullPath;
             }
 
             foreach (var dir in directory.Directories)
