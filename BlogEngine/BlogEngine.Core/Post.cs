@@ -68,8 +68,15 @@
         private string content;
 
         /// <summary>
-        ///     The description.
+        ///     The description - UNIFIED METADATA: This serves as the primary meta description.
+        ///     Part of the unified SEO/GEO metadata model. Used for meta description tags,
+        ///     Open Graph og:description, Twitter Card description, and Schema.org description.
         /// </summary>
+        /// <remarks>
+        ///     BACKWARD COMPATIBILITY: Legacy property maintained for existing code.
+        ///     In the unified model, this is the authoritative source for all description metadata.
+        ///     SemanticSummary provides an alternative AI-optimized description when set.
+        /// </remarks>
         private string description;
 
         /// <summary>
@@ -111,6 +118,132 @@
         ///     The title.
         /// </summary>
         private string title;
+
+        #region Unified SEO/GEO Metadata Fields
+
+        /// <summary>
+        ///     UNIFIED METADATA: Canonical URL for the post.
+        /// </summary>
+        /// <remarks>
+        ///     Part of the unified SEO/GEO metadata model.
+        ///     - SEO: Prevents duplicate content penalties, establishes primary URL identity
+        ///     - GEO: Helps AI systems identify the authoritative source for this content
+        ///     Used in: canonical link tag, og:url, Schema.org url property
+        /// </remarks>
+        private string canonicalUrl;
+
+        /// <summary>
+        ///     UNIFIED METADATA: Schema.org type (e.g., "BlogPosting", "Article", "NewsArticle").
+        /// </summary>
+        /// <remarks>
+        ///     Part of the unified SEO/GEO metadata model.
+        ///     - SEO: Helps search engines understand content type for rich snippets
+        ///     - GEO: Critical for AI systems to properly classify and understand content
+        ///     Defaults to "BlogPosting" if not specified.
+        /// </remarks>
+        private string schemaType;
+
+        /// <summary>
+        ///     UNIFIED METADATA: Comma-separated key entities mentioned in the post.
+        /// </summary>
+        /// <remarks>
+        ///     Part of the unified SEO/GEO metadata model (primarily GEO-focused).
+        ///     - GEO: Named entities (people, organizations, locations, concepts) for AI extraction
+        ///     - SEO: Can enhance semantic understanding in advanced search systems
+        ///     Example: "Machine Learning, Neural Networks, TensorFlow"
+        ///     Used in: Custom metadata tags, Schema.org mentions/about properties
+        /// </remarks>
+        private string keyEntities;
+
+        /// <summary>
+        ///     UNIFIED METADATA: Semantic summary optimized for AI systems.
+        /// </summary>
+        /// <remarks>
+        ///     Part of the unified SEO/GEO metadata model (primarily GEO-focused).
+        ///     - GEO: Concise, semantically rich summary emphasizing key concepts and relationships
+        ///     - SEO: Alternative to traditional description for AI-powered search
+        ///     Unlike Description, this focuses on semantic meaning and entity relationships.
+        ///     Falls back to Description if not set. Used in: AI-specific meta tags, structured data
+        /// </remarks>
+        private string semanticSummary;
+
+        /// <summary>
+        ///     UNIFIED METADATA: Main Subject Line (MSL) for content classification.
+        /// </summary>
+        /// <remarks>
+        ///     Part of the unified SEO/GEO metadata model (primarily GEO-focused).
+        ///     - GEO: Primary subject/topic for AI topic modeling and categorization
+        ///     - SEO: Can be used for content clustering and site organization
+        ///     Should be a single, clear phrase (e.g., "Cloud Computing Best Practices")
+        ///     Used in: Custom classification tags, Schema.org about property
+        /// </remarks>
+        private string contentMSL;
+
+        /// <summary>
+        ///     UNIFIED METADATA: Meta keywords for search engines and AI systems.
+        /// </summary>
+        /// <remarks>
+        ///     Part of the unified SEO/GEO metadata model.
+        ///     - SEO: Traditional keyword meta tag (lower weight in modern search)
+        ///     - GEO: Still valuable for AI systems and specialized search
+        ///     CONSOLIDATED: This field unifies all keyword storage. Legacy 'keywords' usage
+        ///     should map to this field for backward compatibility.
+        ///     Used in: meta keywords tag, Schema.org keywords property
+        /// </remarks>
+        private string metaKeywords;
+
+        /// <summary>
+        ///     UNIFIED METADATA: Meta robots directives (e.g., "index, follow", "noindex").
+        /// </summary>
+        /// <remarks>
+        ///     Part of the unified SEO/GEO metadata model.
+        ///     - SEO: Controls search engine crawling and indexing behavior
+        ///     - GEO: Can include/exclude content from AI training data and generative results
+        ///     Common values: "index, follow", "noindex, follow", "index, nofollow", "noindex, nofollow"
+        ///     Extended for GEO: "noai", "noimageai" directives may be added
+        ///     Used in: meta robots tag, HTTP headers, robots.txt references
+        /// </remarks>
+        private string metaRobots;
+
+        /// <summary>
+        ///     UNIFIED METADATA: Open Graph data (JSON serialized).
+        /// </summary>
+        /// <remarks>
+        ///     Part of the unified SEO/GEO metadata model.
+        ///     - SEO: Rich social media previews on Facebook, LinkedIn, etc.
+        ///     - GEO: Provides structured context for AI systems analyzing social shares
+        ///     USAGE PATTERN: This field is for CUSTOM OVERRIDES only.
+        ///     By default, SeoMetadataManager generates OG tags from other metadata properties.
+        ///     Store JSON here only when you need to override the default OG tag generation.
+        ///     Example: {"og:video": "https://...", "og:video:type": "video/mp4"}
+        /// </remarks>
+        private string openGraphData;
+
+        /// <summary>
+        ///     UNIFIED METADATA: Breadcrumb label for navigation structure.
+        /// </summary>
+        /// <remarks>
+        ///     Part of the unified SEO/GEO metadata model.
+        ///     - SEO: Used in Schema.org BreadcrumbList for rich snippets
+        ///     - GEO: Helps AI understand page hierarchy and site structure
+        ///     Falls back to post title if not set.
+        ///     Used in: Schema.org BreadcrumbList structured data
+        /// </remarks>
+        private string breadcrumbLabel;
+
+        /// <summary>
+        ///     UNIFIED METADATA: Schema.org organization name for this post.
+        /// </summary>
+        /// <remarks>
+        ///     Part of the unified SEO/GEO metadata model.
+        ///     - SEO: Organization attribution in structured data for rich snippets
+        ///     - GEO: Helps AI systems understand organizational context and authority
+        ///     Can override blog-level organization for posts from guest authors or partners.
+        ///     Used in: Schema.org publisher/organization properties
+        /// </remarks>
+        private string schemaOrganization;
+
+        #endregion
 
         #endregion
 
@@ -416,8 +549,17 @@
         }
 
         /// <summary>
-        ///     Gets or sets the Description or the post.
+        ///     Gets or sets the Description of the post.
         /// </summary>
+        /// <remarks>
+        ///     UNIFIED METADATA: This is the primary meta description in the unified SEO/GEO model.
+        ///     - SEO: Used in meta description tags for search engine results
+        ///     - GEO: Provides context for AI summarization and content understanding
+        ///     BACKWARD COMPATIBILITY: Legacy property maintained. This is the authoritative source
+        ///     for all description metadata unless SemanticSummary provides an AI-optimized alternative.
+        ///     Used by MetadataBuilder and SeoMetadataManager for og:description, twitter:description,
+        ///     and Schema.org description properties.
+        /// </remarks>
         public string Description
         {
             get
@@ -713,6 +855,181 @@
                 }
                 return srcValue ?? string.Empty;
             }
+        }
+
+        #endregion
+
+        #region SEO & GEO (Generative Engine Optimization) Properties
+
+        /// <summary>
+        ///     Gets or sets the canonical URL for this post.
+        /// </summary>
+        /// <remarks>
+        ///     UNIFIED METADATA: Part of the unified SEO/GEO model.
+        ///     The canonical URL is used to prevent duplicate content penalties in search engines
+        ///     and to establish the primary URL identity for this specific post when duplicated elsewhere.
+        ///     Also helps AI systems identify the authoritative source.
+        /// </remarks>
+        public string CanonicalUrl
+        {
+            get { return this.canonicalUrl; }
+            set { base.SetValue("CanonicalUrl", value, ref this.canonicalUrl); }
+        }
+
+        /// <summary>
+        ///     Gets or sets the Schema.org type for structured data markup.
+        /// </summary>
+        /// <remarks>
+        ///     UNIFIED METADATA: Part of the unified SEO/GEO model.
+        ///     Specifies the schema type for this post (e.g., "BlogPosting", "Article", "NewsArticle").
+        ///     Used in structured data to help search engines and AI systems understand the content type.
+        ///     Defaults to "BlogPosting" if not specified.
+        /// </remarks>
+        public string SchemaType
+        {
+            get { return this.schemaType; }
+            set { base.SetValue("SchemaType", value, ref this.schemaType); }
+        }
+
+        /// <summary>
+        ///     Gets or sets comma-separated key entities mentioned in the post.
+        /// </summary>
+        /// <remarks>
+        ///     UNIFIED METADATA: Part of the unified SEO/GEO model (GEO-focused).
+        ///     A comma-separated list of named entities (people, organizations, locations, concepts)
+        ///     mentioned in the post content. Used by AI systems for entity extraction and semantic understanding.
+        ///     Example: "Machine Learning, Neural Networks, TensorFlow"
+        /// </remarks>
+        public string KeyEntities
+        {
+            get { return this.keyEntities; }
+            set { base.SetValue("KeyEntities", value, ref this.keyEntities); }
+        }
+
+        /// <summary>
+        ///     Gets or sets a semantic summary optimized for AI systems.
+        /// </summary>
+        /// <remarks>
+        ///     UNIFIED METADATA: Part of the unified SEO/GEO model (GEO-focused).
+        ///     A concise, semantically rich summary that emphasizes key concepts and relationships
+        ///     for better understanding by generative AI systems. Unlike traditional meta descriptions,
+        ///     this should highlight semantic meaning and entity relationships.
+        /// </remarks>
+        public string SemanticSummary
+        {
+            get { return this.semanticSummary; }
+            set { base.SetValue("SemanticSummary", value, ref this.semanticSummary); }
+        }
+
+        /// <summary>
+        ///     Gets or sets the Main Subject Line (MSL) for content classification.
+        /// </summary>
+        /// <remarks>
+        ///     UNIFIED METADATA: Part of the unified SEO/GEO model (GEO-focused).
+        ///     The primary subject or main topic of the post content, used for topic modeling
+        ///     and content categorization by AI systems. Should be a single, clear phrase representing
+        ///     the post's main subject (e.g., "Cloud Computing Best Practices").
+        /// </remarks>
+        public string ContentMSL
+        {
+            get { return this.contentMSL; }
+            set { base.SetValue("ContentMSL", value, ref this.contentMSL); }
+        }
+
+        /// <summary>
+        ///     Gets or sets comma-separated meta keywords for search engines and AI systems.
+        /// </summary>
+        /// <remarks>
+        ///     UNIFIED METADATA: Part of the unified SEO/GEO model.
+        ///     Keywords that describe the post content for search engines and AI-powered search systems.
+        ///     Use comma-separated values. Modern search engines may give less weight to this field,
+        ///     but it remains useful for AI systems and specialized search applications.
+        ///     
+        ///     CONSOLIDATED FIELD: This is the unified storage for all keyword metadata in the Post model.
+        ///     
+        ///     BACKWARD COMPATIBILITY: This property provides explicit keyword metadata control.
+        ///     Falls back to Tags collection if not explicitly set. MetadataBuilder automatically
+        ///     uses this field when set, or falls back to Tags when empty.
+        ///     
+        ///     Usage: Set this when you need fine-grained control over SEO keywords that differs
+        ///     from your taxonomy Tags. Leave empty to use Tags as the default keyword source.
+        /// </remarks>
+        public string MetaKeywords
+        {
+            get 
+            { 
+                // If MetaKeywords not explicitly set, fall back to Tags for backward compatibility
+                if (string.IsNullOrEmpty(this.metaKeywords) && this.Tags != null && this.Tags.Count > 0)
+                {
+                    return string.Join(", ", this.Tags);
+                }
+                return this.metaKeywords; 
+            }
+            set { base.SetValue("MetaKeywords", value, ref this.metaKeywords); }
+        }
+
+        /// <summary>
+        ///     Gets or sets meta robots directives for search engine crawling behavior.
+        /// </summary>
+        /// <remarks>
+        ///     UNIFIED METADATA: Part of the unified SEO/GEO model.
+        ///     Controls how search engine crawlers and AI indexers should treat this post.
+        ///     Common values: "index, follow", "noindex, follow", "index, nofollow", "noindex, nofollow".
+        ///     Extended GEO directives: "noai", "noimageai" to opt-out of AI training/generation.
+        ///     Used to include/exclude content from search results and AI training data.
+        /// </remarks>
+        public string MetaRobots
+        {
+            get { return this.metaRobots; }
+            set { base.SetValue("MetaRobots", value, ref this.metaRobots); }
+        }
+
+        /// <summary>
+        ///     Gets or sets Open Graph metadata (JSON serialized).
+        /// </summary>
+        /// <remarks>
+        ///     UNIFIED METADATA: Part of the unified SEO/GEO model.
+        ///     JSON-formatted Open Graph metadata for social media sharing and rich previews.
+        ///     Includes properties like og:title, og:description, og:image, og:type, etc.
+        ///     Improves how posts appear when shared on social media and messaging platforms.
+        ///     USAGE PATTERN: This field is for CUSTOM OVERRIDES only. By default, SeoMetadataManager
+        ///     generates OG tags from other metadata properties. Use this only when you need to override
+        ///     default OG tag generation with custom values.
+        /// </remarks>
+        public string OpenGraphData
+        {
+            get { return this.openGraphData; }
+            set { base.SetValue("OpenGraphData", value, ref this.openGraphData); }
+        }
+
+        /// <summary>
+        ///     Gets or sets the breadcrumb label for navigation structure.
+        /// </summary>
+        /// <remarks>
+        ///     UNIFIED METADATA: Part of the unified SEO/GEO model.
+        ///     A label for this post in breadcrumb navigation and structural hierarchy.
+        ///     Used in Schema.org BreadcrumbList markup to establish navigation paths that
+        ///     help AI systems understand page hierarchy and relationships.
+        /// </remarks>
+        public string BreadcrumbLabel
+        {
+            get { return this.breadcrumbLabel; }
+            set { base.SetValue("BreadcrumbLabel", value, ref this.breadcrumbLabel); }
+        }
+
+        /// <summary>
+        ///     Gets or sets the Schema.org organization name for this post.
+        /// </summary>
+        /// <remarks>
+        ///     UNIFIED METADATA: Part of the unified SEO/GEO model.
+        ///     The organization responsible for or associated with this post content in Schema.org markup.
+        ///     Can override the blog-level organization if the post is associated with a specific organization.
+        ///     Used in structured data for proper attribution and organizational identification by AI systems.
+        /// </remarks>
+        public string SchemaOrganization
+        {
+            get { return this.schemaOrganization; }
+            set { base.SetValue("SchemaOrganization", value, ref this.schemaOrganization); }
         }
 
         #endregion
