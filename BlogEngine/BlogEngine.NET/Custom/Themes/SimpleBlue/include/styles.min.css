@@ -3995,3 +3995,14 @@ a {
         bottom: 100px !important;
     }
 }
+
+/* Bootstrap button classes */
+a.btn.btn-primary,
+.btn.btn-primary {
+    color: #fff !important;
+    font-weight: bold;
+}
+
+.btn-block + .btn-block {
+    margin-top: 5px;
+}
