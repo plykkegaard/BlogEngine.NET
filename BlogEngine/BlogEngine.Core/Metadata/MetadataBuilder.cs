@@ -305,7 +305,12 @@ namespace BlogEngine.Core.Metadata
         /// <remarks>
         /// Convenience method that extracts all relevant metadata from a Post object
         /// and applies appropriate defaults from settings. Includes title, description,
-        /// author, dates, categories, tags, and images.
+        /// author, dates, categories, tags, images, and unified SEO/GEO metadata.
+        /// 
+        /// UNIFIED METADATA: Uses the consolidated metadata model where:
+        /// - Description is the primary description source (falls back to SemanticSummary for AI)
+        /// - MetaKeywords is the unified keyword source (automatically falls back to Tags)
+        /// - All GEO-specific fields are included when set
         /// </remarks>
         public static IDictionary<string, string> FromPost(Post post, BlogSettings settings)
         {
@@ -314,18 +319,68 @@ namespace BlogEngine.Core.Metadata
 
             var builder = new MetadataBuilder(settings);
 
-            return builder
-                .SetTitle(post.Title)
-                .SetDescription(post.Description ?? post.Content, 160)
+            var title = !string.IsNullOrEmpty(settings.SeoTitleSuffix) 
+                ? $"{post.Title} {settings.SeoTitleSuffix}" 
+                : post.Title;
+
+            // Use unified description: Description is primary, SemanticSummary for GEO
+            var description = !string.IsNullOrEmpty(post.Description) 
+                ? post.Description 
+                : post.Content;
+
+            // Use unified keywords: MetaKeywords (which falls back to Tags automatically)
+            var keywordsString = post.MetaKeywords; // This property now falls back to Tags
+            var keywords = !string.IsNullOrEmpty(keywordsString)
+                ? keywordsString.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                : new string[0];
+
+            // Determine canonical URL: use Post.CanonicalUrl if set, otherwise AbsoluteLink
+            var canonicalUrl = !string.IsNullOrEmpty(post.CanonicalUrl)
+                ? post.CanonicalUrl
+                : post.AbsoluteLink.ToString();
+
+            var metadata = builder
+                .SetTitle(title)
+                .SetDescription(description, 160)
+                .SetKeywords(keywords)
                 .SetAuthor(post.Author)
-                .SetUrl(post.AbsoluteLink.ToString())
+                .SetUrl(canonicalUrl)
                 .SetPublishedDate(post.DateCreated)
                 .SetModifiedDate(post.DateModified)
                 .SetCategory(post.Categories.FirstOrDefault()?.Title)
                 .SetTags(post.Tags)
-                .SetKeywords(post.Tags)
-                .SetOpenGraphType("article")
-                .Build();
+                .SetImage(post.FirstImgSrc ?? settings.GEOImage)
+                .SetOpenGraphType("article");
+
+            // Add unified GEO/SEO metadata when available
+            if (!string.IsNullOrEmpty(post.SemanticSummary))
+                metadata.SetCustom("semantic_summary", post.SemanticSummary);
+
+            if (!string.IsNullOrEmpty(post.KeyEntities))
+                metadata.SetCustom("key_entities", post.KeyEntities);
+
+            if (!string.IsNullOrEmpty(post.ContentMSL))
+                metadata.SetCustom("content_msl", post.ContentMSL);
+
+            if (!string.IsNullOrEmpty(post.MetaRobots))
+                metadata.SetCustom("robots", post.MetaRobots);
+
+            if (!string.IsNullOrEmpty(post.BreadcrumbLabel))
+                metadata.SetCustom("breadcrumb_label", post.BreadcrumbLabel);
+
+            if (!string.IsNullOrEmpty(post.SchemaOrganization))
+                metadata.SetCustom("schema_organization", post.SchemaOrganization);
+
+            if (!string.IsNullOrEmpty(post.SchemaType))
+                metadata.SetCustom("schema_type", post.SchemaType);
+            else
+                metadata.SetCustom("schema_type", "BlogPosting"); // Default schema type
+
+            // OpenGraphData for custom overrides (if provided)
+            if (!string.IsNullOrEmpty(post.OpenGraphData))
+                metadata.SetCustom("opengraph_json", post.OpenGraphData);
+
+            return metadata.Build();
         }
 
         /// <summary>
@@ -338,6 +393,11 @@ namespace BlogEngine.Core.Metadata
         /// Convenience method that extracts metadata from a Page object.
         /// Pages use "website" as the Open Graph type since they're typically static content
         /// rather than time-based articles.
+        /// 
+        /// UNIFIED METADATA: Uses the consolidated metadata model where:
+        /// - Description is the primary description source (falls back to SemanticSummary for AI)
+        /// - Keywords is the unified keyword source  
+        /// - All GEO-specific fields are included when set
         /// </remarks>
         public static IDictionary<string, string> FromPage(Page page, BlogSettings settings)
         {
@@ -346,14 +406,50 @@ namespace BlogEngine.Core.Metadata
 
             var builder = new MetadataBuilder(settings);
 
-            return builder
-                .SetTitle(page.Title)
+            var title = !string.IsNullOrEmpty(settings.SeoTitleSuffix) 
+                ? $"{page.Title} {settings.SeoTitleSuffix}" 
+                : page.Title;
+
+            // Use Keywords from Page.Keywords (unified source)
+            var keywords = !string.IsNullOrEmpty(page.Keywords) 
+                ? page.Keywords.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                : new string[0];
+
+            var metadata = builder
+                .SetTitle(title)
                 .SetDescription(page.Description ?? page.Content, 160)
+                .SetKeywords(keywords)
                 .SetUrl(page.AbsoluteLink.ToString())
                 .SetPublishedDate(page.DateCreated)
                 .SetModifiedDate(page.DateModified)
-                .SetOpenGraphType("website")
-                .Build();
+                .SetOpenGraphType("website");
+
+            // Add unified GEO/SEO metadata if available
+            if (!string.IsNullOrEmpty(page.CanonicalUrl))
+                metadata.SetUrl(page.CanonicalUrl);
+
+            if (!string.IsNullOrEmpty(page.SemanticSummary))
+                metadata.SetCustom("semantic_summary", page.SemanticSummary);
+
+            if (!string.IsNullOrEmpty(page.KeyEntities))
+                metadata.SetCustom("key_entities", page.KeyEntities);
+
+            if (!string.IsNullOrEmpty(page.ContentMSL))
+                metadata.SetCustom("content_msl", page.ContentMSL);
+
+            if (!string.IsNullOrEmpty(page.MetaRobots))
+                metadata.SetCustom("robots", page.MetaRobots);
+
+            if (!string.IsNullOrEmpty(page.BreadcrumbLabel))
+                metadata.SetCustom("breadcrumb_label", page.BreadcrumbLabel);
+
+            if (!string.IsNullOrEmpty(page.SchemaOrganization))
+                metadata.SetCustom("schema_organization", page.SchemaOrganization);
+
+            if (!string.IsNullOrEmpty(page.SchemaType))
+                metadata.SetCustom("schema_type", page.SchemaType);
+
+            return metadata.Build();
         }
 
         /// <summary>
@@ -375,12 +471,17 @@ namespace BlogEngine.Core.Metadata
             var builder = new MetadataBuilder(settings);
 
             var title = !string.IsNullOrEmpty(pageTitle) ? pageTitle : settings.Name;
+            if (!string.IsNullOrEmpty(settings.SeoTitleSuffix))
+            {
+                title = $"{title} {settings.SeoTitleSuffix}";
+            }
             var description = !string.IsNullOrEmpty(pageDescription) ? pageDescription : settings.Description;
 
             return builder
                 .SetTitle(title)
                 .SetDescription(description, 160)
                 .SetUrl(Utils.AbsoluteWebRoot.ToString())
+                .SetImage(settings.GEOImage)
                 .SetOpenGraphType("website")
                 .Build();
         }
