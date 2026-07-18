@@ -242,5 +242,37 @@ namespace BlogEngine.Core.Data.ViewModels
         //    }
         //}
 
+        /// <summary>
+        /// Schema.org inLanguage options for GEO metadata.
+        /// </summary>
+        public List<SelectOption> InLanguageOptions
+        {
+            get
+            {
+                var options = new List<SelectOption>()
+                {
+                    new SelectOption { OptionName = "English", OptionValue = "en" },
+                    new SelectOption { OptionName = "Spanish", OptionValue = "es" },
+                    new SelectOption { OptionName = "French", OptionValue = "fr" },
+                    new SelectOption { OptionName = "German", OptionValue = "de" },
+                    new SelectOption { OptionName = "Italian", OptionValue = "it" },
+                    new SelectOption { OptionName = "Portuguese", OptionValue = "pt" },
+                    new SelectOption { OptionName = "Russian", OptionValue = "ru" },
+                    new SelectOption { OptionName = "Japanese", OptionValue = "ja" },
+                    new SelectOption { OptionName = "Chinese (Simplified)", OptionValue = "zh-CN" },
+                    new SelectOption { OptionName = "Chinese (Traditional)", OptionValue = "zh-TW" },
+                    new SelectOption { OptionName = "Korean", OptionValue = "ko" },
+                    new SelectOption { OptionName = "Dutch", OptionValue = "nl" },
+                    new SelectOption { OptionName = "Swedish", OptionValue = "sv" },
+                    new SelectOption { OptionName = "Polish", OptionValue = "pl" },
+                    new SelectOption { OptionName = "Turkish", OptionValue = "tr" },
+                    new SelectOption { OptionName = "Arabic", OptionValue = "ar" },
+                    new SelectOption { OptionName = "Hindi", OptionValue = "hi" },
+                    new SelectOption { OptionName = "Vietnamese", OptionValue = "vi" }
+                };
+                return options;
+            }
+        }
+
     }
 }
