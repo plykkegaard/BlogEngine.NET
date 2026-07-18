@@ -1575,9 +1575,7 @@
         /// Gets or sets the maximum allowed file size in bytes that BlogEngine can download from a remote server. Defaults to 512k.
         /// </summary>
         /// <remarks>
-        /// 
         /// Set this value to 0 for unlimited file size.
-        /// 
         /// </remarks>
         public int RemoteMaxFileSize
         {
@@ -1601,7 +1599,7 @@
         /// <summary>
         ///     The version.
         /// </summary>
-        private static string version;
+        private static string version { get; set; }
 
         /// <summary>
         /// Returns the BlogEngine.NET version information.
@@ -1636,8 +1634,8 @@
             get
             {
                 // uncomment this line to disable caching for debugging
-                // Blog.CurrentInstance.Cache.Remove(cacheKey);
                 string cacheKey = "Blog-Custom-Front-Page";
+                Blog.CurrentInstance.Cache.Remove(cacheKey);
 
                 if (Blog.CurrentInstance.Cache[cacheKey] == null)
                 {
@@ -2066,6 +2064,174 @@
 
         #endregion
 
+        #region SEO & GEO (Generative Engine Optimization)
+
+        /// <summary>
+        /// Gets or sets a value indicating whether Generative Engine Optimization (GEO) is enabled.
+        /// </summary>
+        /// <remarks>
+        /// When enabled, the blog will include enhanced metadata and structured data optimized for
+        /// Generative AI systems (LLMs, RAG systems, AI search engines) in addition to traditional search engines.
+        /// </remarks>
+        public bool EnableGEO { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Schema.org organization name for structured data.
+        /// </summary>
+        /// <remarks>
+        /// This is the official name of the blog organization used in Schema.org markup for rich snippets
+        /// and structured data recognition by search engines and AI systems. Used as a default for all posts
+        /// unless overridden at the individual post level.
+        /// </remarks>
+        public string SchemaOrgName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Schema.org organization type.
+        /// </summary>
+        /// <remarks>
+        /// Specifies the organization type in Schema.org taxonomy (e.g., "Blog", "NewsMediaOrganization", "Organization").
+        /// Used in structured data markup to help AI systems categorize and understand the blog's purpose.
+        /// </remarks>
+        public string SchemaOrgType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Schema.org organization URL.
+        /// </summary>
+        /// <remarks>
+        /// The canonical URL of the blog organization for Schema.org markup. Used to establish organizational
+        /// identity in structured data for search engines and AI indexing systems.
+        /// </remarks>
+        public string SchemaOrgUrl { get; set; }
+
+        /// <summary>
+        /// Gets or sets the blog's canonical URL base.
+        /// </summary>
+        /// <remarks>
+        /// The canonical base URL for the blog domain (e.g., "https://example.com"). Used to prevent duplicate
+        /// content penalties and establish primary URL identity for search engines and AI crawlers.
+        /// </remarks>
+        public string CanonicalUrlBase { get; set; }
+
+        /// <summary>
+        /// Gets or sets comma-separated generative AI keywords for blog-wide optimization.
+        /// </summary>
+        /// <remarks>
+        /// Default keywords (comma-separated) to be associated with all posts for Generative AI indexing.
+        /// Individual posts can override or extend these keywords. Helps AI systems understand core topics covered by the blog.
+        /// </remarks>
+        public string GenerativeAIKeywords { get; set; }
+
+        /// <summary>
+        /// Gets or sets comma-separated entity hints for AI entity extraction.
+        /// </summary>
+        /// <remarks>
+        /// Comma-separated list of key entities (people, places, concepts) relevant to the blog
+        /// that should be recognized by AI systems. Examples: "machine learning, digital marketing, software development".
+        /// Helps train AI extractors to properly identify relevant entities in blog content.
+        /// </remarks>
+        public string EntityHints { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether breadcrumb navigation structured data is enabled.
+        /// </summary>
+        /// <remarks>
+        /// When enabled, the blog will include Schema.org BreadcrumbList markup in post and archive pages.
+        /// Helps search engines and AI systems understand page hierarchy and navigation structure.
+        /// </remarks>
+        public bool BreadcrumbEnabled { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Google AI domain verification token.
+        /// </summary>
+        /// <remarks>
+        /// Optional verification token for Google's generative AI indexing system.
+        /// Used to establish domain ownership and control how the blog's content is indexed by Google's AI systems.
+        /// </remarks>
+        public string GoogleAIDomainVerification { get; set; }
+
+        /// <summary>
+        /// Gets or sets the sitemap generation policy.
+        /// </summary>
+        /// <remarks>
+        /// Specifies sitemap generation strategy: "auto" (automatic), "manual" (require manual generation), or "disabled".
+        /// Sitemaps help search engines and AI crawlers discover and index all content efficiently.
+        /// </remarks>
+        public string SitemapPolicy { get; set; }
+
+        /// <summary>
+        /// Gets or sets the language code for Schema.org markup (inLanguage property).
+        /// </summary>
+        /// <remarks>
+        /// ISO 639-1 language code (e.g., "en", "es", "fr", "de") used in Schema.org structured data.
+        /// Defaults to "en" if not specified.
+        /// </remarks>
+        private string inLanguage;
+
+        /// <summary>
+        /// Gets or sets the language code for Schema.org markup (inLanguage property).
+        /// </summary>
+        /// <remarks>
+        /// ISO 639-1 language code (e.g., "en", "es", "fr", "de") used in Schema.org structured data.
+        /// Defaults to "en" if not specified.
+        /// </remarks>
+        public string InLanguage
+        {
+            get { return string.IsNullOrEmpty(this.inLanguage) ? "en" : this.inLanguage; }
+            set { this.inLanguage = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets comma-separated keywords for GEO discovery.
+        /// </summary>
+        /// <remarks>
+        /// Keywords for GEO optimization, separate from GenerativeAIKeywords.
+        /// </remarks>
+        public string GEOKeywords { get; set; }
+
+        /// <summary>
+        /// Gets the computed path to the theme-specific image for GEO applications.
+        /// </summary>
+        /// <remarks>
+        /// Automatically computed from the current theme name.
+        /// Returns ~/Custom/Themes/{themeName}/img/{theme-name}.png
+        /// </remarks>
+        public string GEOImage
+        {
+            get
+            {
+                try
+                {
+                    string themeName = this.Theme ?? "Default";
+                    string themeImageName = themeName.ToLower().Replace(" ", "-");
+                    return $"~/Custom/Themes/{themeName}/img/{themeImageName}.png";
+                }
+                catch
+                {
+                    return string.Empty;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the hardcoded GEO potential actions for Schema.org ReadAction.
+        /// </summary>
+        /// <remarks>
+        /// JSON-formatted ReadAction metadata for AI systems.
+        /// </remarks>
+        public string GEOPotentialActions { get; set; }
+
+        /// <summary>
+        /// Gets or sets the social media and profile URLs (sameAs) for schema.org markup.
+        /// </summary>
+        /// <remarks>
+        /// JSON array of URLs representing the blog's social media profiles and related URLs.
+        /// Example: ["https://github.com/username", "https://linkedin.com/company/name"]
+        /// Used in Schema.org Blog schema for discoverability and verification.
+        /// </remarks>
+        public string SameAs { get; set; }
+
+        #endregion
+
         #region Legacy
 
         /// <summary>
@@ -2074,7 +2240,15 @@
         /// <remarks>
         /// This enum defines the available moderation strategies for comments and other review workflows.
         /// </remarks>
-        public enum Moderation { Manual, Auto, Disqus }
+        public enum Moderation 
+        { 
+            /// <summary>Manual moderation mode.</summary>
+            Manual, 
+            /// <summary>Automatic moderation mode.</summary>
+            Auto, 
+            /// <summary>Disqus moderation platform.</summary>
+            Disqus 
+        }
 
         /// <summary>
         /// Gets the effective moderation mode for the blog.
