@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Specialized;
     using System.Web;
+    using System.Web.Hosting;
     using System.Xml;
 
     /// <summary>
@@ -22,7 +23,10 @@
         /// <returns>A StringDictionary.</returns>
         public override StringDictionary LoadSettings(Blog blog)
         {
-            var filename = HttpContext.Current.Server.MapPath($"{blog.StorageLocation}settings.xml");               
+            var location = HostingEnvironment.MapPath(blog.StorageLocation);
+            var filename = $"{location}settings.xml";
+
+            // Dictionary to hold the blog settings
             var dic = new StringDictionary();
 
             var doc = new XmlDocument();
