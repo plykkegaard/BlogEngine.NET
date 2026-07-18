@@ -112,6 +112,41 @@
                     </div>
                 </div>
 
+                <!-- GEO Extended Settings Section -->
+                <div class="settings-section">
+                    <h3>{{lbl.geoExtendedSettings}}</h3>
+
+                    <div class="form-group">
+                        <label for="selInLanguage">{{lbl.inLanguage}}</label>
+                        <select id="selInLanguage" class="form-control" data-ng-options="o.OptionValue as o.OptionName for o in inLanguageOptions" data-ng-model="settings.InLanguage"></select>
+                        <small class="form-text text-muted">{{lbl.inLanguageHelp}}</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="txtGEOKeywords">{{lbl.geoKeywords}}</label>
+                        <textarea class="form-control" id="txtGEOKeywords" name="txtGEOKeywords" data-ng-model="settings.GEOKeywords" rows="3" placeholder="e.g., Comma-separated keywords for generative AI"></textarea>
+                        <small class="form-text text-muted">{{lbl.geoKeywordsHelp}}</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="txtGEOPotentialActions">{{lbl.geoPotentialActions}}</label>
+                        <textarea class="form-control" id="txtGEOPotentialActions" name="txtGEOPotentialActions" data-ng-model="settings.GEOPotentialActions" rows="4" placeholder="e.g., JSON with potential actions for generative AI"></textarea>
+                        <small class="form-text text-muted">{{lbl.geoPotentialActionsHelp}}</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="txtGEOImage">{{lbl.geoImage}}</label>
+                        <input type="text" class="form-control" id="txtGEOImage" name="txtGEOImage" data-ng-model="geoImage" readonly placeholder="Computed from current theme" />
+                        <small class="form-text text-muted">{{lbl.geoImageHelp}}</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="txtSameAs">{{lbl.sameAs}}</label>
+                        <textarea class="form-control" id="txtSameAs" name="txtSameAs" data-ng-model="settings.SameAs" rows="3" placeholder='e.g., ["https://github.com/yourname", "https://linkedin.com/company/yourname"]'></textarea>
+                        <small class="form-text text-muted">{{lbl.sameAsHelp}}</small>
+                    </div>
+                </div>
+
             </div>
         </div>
     </form>
