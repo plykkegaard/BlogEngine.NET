@@ -117,6 +117,17 @@ public partial class post : BlogBasePage
                     InitNavigationLinks();
 
                     phRDF.Visible = settings.EnableTrackBackReceive;
+                    if (phRDF.Visible)
+                    {
+                        litRDF.Text = string.Format(
+                            "<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:trackback=\"http://madskills.com/public/xml/rss/module/trackback/\">" +
+                            "<rdf:Description rdf:about=\"{0}\" dc:identifier=\"{0}\" dc:title=\"{1}\" trackback:ping=\"{2}\" />" +
+                            "</rdf:RDF>",
+                            Server.HtmlEncode(Post.AbsoluteLink.ToString()),
+                            Server.HtmlEncode(Post.Title),
+                            Server.HtmlEncode(Post.TrackbackLink.ToString())
+                        );
+                    }
 
                     base.AddGenericLink("application/rss+xml", "alternate", encodedPostTitle + " (RSS)", postView.CommentFeed + "?format=ATOM");
                     base.AddGenericLink("application/rss+xml", "alternate", encodedPostTitle + " (ATOM)", postView.CommentFeed + "?format=ATOM");
