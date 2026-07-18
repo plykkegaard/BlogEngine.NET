@@ -19,7 +19,7 @@
             $scope.initializeGeoOptions();
             $scope.loadSettings();
         })
-        .catch(function () {
+        .catch(function (error) {
             toastr.error($rootScope.lbl.errorLoadingSettings);
             spinOff();
         });
@@ -47,6 +47,10 @@
             angular.copy(data, $scope.vm);
             $scope.settings = $scope.vm.Settings;
             $scope.timeZoneOptions = $scope.vm.TimeZones;
+
+            // Initialize inLanguage options for Schema.org markup
+            $scope.inLanguageOptions = $scope.vm.InLanguageOptions;
+
             $scope.selectedLanguage = selectedOption($scope.lookups.Cultures, $scope.settings.Culture);
             $scope.selectedDeskTheme = selectedOption($scope.lookups.InstalledThemes, $scope.settings.DesktopTheme);
             $scope.selfRegistrationInitialRole = selectedOption($scope.lookups.SelfRegisterRoles, $scope.settings.SelfRegistrationInitialRole);
@@ -59,11 +63,13 @@
             // Initialize GEO dropdown selections
             $scope.selectedGeoOptimizationMode = selectedOption($scope.geoOptimizationModeOptions, $scope.settings.GeoOptimizationMode || 'Basic');
             $scope.selectedGeoMetadataRichness = selectedOption($scope.geoMetadataRichnessOptions, $scope.settings.GeoMetadataRichness || 'Standard');
+            $scope.selectedInLanguage = selectedOption($scope.inLanguageOptions, $scope.settings.InLanguage || 'en');
+            $scope.geoImage = $scope.vm.GEOImage || '~/Custom/Themes/Default/img/default.png';
 
             $scope.setCommentProviders($scope.settings.CommentProvider);
             spinOff();
         })
-        .catch(function () {
+        .catch(function (error) {
             toastr.error($rootScope.lbl.errorLoadingSettings);
             spinOff();
         });
@@ -90,6 +96,9 @@
         }
         if ($scope.selectedGeoMetadataRichness) {
             $scope.settings.GeoMetadataRichness = $scope.selectedGeoMetadataRichness.OptionValue;
+        }
+        if ($scope.selectedInLanguage) {
+            $scope.settings.InLanguage = $scope.selectedInLanguage.OptionValue;
         }
 
         $scope.settings.txtErrorTitle = $scope.txtErrorTitle;
