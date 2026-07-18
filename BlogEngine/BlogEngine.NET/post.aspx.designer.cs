@@ -55,6 +55,15 @@ public partial class post {
     /// To modify move field declaration from designer file to code-behind file.
     /// </remarks>
     protected global::System.Web.UI.WebControls.PlaceHolder phRDF;
+
+    /// <summary>
+    /// litRDF control.
+    /// </summary>
+    /// <remarks>
+    /// Auto-generated field.
+    /// To modify move field declaration from designer file to code-behind file.
+    /// </remarks>
+    protected global::System.Web.UI.WebControls.Literal litRDF;
     
     /// <summary>
     /// related control.
