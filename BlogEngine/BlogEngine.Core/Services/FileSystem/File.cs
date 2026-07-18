@@ -50,7 +50,7 @@ namespace BlogEngine.Core.FileSystem
         /// <summary>
         /// list of valid image extensions
         /// </summary>
-        private string[] ImageExtensnios = { ".jpg", ".png", ".jpeg", ".tiff", ".gif", ".bmp" };
+        private readonly string[] ImageExtensnios = { ".jpg", ".png", ".jpeg", ".tiff", ".gif", ".bmp" };
         #endregion
 
         #region Properties
@@ -264,7 +264,7 @@ namespace BlogEngine.Core.FileSystem
         /// <summary>
         /// deletes the current file object from the storage container
         /// </summary>
-        public void Delete()
+        public override void Delete()
         {
             BlogService.DeleteFile(this.FullPath);
             this.Dispose();
