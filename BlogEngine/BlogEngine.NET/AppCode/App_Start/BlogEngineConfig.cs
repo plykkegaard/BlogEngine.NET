@@ -43,10 +43,10 @@ namespace BlogEngine.NET.App_Start
                 ScriptManager.ScriptResourceMapping.AddDefinition("jquery",
                     new ScriptResourceDefinition
                     {
-                        Path = "~/Scripts/jquery-2.1.4.min.js",
-                        DebugPath = "~/Scripts/jquery-2.1.4.js",
-                        CdnPath = "http://ajax.microsoft.com/ajax/jQuery/jquery-2.1.4.min.js",
-                        CdnDebugPath = "http://ajax.microsoft.com/ajax/jQuery/jquery-2.1.4.js"
+                        Path = "~/Scripts/jquery-3.7.1.min.js",
+                        DebugPath = "~/Scripts/jquery-3.7.1.js",
+                        CdnPath = "https://code.jquery.com/jquery-3.7.1.min.js",
+                        CdnDebugPath = "https://code.jquery.com/jquery-3.7.1.js"
                     });
 
                 _initializedAlready = true;
