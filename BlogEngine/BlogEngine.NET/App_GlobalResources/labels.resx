@@ -2706,4 +2706,37 @@
   <data name="geoEnableCitationOptimizationHelp" xml:space="preserve">
     <value>Optimizes content structure for citation in generative AI outputs</value>
   </data>
+  <data name="geoExtendedSettings" xml:space="preserve">
+    <value>GEO Extended Settings</value>
+  </data>
+  <data name="inLanguage" xml:space="preserve">
+    <value>Content Language (inLanguage)</value>
+  </data>
+  <data name="inLanguageHelp" xml:space="preserve">
+    <value>Schema.org language code for the blog content (e.g., en, es, fr)</value>
+  </data>
+  <data name="geoKeywords" xml:space="preserve">
+    <value>GEO Keywords</value>
+  </data>
+  <data name="geoKeywordsHelp" xml:space="preserve">
+    <value>Comma-separated keywords for generative AI content discovery and optimization</value>
+  </data>
+  <data name="geoPotentialActions" xml:space="preserve">
+    <value>GEO Potential Actions JSON</value>
+  </data>
+  <data name="geoPotentialActionsHelp" xml:space="preserve">
+    <value>JSON configuration for potential actions (e.g., ReadAction target platforms)</value>
+  </data>
+  <data name="geoImage" xml:space="preserve">
+    <value>GEO Image (Auto-computed)</value>
+  </data>
+  <data name="geoImageHelp" xml:space="preserve">
+    <value>Automatically computed from the current theme image path (read-only)</value>
+  </data>
+  <data name="sameAs" xml:space="preserve">
+    <value>Social &amp; Profile Links (sameAs)</value>
+  </data>
+  <data name="sameAsHelp" xml:space="preserve">
+    <value>JSON array of social media and profile URLs for schema.org verification (e.g., GitHub, LinkedIn)</value>
+  </data>
 </root>
