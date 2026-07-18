@@ -28,15 +28,15 @@
     @Styles.Render("~/Content/admincss")
     <link href="~/admin/themes/standard/css/styles.css?ver=4" rel="stylesheet">
     <link rel="shortcut icon" href="@Href(Utils.ApplicationRelativeWebRoot + "Content/images/blog/blogengine.ico")" type="image/x-icon" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="format-detection" content="telephone=no" />
     <script type="text/javascript">
         var UserVars = { Name: '@Html.Raw(Security.CurrentUser.Identity.Name)', IsAdmin: '@Security.IsAdministrator', Rights: ['@Html.Raw(userRights)'] };
         var ActiveTheme = '@BlogSettings.Instance.Theme'
         var UsageScenario = '@BlogConfig.UsageScenario'
-        var ServerTime = '@DateTime.Now'
-        var UtcTime = '@DateTime.UtcNow'
+        var ServerTime = '@DateTime.Now.ToString("O")'
+        var UtcTime = '@DateTime.UtcNow.ToString("O")'
         if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
             var msViewportStyle = document.createElement("style");
             var mq = "@@-ms-viewport{width:auto!important}";
