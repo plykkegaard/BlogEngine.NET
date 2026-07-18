@@ -18,12 +18,10 @@ namespace BlogEngine.Core.Data
         /// <summary>
         /// Comments list
         /// </summary>
-        /// <param name="commentType">Comment type</param>
-        /// <param name="take">Items to take</param>
-        /// <param name="skip">Items to skip</param>
-        /// <param name="filter">Filter expression</param>
-        /// <param name="order">Sort order</param>
         /// <returns>List of comments</returns>
+        /// <remarks>
+        /// Retrieves a list of comments based on the current user's permissions.
+        /// </remarks>
         public CommentsVM Get()
         {
             if (!Security.IsAuthorizedTo(Rights.ViewPublicComments))
@@ -67,6 +65,31 @@ namespace BlogEngine.Core.Data
                     where c.Id == id
                     select Json.GetCommentDetail(c)).FirstOrDefault();
         }
+
+        /// <summary>
+        /// Comment status enumeration
+        /// </summary>
+        /// <remarks>
+        /// Represents the possible statuses of a comment.
+        /// </remarks>
+        public enum CommentStatus
+        {
+            /// <summary>
+            /// The comment is pending approval.
+            /// </summary>
+            Pending,
+
+            /// <summary>
+            /// The comment has been approved.
+            /// </summary>
+            Approved,
+
+            /// <summary>
+            /// The comment is marked as spam.
+            /// </summary>
+            Spam,
+        }
+
 
         /// <summary>
         /// Add item
@@ -114,6 +137,21 @@ namespace BlogEngine.Core.Data
         }
 
         /// <summary>
+        /// Get the status of a comment item    
+        /// </summary>
+        /// <param name="item">The comment item</param>
+        /// <returns>The status of the comment</returns>
+        private CommentStatus GetStatus(CommentItem item)
+        {
+            if (item.IsPending) return CommentStatus.Pending;
+            if (item.IsApproved) return CommentStatus.Approved;
+            if (item.IsSpam) return CommentStatus.Spam;
+
+            return CommentStatus.Pending; // fallback hvis nødvendigt
+        }
+
+
+        /// <summary>
         /// Update item
         /// </summary>
         /// <param name="item">Item to update</param>
@@ -146,11 +184,33 @@ namespace BlogEngine.Core.Data
                         return true;
                     }
 
-                    //c.Content = item.Content;
+                    // c.Content = item.Content;
                     c.Author = item.Author;
                     c.Email = item.Email;
-                    //c.Website = string.IsNullOrEmpty(item.Website) ? null : new Uri(item.Website);
+                    // c.Website = string.IsNullOrEmpty(item.Website) ? null : new Uri(item.Website);
 
+                    var status = GetStatus(item);
+
+                    // Update the comment's status based on the determined status
+                    switch (status)
+                    {
+                        case CommentStatus.Pending:
+                            c.IsApproved = false;
+                            c.IsSpam = false;
+                            break;
+
+                        case CommentStatus.Approved:
+                            c.IsApproved = true;
+                            c.IsSpam = false;
+                            break;
+
+                        case CommentStatus.Spam:
+                            c.IsApproved = false;
+                            c.IsSpam = true;
+                            break;
+                    }
+
+                    /*
                     if (item.IsPending)
                     {
                         c.IsApproved = false;
@@ -166,6 +226,7 @@ namespace BlogEngine.Core.Data
                         c.IsApproved = false;
                         c.IsSpam = true;
                     }
+                    */
                     // need to mark post as "dirty"
                     p.DateModified = DateTime.Now;
                     p.Save();
