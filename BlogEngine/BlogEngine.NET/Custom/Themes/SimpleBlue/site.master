@@ -9,7 +9,7 @@
     <link href='<%# Page.ResolveUrl("~/Scripts/syntaxhighlighter/styles/shCoreDefault.css") %>' rel="stylesheet" />
     <link href='<%# Page.ResolveUrl("~/Scripts/syntaxhighlighter/styles/shThemeDefault.css") %>' rel="stylesheet" />
     <asp:ContentPlaceHolder ID="HeadContent" runat="server"></asp:ContentPlaceHolder>
-    <link rel="shortcut icon" href="~/pics/blogengine.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="~/Content/images/blog/blogengine.ico" type="image/x-icon" />
 
 <%--    <script type="text/javascript" src="<%# ShRoot %>scripts/XRegExp.js"></script>
     <script type="text/javascript" src="<%# ShRoot %>scripts/shCore.js"></script>
