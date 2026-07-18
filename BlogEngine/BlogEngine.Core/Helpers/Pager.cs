@@ -85,9 +85,11 @@ namespace BlogEngine.Core
         /// <summary>
         /// Renders pager HMTML
         /// </summary>
-        /// <param name="page">Current page</param>
         /// <param name="callback">Callback for JavaScript</param>
         /// <returns>HTML markup</returns>
+        /// <remarks>
+        /// This method generates the HTML markup for the pager, including links for navigating between pages.
+        /// </remarks>
         public static string Render(string callback = "false")
         {
             var prvLnk = string.Empty;
