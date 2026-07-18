@@ -3,13 +3,14 @@
   <contactformmessage>&lt;p&gt;I'll answer the mail as soon as I can.&lt;/p&gt;</contactformmessage>
   <securityvalidationkey>ede308e723ae42aab289b04350133355accaa0f0da9743e7a8529a0cbbf5bceee5bcafc4eac741f68d2d63d80e21bf8e</securityvalidationkey>
   <commentsperpage>10</commentsperpage>
+  <seodefaultimage />
   <language>en-US</language>
   <theme>SimpleBlue</theme>
   <geocodinglongitude>0</geocodinglongitude>
   <enablerating>True</enablerating>
   <themecookiename>theme</themecookiename>
   <trustauthenticatedusers>True</trustauthenticatedusers>
-  <moderationtype>Auto</moderationtype>
+  <seotitlesuffix>Looksharp</seotitlesuffix>
   <enablerecaptchaoncontactform>False</enablerecaptchaoncontactform>
   <culture>Auto</culture>
   <compresswebresource>False</compresswebresource>
@@ -18,13 +19,14 @@
   <emailsubjectprefix>Weblog</emailsubjectprefix>
   <enablewebsiteincomments>True</enablewebsiteincomments>
   <selfregistrationinitialrole>Editors</selfregistrationinitialrole>
-  <pageoptionsdescription>True</pageoptionsdescription>
+  <seoenableopengraph>False</seoenableopengraph>
   <showdescriptioninpostlistforpostsbytagorcategory>False</showdescriptioninpostlistforpostsbytagorcategory>
   <postsperfeed>3</postsperfeed>
   <useblognameinpagetitles>True</useblognameinpagetitles>
   <enabletrackbacksend>True</enabletrackbacksend>
+  <pageoptionsdescription>True</pageoptionsdescription>
   <descriptioncharacters>300</descriptioncharacters>
-  <postoptionsdescription>True</postoptionsdescription>
+  <seoorganizationname>Looksharp</seoorganizationname>
   <pageoptionscustomfields>True</pageoptionscustomfields>
   <customfrontpage />
   <smtpusername>youremail@gmail.com</smtpusername>
@@ -35,6 +37,7 @@
   <createblogonselfregistration>False</createblogonselfregistration>
   <contactthankmessage>&lt;h1&gt;Thank you&lt;/h1&gt;&lt;p&gt;The message was sent.&lt;/p&gt;</contactthankmessage>
   <enablecommentsmoderation>True</enablecommentsmoderation>
+  <seoenablestructureddata>True</seoenablestructureddata>
   <commentreportmistakes>False</commentreportmistakes>
   <requiresslmetaweblogapi>False</requiresslmetaweblogapi>
   <enablessl>False</enablessl>
@@ -42,16 +45,19 @@
   <israzortheme>False</israzortheme>
   <blogrollvisibleposts>3</blogrollvisibleposts>
   <iscommentsenabled>True</iscommentsenabled>
+  <moderationtype>Auto</moderationtype>
   <descriptioncharactersforpostsbytagorcategory>0</descriptioncharactersforpostsbytagorcategory>
+  <geometadatarichness>Standard</geometadatarichness>
   <showincludecommentsoption>False</showincludecommentsoption>
   <disqusdevmode>False</disqusdevmode>
   <enableenclosures>False</enableenclosures>
   <email>youremail@gmail.com</email>
   <feedauthor />
   <enablecountryincomments>False</enablecountryincomments>
-  <errortext>This one's down to me! Please accept my apologies for this - I'll see to it that the developer responsible for this happening is given 20 lashes (but only after he or she has fixed this problem).</errortext>
+  <seocanonicaldomain>https://looksharo.dk</seocanonicaldomain>
   <remotefiledownloadtimeout>30000</remotefiledownloadtimeout>
   <enableselfregistration>False</enableselfregistration>
+  <pageoptionsslug>True</pageoptionsslug>
   <remotemaxfilesize>524288</remotemaxfilesize>
   <enabletrackbackreceive>True</enabletrackbackreceive>
   <enabletagexport>True</enabletagexport>
@@ -66,15 +72,21 @@
   <blogrollmaxlength>23</blogrollmaxlength>
   <facebooklanguage>en_US</facebooklanguage>
   <enableopensearch>True</enableopensearch>
-  <pageoptionsslug>True</pageoptionsslug>
+  <seofacebookappid />
   <syndicationformat>Rss</syndicationformat>
   <description>Short description of the blog</description>
   <dayscommentsareenabled>0</dayscommentsareenabled>
   <enablerelatedposts>True</enablerelatedposts>
+  <seoenabletwittercard>False</seoenabletwittercard>
+  <seoorganizationlogo />
   <authorname>My name</authorname>
+  <geoenablecitationoptimization>True</geoenablecitationoptimization>
   <trackingscript />
   <redirecttoremovefileextension>False</redirecttoremovefileextension>
   <numberofreferrerdays>1</numberofreferrerdays>
+  <seodefaultauthor>Peter Lykkegaard</seodefaultauthor>
+  <geooptimizationmode>Basic</geooptimizationmode>
+  <seotwitterhandle />
   <postoptionscustomfields>False</postoptionscustomfields>
   <searchbuttontext>Search</searchbuttontext>
   <enableoptimization>False</enableoptimization>
@@ -82,6 +94,7 @@
   <iscocommentenabled>False</iscocommentenabled>
   <enablepingbacksend>True</enablepingbacksend>
   <htmlheader />
+  <errortext>This one's down to me! Please accept my apologies for this - I'll see to it that the developer responsible for this happening is given 20 lashes (but only after he or she has fixed this problem).</errortext>
   <postoptionsslug>True</postoptionsslug>
   <enablepingbackreceive>True</enablepingbackreceive>
   <showdescriptioninpostlist>False</showdescriptioninpostlist>
@@ -91,7 +104,9 @@
   <smtpserverport>587</smtpserverport>
   <searchdefaulttext>Enter search term or APML url</searchdefaulttext>
   <smtpserver>smtp.gmail.com</smtpserver>
+  <geooptimizationenabled>True</geooptimizationenabled>
   <name>Some blog</name>
+  <postoptionsdescription>True</postoptionsdescription>
   <geocodinglatitude>0</geocodinglatitude>
   <handlewwwsubdomain />
   <disquswebsitename />
