@@ -152,6 +152,12 @@ namespace BlogEngine.Core.Data
             bs.GeoMetadataRichness = ns.GeoMetadataRichness;
             bs.GeoEnableCitationOptimization = ns.GeoEnableCitationOptimization;
 
+            // New GEO extended settings
+            bs.InLanguage = ns.InLanguage;
+            bs.GEOKeywords = ns.GEOKeywords;
+            bs.GEOPotentialActions = ns.GEOPotentialActions;
+            bs.SameAs = ns.SameAs;
+
             bs.Save();
             return true;
         }
@@ -284,6 +290,13 @@ namespace BlogEngine.Core.Data
             ns.GeoOptimizationMode = bs.GeoOptimizationMode;
             ns.GeoMetadataRichness = bs.GeoMetadataRichness;
             ns.GeoEnableCitationOptimization = bs.GeoEnableCitationOptimization;
+
+            // New GEO extended settings
+            ns.InLanguage = bs.InLanguage;
+
+            ns.GEOKeywords = bs.GEOKeywords;
+            ns.GEOPotentialActions = bs.GEOPotentialActions;
+            ns.SameAs = bs.SameAs;
 
             return ns;
         }
