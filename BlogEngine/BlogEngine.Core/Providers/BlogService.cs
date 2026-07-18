@@ -12,42 +12,73 @@ namespace BlogEngine.Core.Providers
     using BlogEngine.Core.FileSystem;   
 
     /// <summary>
-    /// The proxy class for communication between
-    ///     the business objects and the providers.
+    /// Proxy service for communication between business objects and data providers.
     /// </summary>
+    /// <remarks>
+    /// This static service acts as a facade to abstract the underlying data persistence layer from business logic.
+    /// It provides methods for CRUD operations on blog entities (posts, pages, categories, etc.) and configuration data.
+    /// The service maintains thread-safe access to configured providers and file system providers.
+    /// All data operations are delegated to the currently configured provider implementation, allowing for
+    /// flexible storage backend switching without impacting the business layer.
+    /// </remarks>
     public static class BlogService
     {
         #region Constants and Fields
 
         /// <summary>
-        /// The lock object.
+        /// Synchronization object for thread-safe provider access.
         /// </summary>
+        /// <remarks>
+        /// Ensures that multiple threads can safely initialize and access provider instances.
+        /// </remarks>
         private static readonly object TheLock = new object();
 
         /// <summary>
-        /// The provider. Don't access this directly. Access it through the property accessor.
+        /// The data persistence provider instance.
         /// </summary>
+        /// <remarks>
+        /// Lazy-initialized on first access through the Provider property.
+        /// Do not access directly; use the Provider property instead.
+        /// </remarks>
         private static BlogProvider _provider;
 
         /// <summary>
-        /// the file storage provider. Don't access this directly. Access it the property accessor
+        /// The file system storage provider instance.
         /// </summary>
+        /// <remarks>
+        /// Handles file-based storage operations for blog content and attachments.
+        /// Do not access directly; use the FileSystemProvider property instead.
+        /// </remarks>
         private static BlogFileSystemProvider _fileStorageProvider;
 
         /// <summary>
-        /// The providers.
+        /// Collection of configured data persistence providers.
         /// </summary>
+        /// <remarks>
+        /// Loaded from configuration and cached after first access.
+        /// </remarks>
         private static BlogProviderCollection _providers;
 
 
+        /// <summary>
+        /// Collection of configured file system providers.
+        /// </summary>
+        /// <remarks>
+        /// Loaded from configuration and cached after first access.
+        /// </remarks>
         private static BlogFileSystemProviderCollection _fileProviders;
         #endregion
 
         #region Properties
 
         /// <summary>
-        ///     gets the current FileSystem provider
+        /// Gets the currently active file system provider.
         /// </summary>
+        /// <remarks>
+        /// Returns the default file system provider configured in Web.config.
+        /// Lazy-initializes the provider collection on first access.
+        /// </remarks>
+        /// <value>The active BlogFileSystemProvider implementation.</value>
         public static BlogFileSystemProvider FileSystemProvider
         {
             get
@@ -58,8 +89,13 @@ namespace BlogEngine.Core.Providers
         }
 
         /// <summary>
-        ///     Gets a collection of FileSystem providers that are defined in Web.config.
+        /// Gets the collection of all configured file system providers.
         /// </summary>
+        /// <remarks>
+        /// Provides access to all file system provider instances defined in Web.config.
+        /// Allows switching between different file storage backends if multiple are configured.
+        /// </remarks>
+        /// <value>A BlogFileSystemProviderCollection containing all configured file system providers.</value>
         public static BlogFileSystemProviderCollection FileSystemProviders
         {
             get
@@ -70,8 +106,13 @@ namespace BlogEngine.Core.Providers
         }
 
         /// <summary>
-        ///     Gets the current provider.
+        /// Gets the currently active data persistence provider.
         /// </summary>
+        /// <remarks>
+        /// Returns the default provider configured in Web.config for blog data operations.
+        /// Lazy-initializes the provider on first access with thread-safe synchronization.
+        /// </remarks>
+        /// <value>The active BlogProvider implementation.</value>
         public static BlogProvider Provider
         {
             get
@@ -81,6 +122,13 @@ namespace BlogEngine.Core.Providers
             }
         }
 
+        /// <summary>
+        /// Reloads the file system provider from configuration.
+        /// </summary>
+        /// <remarks>
+        /// Clears the cached file system provider and forces reload on next access.
+        /// Useful after changing provider configuration dynamically.
+        /// </remarks>
         internal static void ReloadFileSystemProvider()
         {
             _fileStorageProvider = null;
@@ -88,8 +136,13 @@ namespace BlogEngine.Core.Providers
         }
 
         /// <summary>
-        ///     Gets a collection of all registered providers.
+        /// Gets the collection of all configured data persistence providers.
         /// </summary>
+        /// <remarks>
+        /// Provides access to all provider instances defined in Web.config.
+        /// Enables switching between different storage backends if multiple are configured.
+        /// </remarks>
+        /// <value>A BlogProviderCollection containing all configured providers.</value>
         public static BlogProviderCollection Providers
         {
             get
@@ -104,143 +157,162 @@ namespace BlogEngine.Core.Providers
         #region Public Methods
 
         /// <summary>
-        /// Deletes the specified BlogRoll from the current provider.
+        /// Deletes the specified BlogRoll item from the current provider.
         /// </summary>
-        /// <param name="blogRoll">
-        /// The blog Roll.
-        /// </param>
+        /// <remarks>
+        /// Removes the blog roll entry from persistent storage. This operation is permanent and cannot be undone.
+        /// </remarks>
+        /// <param name="blogRoll">The BlogRollItem to delete.</param>
         public static void DeleteBlogRoll(BlogRollItem blogRoll)
         {
             Provider.DeleteBlogRollItem(blogRoll);
         }
 
         /// <summary>
-        /// Deletes the specified Blog from the current provider.
+        /// Deletes the specified blog instance from the current provider.
         /// </summary>
-        /// <param name="blog">
-        /// The blog.
-        /// </param>
+        /// <remarks>
+        /// Removes all blog configuration and metadata. This is a destructive operation and cannot be reversed.
+        /// Use DeleteBlogStorageContainer to also remove associated files and content.
+        /// </remarks>
+        /// <param name="blog">The blog instance to delete.</param>
         public static void DeleteBlog(Blog blog)
         {
             Provider.DeleteBlog(blog);
         }
 
         /// <summary>
-        /// Deletes the storage container for the specified Blog from the current provider.
+        /// Deletes the storage container and all associated files for the specified blog.
         /// </summary>
-        /// <param name="blog">
-        /// The blog.
-        /// </param>
+        /// <remarks>
+        /// Removes the blog's file storage and associated content. This is a complete removal operation.
+        /// Often used in conjunction with DeleteBlog to fully remove a blog instance.
+        /// </remarks>
+        /// <param name="blog">The blog instance for which to delete the storage container.</param>
+        /// <returns>True if the storage container was successfully deleted; otherwise, false.</returns>
         public static bool DeleteBlogStorageContainer(Blog blog)
         {
             return Provider.DeleteBlogStorageContainer(blog);
         }
 
         /// <summary>
-        /// Deletes the specified Category from the current provider.
+        /// Deletes the specified category from the current provider.
         /// </summary>
-        /// <param name="category">
-        /// The category.
-        /// </param>
+        /// <remarks>
+        /// Removes a category definition from the blog. Posts assigned to this category will retain their category
+        /// associations, so consider reassigning posts before deletion.
+        /// </remarks>
+        /// <param name="category">The category to delete.</param>
         public static void DeleteCategory(Category category)
         {
             Provider.DeleteCategory(category);
         }
 
         /// <summary>
-        /// Deletes the specified Page from the current provider.
+        /// Deletes the specified static page from the current provider.
         /// </summary>
-        /// <param name="page">
-        /// The page to delete.
-        /// </param>
+        /// <remarks>
+        /// Removes a page and all its associated metadata. This operation is permanent.
+        /// </remarks>
+        /// <param name="page">The page instance to delete.</param>
         public static void DeletePage(Page page)
         {
             Provider.DeletePage(page);
         }
 
         /// <summary>
-        /// Deletes the specified Post from the current provider.
+        /// Deletes the specified blog post from the current provider.
         /// </summary>
-        /// <param name="post">
-        /// The post to delete.
-        /// </param>
+        /// <remarks>
+        /// Removes a post and all its associated metadata including comments, categories, and tags.
+        /// This operation is permanent and cannot be reversed.
+        /// </remarks>
+        /// <param name="post">The post instance to delete.</param>
         public static void DeletePost(Post post)
         {
             Provider.DeletePost(post);
         }
 
         /// <summary>
-        /// Deletes the specified Page from the current provider.
+        /// Deletes the specified author profile from the current provider.
         /// </summary>
-        /// <param name="profile">
-        /// The profile to delete.
-        /// </param>
+        /// <remarks>
+        /// Removes an author's profile information. Posts authored by this user will retain authorship attribution.
+        /// </remarks>
+        /// <param name="profile">The author profile to delete.</param>
         public static void DeleteProfile(AuthorProfile profile)
         {
             Provider.DeleteProfile(profile);
         }
 
         /// <summary>
-        /// Returns a list of all BlogRolls in the current provider.
+        /// Returns a collection of all blog roll items from the current provider.
         /// </summary>
-        /// <returns>
-        /// A list of BlogRollItem.
-        /// </returns>
+        /// <remarks>
+        /// Retrieves the configured list of external blogs and links to display in the blog roll widget.
+        /// </remarks>
+        /// <returns>A list of BlogRollItem objects representing external blog links.</returns>
         public static List<BlogRollItem> FillBlogRolls()
         {
             return Provider.FillBlogRoll();
         }
 
         /// <summary>
-        /// The fill categories.
+        /// Returns a collection of all categories for the specified blog.
         /// </summary>
-        /// <returns>
-        /// A list of Category.
-        /// </returns>
+        /// <remarks>
+        /// Retrieves all categories used to organize and classify blog posts.
+        /// </remarks>
+        /// <param name="blog">The blog instance to retrieve categories for.</param>
+        /// <returns>A list of Category objects.</returns>
         public static List<Category> FillCategories(Blog blog)
         {
             return Provider.FillCategories(blog);
         }
 
         /// <summary>
-        /// The fill pages.
+        /// Returns a collection of all static pages from the current provider.
         /// </summary>
-        /// <returns>
-        /// A list of Page.
-        /// </returns>
+        /// <remarks>
+        /// Retrieves all published and unpublished pages. Pages are static content separate from blog posts.
+        /// </remarks>
+        /// <returns>A list of Page objects.</returns>
         public static List<Page> FillPages()
         {
             return Provider.FillPages();
         }
 
         /// <summary>
-        /// The fill posts.
+        /// Returns a collection of all blog posts from the current provider.
         /// </summary>
-        /// <returns>
-        /// A list of Post.
-        /// </returns>
+        /// <remarks>
+        /// Retrieves all posts including published and draft items. No filtering by visibility is applied.
+        /// </remarks>
+        /// <returns>A list of Post objects.</returns>
         public static List<Post> FillPosts()
         {
             return Provider.FillPosts();
         }
 
         /// <summary>
-        /// The fill blogs.
+        /// Returns a collection of all blog instances from the current provider.
         /// </summary>
-        /// <returns>
-        /// A list of Blogs.
-        /// </returns>
+        /// <remarks>
+        /// In multi-blog scenarios, retrieves all configured blog instances.
+        /// </remarks>
+        /// <returns>A list of Blog objects.</returns>
         public static List<Blog> FillBlogs()
         {
             return Provider.FillBlogs();
         }
 
         /// <summary>
-        /// The fill profiles.
+        /// Returns a collection of all author profiles from the current provider.
         /// </summary>
-        /// <returns>
-        /// A list of AuthorProfile.
-        /// </returns>
+        /// <remarks>
+        /// Retrieves information about all authors who have contributed to the blog.
+        /// </remarks>
+        /// <returns>A list of AuthorProfile objects.</returns>
         public static List<AuthorProfile> FillProfiles()
         {
             return Provider.FillProfiles();
@@ -276,21 +348,24 @@ namespace BlogEngine.Core.Providers
         }
 
         /// <summary>
-        /// Persists a new BlogRoll in the current provider.
+        /// Persists a new blog role item to the current provider.
         /// </summary>
-        /// <param name="blogRoll">
-        /// The blog Roll.
-        /// </param>
+        /// <remarks>
+        /// Saves a new blog roll entry (link to external blog) to the data store.
+        /// </remarks>
+        /// <param name="blogRoll">The blog roll item to insert.</param>
         public static void InsertBlogRoll(BlogRollItem blogRoll)
         {
             Provider.InsertBlogRollItem(blogRoll);
         }
 
         /// <summary>
-        /// Persists a new Blog in the current provider.
+        /// Persists a new blog instance to the current provider.
         /// </summary>
-        /// <param name="blog">
-        /// The blog.
+        /// <remarks>
+        /// Creates a new blog instance in the data store. Use only for multi-blog scenarios.
+        /// </remarks>
+        /// <param name="blog">The blog instance to insert.</param>
         /// </param>
         public static void InsertBlog(Blog blog)
         {
@@ -298,55 +373,60 @@ namespace BlogEngine.Core.Providers
         }
 
         /// <summary>
-        /// Persists a new Category in the current provider.
+        /// Persists a new category to the current provider.
         /// </summary>
-        /// <param name="category">
-        /// The category.
-        /// </param>
+        /// <remarks>
+        /// Creates a new category for organizing and classifying blog posts.
+        /// </remarks>
+        /// <param name="category">The category to insert.</param>
         public static void InsertCategory(Category category)
         {
             Provider.InsertCategory(category);
         }
 
         /// <summary>
-        /// Persists a new Page in the current provider.
+        /// Persists a new static page to the current provider.
         /// </summary>
-        /// <param name="page">
-        /// The page to insert.
-        /// </param>
+        /// <remarks>
+        /// Saves a new page to the data store. Pages are static content separate from blog posts.
+        /// </remarks>
+        /// <param name="page">The page to insert.</param>
         public static void InsertPage(Page page)
         {
             Provider.InsertPage(page);
         }
 
         /// <summary>
-        /// Persists a new Post in the current provider.
+        /// Persists a new blog post to the current provider.
         /// </summary>
-        /// <param name="post">
-        /// The post to insert.
-        /// </param>
+        /// <remarks>
+        /// Saves a new post to the data store. Publishing status is determined by the post's IsPublished property.
+        /// </remarks>
+        /// <param name="post">The post to insert.</param>
         public static void InsertPost(Post post)
         {
             Provider.InsertPost(post);
         }
 
         /// <summary>
-        /// Persists a new Page in the current provider.
+        /// Persists a new author profile to the current provider.
         /// </summary>
-        /// <param name="profile">
-        /// The profile to insert.
-        /// </param>
+        /// <remarks>
+        /// Creates a new author profile for blog contributors and writers.
+        /// </remarks>
+        /// <param name="profile">The author profile to insert.</param>
         public static void InsertProfile(AuthorProfile profile)
         {
             Provider.InsertProfile(profile);
         }
 
         /// <summary>
-        /// Persists a new Referrer in the current provider.
+        /// Persists a new referrer record to the current provider.
         /// </summary>
-        /// <param name="referrer">
-        /// The referrer to insert.
-        /// </param>
+        /// <remarks>
+        /// Saves information about sites referring traffic to blog posts.
+        /// </remarks>
+        /// <param name="referrer">The referrer record to insert.</param>
         public static void InsertReferrer(Referrer referrer)
         {
             Provider.InsertReferrer(referrer);
@@ -556,77 +636,84 @@ namespace BlogEngine.Core.Providers
         }
 
         /// <summary>
-        /// Updates an exsiting BlogRoll.
+        /// Updates an existing blog roll item.
         /// </summary>
-        /// <param name="blogRoll">
-        /// The blog Roll.
-        /// </param>
+        /// <remarks>
+        /// Persists changes to a blog roll entry back to the data store.
+        /// </remarks>
+        /// <param name="blogRoll">The updated blog roll item.</param>
         public static void UpdateBlogRoll(BlogRollItem blogRoll)
         {
             Provider.UpdateBlogRollItem(blogRoll);
         }
 
         /// <summary>
-        /// Updates an exsiting Blog.
+        /// Updates an existing blog instance.
         /// </summary>
-        /// <param name="blog">
-        /// The blog.
-        /// </param>
+        /// <remarks>
+        /// Persists changes to blog configuration and metadata back to the data store.
+        /// </remarks>
+        /// <param name="blog">The updated blog instance.</param>
         public static void UpdateBlog(Blog blog)
         {
             Provider.UpdateBlog(blog);
         }
 
         /// <summary>
-        /// Updates an exsiting Category.
+        /// Updates an existing category.
         /// </summary>
-        /// <param name="category">
-        /// The category.
-        /// </param>
+        /// <remarks>
+        /// Persists changes to a category definition back to the data store.
+        /// </remarks>
+        /// <param name="category">The updated category.</param>
         public static void UpdateCategory(Category category)
         {
             Provider.UpdateCategory(category);
         }
 
         /// <summary>
-        /// Updates an exsiting Page.
+        /// Updates an existing static page.
         /// </summary>
-        /// <param name="page">
-        /// The page to update.
-        /// </param>
+        /// <remarks>
+        /// Persists changes to page content and metadata back to the data store.
+        /// </remarks>
+        /// <param name="page">The updated page instance.</param>
         public static void UpdatePage(Page page)
         {
             Provider.UpdatePage(page);
         }
 
         /// <summary>
-        /// Updates an exsiting Post.
+        /// Updates an existing blog post.
         /// </summary>
-        /// <param name="post">
-        /// The post to update.
-        /// </param>
+        /// <remarks>
+        /// Persists changes to post content, metadata, and publication status back to the data store.
+        /// </remarks>
+        /// <param name="post">The updated post instance.</param>
         public static void UpdatePost(Post post)
         {
             Provider.UpdatePost(post);
         }
 
         /// <summary>
-        /// Updates an exsiting Page.
+        /// Updates an existing author profile.
         /// </summary>
-        /// <param name="profile">
-        /// The profile to update.
-        /// </param>
+        /// <remarks>
+        /// Persists changes to an author's profile information back to the data store.
+        /// </remarks>
+        /// <param name="profile">The updated author profile.</param>
         public static void UpdateProfile(AuthorProfile profile)
         {
             Provider.UpdateProfile(profile);
         }
 
         /// <summary>
-        /// Updates an existing Referrer.
+        /// Updates an existing referrer record.
         /// </summary>
-        /// <param name="referrer">
-        /// The referrer to update.
-        /// </param>
+        /// <remarks>
+        /// Persists changes to referrer information back to the data store.
+        /// </remarks>
+        /// <param name="referrer">The updated referrer record.</param>
         public static void UpdateReferrer(Referrer referrer)
         {
             Provider.UpdateReferrer(referrer);
