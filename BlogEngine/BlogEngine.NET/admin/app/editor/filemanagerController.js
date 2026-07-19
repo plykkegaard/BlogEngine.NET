@@ -102,7 +102,30 @@
         })
         .catch(function (response) {
             console.log('FileManager: Upload failed, error:', response);
-            toastr.error($rootScope.lbl.failed);
+
+            // Extract detailed error message from server response
+            var errorMessage = $rootScope.lbl.failed; // Default fallback
+
+            if (response && response.data) {
+                // If response.data is a string (our error message), use it directly
+                if (typeof response.data === 'string' && response.data.length > 0) {
+                    errorMessage = response.data;
+                }
+                // If response.data has a Message property (Web API error format)
+                else if (response.data.Message) {
+                    errorMessage = response.data.Message;
+                }
+                // If response.data has an ExceptionMessage property
+                else if (response.data.ExceptionMessage) {
+                    errorMessage = response.data.ExceptionMessage;
+                }
+            }
+            // Fallback to statusText if available
+            else if (response && response.statusText) {
+                errorMessage = response.statusText;
+            }
+
+            toastr.error(errorMessage);
             $('#file-spinner').hide();
         });
     }
