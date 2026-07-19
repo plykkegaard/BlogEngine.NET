@@ -309,6 +309,107 @@ namespace BlogEngine.Core
         }
 
         /// <summary>
+        /// Gets excerpt content for syndication feeds, using the Description property if available,
+        /// or generating a truncated excerpt from the content.
+        /// </summary>
+        /// <param name="publishable">The publishable instance to extract excerpt from.</param>
+        /// <returns>An excerpt suitable for RSS/Atom feed description elements.</returns>
+        /// <remarks>
+        /// This method follows RSS 2.0 best practices by providing concise descriptions rather than full content.
+        /// It first attempts to use the Description property (which may be explicitly set as an excerpt).
+        /// If Description is empty, it strips HTML from the Content and truncates to the configured
+        /// DescriptionCharacters length, appending an ellipsis if truncated.
+        /// The excerpt is prefixed with post metadata (date, author, tags) for better feed readability.
+        /// </remarks>
+        private static string GetExcerptContent(IPublishable publishable)
+        {
+            var excerpt = String.Empty;
+
+            // First priority: use explicit Description if available
+            if (!String.IsNullOrWhiteSpace(publishable.Description))
+            {
+                excerpt = publishable.Description;
+            }
+            else
+            {
+                // Fallback: generate excerpt from content
+                if (!String.IsNullOrWhiteSpace(publishable.Content))
+                {
+                    // Strip HTML tags and get plain text
+                    var plainText = Utils.StripHtml(publishable.Content);
+
+                    // Get configured excerpt length
+                    var maxLength = BlogSettings.Instance.DescriptionCharacters;
+                    if (maxLength <= 0)
+                    {
+                        maxLength = 500; // Default fallback
+                    }
+
+                    // Truncate if necessary
+                    if (plainText.Length <= maxLength)
+                    {
+                        excerpt = plainText;
+                    }
+                    else
+                    {
+                        // Find last space before maxLength to avoid cutting words
+                        var truncated = plainText.Substring(0, maxLength);
+                        var lastSpace = truncated.LastIndexOf(' ');
+                        if (lastSpace > 0)
+                        {
+                            truncated = truncated.Substring(0, lastSpace);
+                        }
+                        excerpt = truncated + "...";
+                    }
+                }
+            }
+
+            // Build metadata header
+            var metadata = new StringBuilder();
+
+            // Start metadata block
+            metadata.Append("<p style=\"margin-bottom:0.5em;\">");
+
+            // Add publication date
+            var pubDate = BlogSettings.Instance.FromUtc(publishable.DateCreated);
+            metadata.AppendFormat("<strong>Published:</strong> {0:MMMM dd, yyyy}<br />", pubDate);
+
+            // Add author if available
+            if (!String.IsNullOrEmpty(publishable.Author))
+            {
+                metadata.AppendFormat("<strong>Author:</strong> {0}<br />", publishable.Author);
+            }
+
+            // Add categories if available
+            if (publishable.Categories != null && publishable.Categories.Count > 0)
+            {
+                metadata.Append("<strong>Categories:</strong> ");
+                metadata.Append(String.Join(", ", publishable.Categories));
+                metadata.Append("<br />");
+            }
+
+            // Add tags if available
+            if (publishable.Tags != null && publishable.Tags.Count > 0)
+            {
+                metadata.Append("<strong>Tags:</strong> ");
+                metadata.Append(String.Join(", ", publishable.Tags.ToArray()));
+            }
+
+            metadata.Append("</p>");
+
+            // Add separator between metadata and excerpt
+            if (!String.IsNullOrEmpty(excerpt))
+            {
+                metadata.Append("<hr style=\"margin:0.5em 0;\" />");
+                metadata.Append("<p>");
+                metadata.Append(excerpt);
+                metadata.Append("</p>");
+            }
+
+            return metadata.ToString();
+        }
+
+        /// <summary>
         /// Gets enclosure for supported media type
         /// </summary>
         /// <param name="content">The content.</param>
@@ -491,7 +592,7 @@ namespace BlogEngine.Core
 
             writer.WriteStartElement("summary");
             writer.WriteAttributeString("type", "html");
-            writer.WriteString(content);
+            writer.WriteString(GetExcerptContent(publishable));
             writer.WriteEndElement();
 
             // ------------------------------------------------------------
@@ -675,7 +776,7 @@ namespace BlogEngine.Core
                 writer.WriteElementString("title", publishable.Title);
             }
 
-            writer.WriteElementString("description", content);
+            writer.WriteElementString("description", GetExcerptContent(publishable));
             writer.WriteElementString("link", publishable.AbsoluteLink.AbsoluteUri);
 
             // ------------------------------------------------------------
@@ -697,15 +798,18 @@ namespace BlogEngine.Core
             {
                 writer.WriteElementString("author", BlogSettings.Instance.FeedAuthor);
             }
-            if (post != null)
-            {
-                writer.WriteElementString(
-                    "comments", String.Concat(publishable.AbsoluteLink.AbsoluteUri,
+			if (post != null)
+			{
+				writer.WriteElementString(
+					"comments", String.Concat(publishable.AbsoluteLink.AbsoluteUri,
 					"#comment"));
-            }
+			}
 
-            writer.WriteElementString("guid", GetPermaLink(publishable).ToString());
-            writer.WriteElementString("pubDate", RssDateString(publishable.DateCreated));
+			writer.WriteStartElement("guid");
+			writer.WriteAttributeString("isPermaLink", "true");
+			writer.WriteString(GetPermaLink(publishable).ToString());
+			writer.WriteEndElement();
+			writer.WriteElementString("pubDate", RssDateString(publishable.DateCreated));
 
             // ------------------------------------------------------------
             // Write channel item category elements
@@ -981,13 +1085,21 @@ namespace BlogEngine.Core
         /// </param>
         private void WriteAtomFeed(Stream stream, List<IPublishable> publishables, string title)
         {
-            var writerSettings = new XmlWriterSettings { Encoding = Encoding.UTF8, Indent = true };
+            var writerSettings = new XmlWriterSettings 
+            { 
+                Encoding = new UTF8Encoding(false),
+                Indent = true,
+                ConformanceLevel = ConformanceLevel.Document,
+                OmitXmlDeclaration = false,
+                CloseOutput = false
+            };
 
             // ------------------------------------------------------------
             // Create writer against stream using defined settings
             // ------------------------------------------------------------
             using (var writer = XmlWriter.Create(stream, writerSettings))
             {
+                writer.WriteStartDocument();
                 writer.WriteStartElement("feed", "http://www.w3.org/2005/Atom");
 
                 // writer.WriteAttributeString("version", "1.0");
@@ -1146,13 +1258,21 @@ namespace BlogEngine.Core
         /// </param>
         private void WriteRssFeed(Stream stream, IEnumerable<IPublishable> publishables, string title)
         {
-            var writerSettings = new XmlWriterSettings { Encoding = Encoding.UTF8, Indent = true };
+            var writerSettings = new XmlWriterSettings 
+            { 
+                Encoding = new UTF8Encoding(false),
+                Indent = true,
+                ConformanceLevel = ConformanceLevel.Document,
+                OmitXmlDeclaration = false,
+                CloseOutput = false
+            };
 
             // ------------------------------------------------------------
             // Create writer against stream using defined settings
             // ------------------------------------------------------------
             using (var writer = XmlWriter.Create(stream, writerSettings))
             {
+                writer.WriteStartDocument();
                 writer.WriteStartElement("rss");
                 writer.WriteAttributeString("version", "2.0");
 

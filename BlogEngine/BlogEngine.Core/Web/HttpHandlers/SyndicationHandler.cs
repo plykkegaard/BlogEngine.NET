@@ -376,7 +376,17 @@
                     break;
             }
 
-            if (Utils.SetConditionalGetHeaders(lastModified))
+            // Allow disabling cache for testing with ?nocache parameter
+            var disableCache = !string.IsNullOrEmpty(context.Request.QueryString["nocache"]);
+
+            if (disableCache)
+            {
+                context.Response.Cache.SetCacheability(HttpCacheability.NoCache);
+                context.Response.Cache.SetNoStore();
+                context.Response.AppendHeader("Pragma", "no-cache");
+                context.Response.AppendHeader("Expires", "0");
+            }
+            else if (Utils.SetConditionalGetHeaders(lastModified))
             {
                 context.Response.End();
             }
