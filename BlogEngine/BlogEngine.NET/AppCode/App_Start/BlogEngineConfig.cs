@@ -114,6 +114,7 @@ namespace BlogEngine.NET.App_Start
             bundles.Add(
                 new ScriptBundle("~/scripts/blogadmin")
                 .Include("~/Scripts/jquery-{version}.js")
+                .Include("~/Scripts/CookieManager.js")
                 .Include("~/Scripts/jquery.form.js")
                 .Include("~/Scripts/jquery.validate.js")
                 .Include("~/Scripts/jquery-ui.js")
@@ -123,7 +124,7 @@ namespace BlogEngine.NET.App_Start
                 .Include("~/Scripts/Q.js")
                 .Include("~/Scripts/angular.min.js")
                 .Include("~/Scripts/angular-route.min.js")
-                .Include("~/Scripts/angular-sanitize.min.js") 
+                .Include("~/Scripts/angular-sanitize.min.js")
 
                 .Include("~/admin/app/app.js")
                 .Include("~/admin/app/http-legacy-shim.js")
@@ -161,13 +162,14 @@ namespace BlogEngine.NET.App_Start
             bundles.Add(
                 new ScriptBundle("~/scripts/wysiwyg")
                 .Include("~/scripts/jquery-{version}.js")
+                .Include("~/scripts/CookieManager.js")
                 .Include("~/scripts/jquery.form.js")
                 .Include("~/scripts/jquery.validate.js")
                 .Include("~/scripts/toastr.js")
                 .Include("~/scripts/Q.js")  
                 .Include("~/Scripts/angular.min.js")
                 .Include("~/Scripts/angular-route.min.js")
-                .Include("~/Scripts/angular-sanitize.min.js")                
+                .Include("~/Scripts/angular-sanitize.min.js")
                 .Include("~/scripts/bootstrap.js")
                 .Include("~/scripts/textext.js")
                 .Include("~/scripts/moment.js")
