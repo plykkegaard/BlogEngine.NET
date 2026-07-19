@@ -44,6 +44,7 @@
         .when("/content/tags", { templateUrl: "app/content/tags/tagView.html" })
 
         .when("/custom/plugins", { templateUrl: "app/custom/plugins/pluginView.html" })
+        .when("/custom/plugins/new", { templateUrl: "app/custom/plugins/pluginView.html" })
         .when("/custom/plugins/gallery", { templateUrl: "app/custom/plugins/pluginGallery.html" })
         .when("/custom/themes", { templateUrl: "app/custom/themes/themeView.html" })
         .when("/custom/themes/gallery", { templateUrl: "app/custom/themes/themeGallery.html" })
