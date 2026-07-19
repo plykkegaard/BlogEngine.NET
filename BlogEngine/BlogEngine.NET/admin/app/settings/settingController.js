@@ -130,7 +130,28 @@
             toastr.success($rootScope.lbl.importedFromBlogML);
             spinOff();
         })
-        .catch(function () { toastr.error($rootScope.lbl.importFailed); spinOff(); });
+        .catch(function (response) {
+            // Extract detailed error message from server response
+            var errorMessage = $rootScope.lbl.importFailed;
+
+            if (response && response.data) {
+                if (typeof response.data === 'string' && response.data.length > 0) {
+                    errorMessage = response.data;
+                }
+                else if (response.data.Message) {
+                    errorMessage = response.data.Message;
+                }
+                else if (response.data.ExceptionMessage) {
+                    errorMessage = response.data.ExceptionMessage;
+                }
+            }
+            else if (response && response.statusText) {
+                errorMessage = response.statusText;
+            }
+
+            toastr.error(errorMessage);
+            spinOff();
+        });
     }
 
     $scope.testEmail = function () {
