@@ -86,7 +86,7 @@
     </div>
     <div class="main-header clearfix">
         <h2 class="page-title pull-left">{{lbl.widgets}}</h2>
-        <a ng-if="IsPrimary" href="{{SiteVars.RelativeWebRoot}}admin/#/custom/widgets/gallery" class="btn btn-success btn-sm btn-hasicon pull-left"><i class="fa fa-plus"></i>{{lbl.theNew}}</a>
+        <a ng-if="IsPrimary" ng-click="goToGallery()" class="btn btn-success btn-sm btn-hasicon pull-left"><i class="fa fa-plus"></i>{{lbl.theNew}}</a>
         <button type="button" ng-click="save()" class="btn btn-success btn-sm btn-hasicon pull-left"><i class="fa fa-check"></i>{{lbl.save}}</button>
     </div>
     <div class="content-inner">

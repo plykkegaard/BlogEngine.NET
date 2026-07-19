@@ -206,6 +206,10 @@ angular.module('blogAdmin').controller('CustomWidgetsController', ["$rootScope",
         });
     }
 
+    $scope.goToGallery = function () {
+        $location.path('/custom/widgets/gallery');
+    }
+
     $scope.load();
 
     $(document).ready(function () {
