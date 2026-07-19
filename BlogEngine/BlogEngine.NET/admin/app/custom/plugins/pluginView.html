@@ -89,7 +89,7 @@
     </div>
     <div class="main-header clearfix">
         <h2 class="page-title pull-left">{{lbl.plugins}}</h2>
-        <a ng-if="IsPrimary" href="{{SiteVars.RelativeWebRoot}}admin/#/custom/plugins/gallery" class="btn btn-success btn-sm btn-hasicon pull-left"><i class="fa fa-plus"></i>{{lbl.theNew}}</a>
+        <a ng-if="IsPrimary" ng-click="goToGallery()" class="btn btn-success btn-sm btn-hasicon pull-left"><i class="fa fa-plus"></i>{{lbl.theNew}}</a>
         <div ng-show="IsPrimary" class="btn-group befdv pull-left">
             <a ng-click="processChecked('uninstall', itemsChecked())" ng-disabled="itemsChecked() === false" class="btn btn-sm btn-danger" angular-tooltip tooltip="lbl.doDelete"><i class="fa fa-trash"></i></a>
             <a ng-click="processChecked('disable', itemsChecked())" ng-disabled="itemsChecked() === false" class="btn btn-sm btn-warning" angular-tooltip tooltip="lbl.disable"><i class="fa fa-close"></i></a>

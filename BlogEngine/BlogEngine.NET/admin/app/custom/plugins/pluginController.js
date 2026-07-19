@@ -12,15 +12,22 @@ angular.module('blogAdmin').controller('CustomPluginsController', ["$rootScope",
     $scope.selectedRating = 0;
     $scope.author = UserVars.Name;
 
+    console.log("CustomPluginsController initialized");
+    console.log("Current path:", $location.path());
+    console.log("IsPrimary:", $scope.IsPrimary);
+
     if ($location.path().indexOf("/custom/plugins/gallery") === 0) {
+        console.log("Gallery context detected");
         $scope.fltr = 'all';
         $scope.galleryFilter = 'extensions';
     }
 
     $scope.load = function () {
+        console.log("Loading packages...");
         spinOn();
         dataService.getItems('/api/packages', { take: 0, skip: 0, filter: $scope.fltr, order: 'LastUpdated desc' })
         .then(function (response) { var data = response.data;
+            console.log("Packages loaded successfully. Count:", data.length);
             angular.copy(data, $scope.items);
             gridInit($scope, $filter);
             if ($scope.galleryFilter) {
@@ -33,7 +40,8 @@ angular.module('blogAdmin').controller('CustomPluginsController', ["$rootScope",
             }
             spinOff();
         })
-        .catch(function () {
+        .catch(function (error) {
+            console.error("Failed to load packages:", error);
             toastr.error($rootScope.lbl.errorLoadingPackages);
             spinOff();
         });
@@ -191,6 +199,11 @@ angular.module('blogAdmin').controller('CustomPluginsController', ["$rootScope",
             toastr.error($rootScope.lbl.failed);
             spinOff();
         });
+    }
+
+    $scope.goToGallery = function () {
+        console.log("Navigating to gallery...");
+        $location.path('/custom/plugins/gallery');
     }
 
     $scope.load();
