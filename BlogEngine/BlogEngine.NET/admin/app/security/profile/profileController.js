@@ -54,7 +54,27 @@
             $scope.user.Profile.PhotoUrl = response.data;
             $scope.save();
         })
-        .catch(function () { toastr.error($rootScope.lbl.failed); });
+        .catch(function (response) {
+            // Extract detailed error message from server response
+            var errorMessage = $rootScope.lbl.failed;
+
+            if (response && response.data) {
+                if (typeof response.data === 'string' && response.data.length > 0) {
+                    errorMessage = response.data;
+                }
+                else if (response.data.Message) {
+                    errorMessage = response.data.Message;
+                }
+                else if (response.data.ExceptionMessage) {
+                    errorMessage = response.data.ExceptionMessage;
+                }
+            }
+            else if (response && response.statusText) {
+                errorMessage = response.statusText;
+            }
+
+            toastr.error(errorMessage);
+        });
     }
 
     $scope.setPhoto = function () {
