@@ -172,7 +172,27 @@
             // Broadcast event to refresh file manager if it's open
             $rootScope.$broadcast('fileUploaded', { path: data });
         })
-        .catch(function () { toastr.error($rootScope.lbl.importFailed); });
+        .catch(function (response) {
+            // Extract detailed error message from server response
+            var errorMessage = $rootScope.lbl.importFailed;
+
+            if (response && response.data) {
+                if (typeof response.data === 'string' && response.data.length > 0) {
+                    errorMessage = response.data;
+                }
+                else if (response.data.Message) {
+                    errorMessage = response.data.Message;
+                }
+                else if (response.data.ExceptionMessage) {
+                    errorMessage = response.data.ExceptionMessage;
+                }
+            }
+            else if (response && response.statusText) {
+                errorMessage = response.statusText;
+            }
+
+            toastr.error(errorMessage);
+        });
     }
 
     $scope.status = function () {
