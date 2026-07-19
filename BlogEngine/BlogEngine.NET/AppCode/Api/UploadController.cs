@@ -36,15 +36,25 @@ public class UploadController : ApiController
                 // iOS sends all images as "image.jpg" or "image.png"
                 fileName = fileName.Replace("image.jpg", DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".jpg");
                 fileName = fileName.Replace("image.png", DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".png");
+
                 // Validate file upload security (extension whitelist/blacklist and MIME type)
-                if (!FileUploadValidator.IsFileUploadAllowed(file.InputStream, fileName, file.ContentType))
+                var validationResult = FileUploadValidator.ValidateFileUpload(file.InputStream, fileName, file.ContentType);
+
+                if (!validationResult.Success)
                 {
                     var userName = Security.CurrentUser != null ? Security.CurrentUser.Identity.Name : "Anonymous";
                     var ipAddress = HttpContext.Current.Request.UserHostAddress;
+                    var rejectionReason = validationResult.Reason.ToString();
+
                     BlogEngine.Core.Utils.LogSecurityEvent("UploadBlocked", 
-                        $"User: {userName}, File: {fileName}, IP: {ipAddress}");
-                    Utils.Log($"UploadController.Post: Upload blocked by security validation - File: {fileName}");
-                    return Request.CreateResponse(HttpStatusCode.BadRequest, FileUploadValidator.GetValidationErrorMessage());
+                        $"User: {userName}, File: {fileName}, Reason: {rejectionReason}, IP: {ipAddress}");
+                    Utils.Log($"UploadController.Post: Upload blocked by security validation - File: {fileName}, Reason: {rejectionReason}");
+
+                    // Determine if user is authenticated for contextual error messaging
+                    bool isAuthenticated = Security.CurrentUser != null && Security.CurrentUser.Identity.IsAuthenticated;
+                    string errorMessage = FileUploadValidator.GetValidationErrorMessage(isAuthenticated, validationResult);
+
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, errorMessage);
                 }
 
                 Utils.Log($"UploadController.Post: Security validation passed for file: {fileName}");
