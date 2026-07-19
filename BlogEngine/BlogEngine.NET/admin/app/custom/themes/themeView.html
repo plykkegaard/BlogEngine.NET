@@ -94,7 +94,7 @@
     </div>
     <div class="main-header clearfix">
         <h2 class="page-title pull-left">{{lbl.themes}}</h2>
-        <a ng-if="IsPrimary" href="{{SiteVars.RelativeWebRoot}}admin/#/custom/themes/gallery" class="btn btn-success btn-sm btn-hasicon pull-left"><i class="fa fa-plus"></i>{{lbl.theNew}}</a>
+        <a ng-if="IsPrimary" ng-click="goToGallery()" class="btn btn-success btn-sm btn-hasicon pull-left"><i class="fa fa-plus"></i>{{lbl.theNew}}</a>
         <button class="right-side-toggle pull-right"><span></span><span></span><span></span></button>
         <div class="right-side pull-right">
             <div class="search pull-right">
@@ -105,7 +105,7 @@
     </div>
     <div class="content-inner">
         <p class="form-group">
-            Check out our <a href="https://blogengine.io/themes/" target="_blank"><strong>new high quality themes</strong></a>, also you can <a href="https://blogengine.io/custom-blogengine-themes/" target="_blank"><strong>order your custom theme</strong></a>.
+            Check out our <a href="https://blogengine.io/themes/" target="_blank"><strong>new high quality themes</strong></a> or browse <a href="https://blogengine.io/themes/free/" target="_blank"><strong>free themes</strong></a>, also you can <a href="https://blogengine.io/custom-blogengine-themes/" target="_blank"><strong>order your custom theme</strong></a>.
         </p>
         <div class="row">
             <div data-ng-repeat="item in pagedItems[currentPage] | orderBy:sortingOrder:reverse" class="col-xs-6 col-sm-6 col-md-4 col-lg-4">

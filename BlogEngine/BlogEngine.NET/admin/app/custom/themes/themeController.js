@@ -199,6 +199,10 @@ angular.module('blogAdmin').controller('CustomThemesController', ["$rootScope", 
         }
     }
 
+    $scope.goToGallery = function () {
+        $location.path('/custom/themes/gallery');
+    }
+
     $scope.load();
 
     $(document).ready(function () {
