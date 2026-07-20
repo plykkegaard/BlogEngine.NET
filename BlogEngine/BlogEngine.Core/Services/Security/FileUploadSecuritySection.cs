@@ -2,6 +2,7 @@ namespace BlogEngine.Core.Services.Security
 {
     using System.Configuration;
 
+
     /// <summary>
     /// Configuration section for file upload security settings.
     /// </summary>
