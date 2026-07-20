@@ -34,26 +34,47 @@ namespace BlogEngine.Core.Services.Security
     /// <summary>
     /// Represents the result of a file upload validation.
     /// </summary>
+    /// <remarks>
+    /// This class encapsulates the outcome of file upload validation, including success status,
+    /// the specific reason for rejection (if any), and the filename being validated.
+    /// Use the Success property for simple allow/deny logic, and the Reason property for
+    /// providing detailed feedback to users.
+    /// </remarks>
     public class FileUploadValidationResult
     {
         /// <summary>
         /// Gets or sets a value indicating whether the file upload is allowed.
         /// </summary>
+        /// <value>
+        /// true if the file passed all validation checks; otherwise, false.
+        /// </value>
         public bool Success { get; set; }
 
         /// <summary>
         /// Gets or sets the reason for rejection if the upload was not allowed.
         /// </summary>
+        /// <value>
+        /// A FileUploadRejectionReason enumeration value indicating why the upload was rejected.
+        /// If Success is true, this value is FileUploadRejectionReason.None.
+        /// </value>
         public FileUploadRejectionReason Reason { get; set; }
 
         /// <summary>
         /// Gets or sets the filename that was validated.
         /// </summary>
+        /// <value>
+        /// A string containing the filename passed to the validation method.
+        /// May be an empty string if the filename was null.
+        /// </value>
         public string FileName { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FileUploadValidationResult"/> class.
         /// </summary>
+        /// <remarks>
+        /// The constructor initializes the result with default values: Success is false,
+        /// Reason is InvalidFile, and FileName is an empty string.
+        /// </remarks>
         public FileUploadValidationResult()
         {
             Success = false;
@@ -62,11 +83,32 @@ namespace BlogEngine.Core.Services.Security
         }
     }
 
+    /// <summary>
+    /// Provides static methods for validating file uploads based on extension and MIME type security rules.
+    /// </summary>
+    /// <remarks>
+    /// This class implements a two-layer security validation system:
+    /// 1. Extension-based validation against configured allowed/blocked lists
+    /// 2. MIME type detection and validation to prevent file type spoofing
+    /// 
+    /// Configuration is lazily loaded from the "BlogEngine/fileUploadSecurity" configuration section
+    /// using thread-safe double-checked locking. Configuration errors are logged for diagnostics.
+    /// </remarks>
     public static class FileUploadValidator
     {
         private static FileUploadSecuritySection _securityConfig;
         private static readonly object _configLock = new object();
 
+        /// <summary>
+        /// Gets the lazily-loaded file upload security configuration section.
+        /// </summary>
+        /// <value>
+        /// The FileUploadSecuritySection from configuration, or null if not found or on error.
+        /// </value>
+        /// <remarks>
+        /// Uses thread-safe double-checked locking to ensure configuration is loaded only once.
+        /// Configuration errors are logged but do not throw exceptions to prevent denial of service.
+        /// </remarks>
         private static FileUploadSecuritySection SecurityConfig
         {
             get
@@ -148,6 +190,18 @@ namespace BlogEngine.Core.Services.Security
             return result;
         }
 
+        /// <summary>
+        /// Determines whether a file upload is allowed without detailed reasoning.
+        /// </summary>
+        /// <param name="fileStream">The file stream to validate.</param>
+        /// <param name="fileName">The name of the file to validate.</param>
+        /// <param name="contentType">The content type of the file.</param>
+        /// <returns>true if the upload is allowed; otherwise, false.</returns>
+        /// <remarks>
+        /// This is a convenience method for simple allow/deny decisions. For detailed validation feedback,
+        /// use ValidateFileUpload(Stream, string, string) instead.
+        /// Security events are logged for all rejections.
+        /// </remarks>
         public static bool IsFileUploadAllowed(Stream fileStream, string fileName, string contentType)
         {
             if (fileStream == null || string.IsNullOrWhiteSpace(fileName))
@@ -168,6 +222,19 @@ namespace BlogEngine.Core.Services.Security
             return true;
         }
 
+        /// <summary>
+        /// Validates whether a file extension is allowed based on security configuration.
+        /// </summary>
+        /// <param name="fileName">The name of the file whose extension will be validated.</param>
+        /// <returns>true if the extension is allowed; otherwise, false.</returns>
+        /// <remarks>
+        /// This method checks if the extension is:
+        /// 1. Not in the blocked extensions list
+        /// 2. In the allowed extensions list
+        /// 
+        /// Blocked extensions are checked first and take precedence. Comparison is case-insensitive.
+        /// If configuration is unavailable, the upload is denied for security.
+        /// </remarks>
         public static bool ValidateFileExtension(string fileName)
         {
             if (string.IsNullOrWhiteSpace(fileName)) return false;
@@ -187,6 +254,19 @@ namespace BlogEngine.Core.Services.Security
             return false;
         }
 
+        /// <summary>
+        /// Validates whether a file's content (MIME type) matches its extension.
+        /// </summary>
+        /// <param name="fileStream">The file stream whose content will be analyzed.</param>
+        /// <param name="fileName">The name of the file being validated.</param>
+        /// <param name="contentType">The provided content type header (may not be used if MIME detection is available).</param>
+        /// <returns>true if the MIME type matches the extension; otherwise, false.</returns>
+        /// <remarks>
+        /// This method uses MimeTypeDetector to identify the actual file format and compares it
+        /// against the extension. Some file types (txt, csv, json) may be allowed without MIME detection.
+        /// If MIME type cannot be detected, the method logs a security event but may still allow certain
+        /// text-based formats. Exceptions during detection are caught and logged, returning false to deny access.
+        /// </remarks>
         public static bool ValidateMimeType(Stream fileStream, string fileName, string contentType)
         {
             if (fileStream == null || !fileStream.CanRead) return false;
@@ -214,6 +294,16 @@ namespace BlogEngine.Core.Services.Security
             }
         }
 
+        /// <summary>
+        /// Checks whether an extension is present in a collection of extensions.
+        /// </summary>
+        /// <param name="extension">The extension to search for (should include the dot, e.g., ".txt").</param>
+        /// <param name="collection">The collection of FileExtensionElement items to search.</param>
+        /// <returns>true if the extension is found in the collection; otherwise, false.</returns>
+        /// <remarks>
+        /// The comparison is case-insensitive using the invariant culture. If the collection is null or empty,
+        /// returns false. This is a helper method used internally for both allowed and blocked extension checks.
+        /// </remarks>
         private static bool IsExtensionInList(string extension, FileExtensionElementCollection collection)
         {
             if (collection == null || collection.Count == 0) return false;
@@ -234,7 +324,7 @@ namespace BlogEngine.Core.Services.Security
         /// <returns>A contextual error message appropriate for the user's authentication level.</returns>
         /// <remarks>
         /// Authenticated users receive detailed messages including filename and rejection reason.
-        /// Anonymous users receive generic security messages.
+        /// Anonymous users receive generic security messages to prevent information disclosure.
         /// </remarks>
         public static string GetValidationErrorMessage(bool isAuthenticated, FileUploadValidationResult validationResult)
         {
@@ -287,6 +377,15 @@ namespace BlogEngine.Core.Services.Security
             return "The uploaded file type is not allowed. Please upload a valid file.";
         }
 
+        /// <summary>
+        /// Determines whether a file extension is in the blocked extensions list.
+        /// </summary>
+        /// <param name="fileName">The name of the file to check.</param>
+        /// <returns>true if the file extension is blocked; otherwise, false.</returns>
+        /// <remarks>
+        /// This method only checks the blocked list, not the allowed list. It returns true for files
+        /// with no extension or whitespace-only filenames as a safety precaution.
+        /// </remarks>
         public static bool IsExtensionBlocked(string fileName)
         {
             if (string.IsNullOrWhiteSpace(fileName)) return true;

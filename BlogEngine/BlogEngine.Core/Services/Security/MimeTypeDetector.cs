@@ -5,8 +5,22 @@ namespace BlogEngine.Core.Services.Security
     using System.IO;
     using System.Linq;
 
+    /// <summary>
+    /// Provides methods for detecting MIME types based on file signatures (magic bytes) and validating MIME types against file extensions.
+    /// </summary>
+    /// <remarks>
+    /// This class uses a collection of known file signatures to detect the actual MIME type of a file,
+    /// independent of its extension. It supports detection of common image, video, audio, archive, and document formats.
+    /// </remarks>
     public static class MimeTypeDetector
     {
+        /// <summary>
+        /// Signature database containing known file format identifiers.
+        /// </summary>
+        /// <remarks>
+        /// Each signature entry defines the primary and optional secondary byte patterns that uniquely identify a file format,
+        /// along with the corresponding MIME type and common file extensions.
+        /// </remarks>
         private static readonly List<MimeTypeSignature> Signatures = new List<MimeTypeSignature>
         {
             new MimeTypeSignature(new byte[] { 0xFF, 0xD8, 0xFF }, "image/jpeg", new[] { ".jpg", ".jpeg" }),
@@ -39,6 +53,18 @@ namespace BlogEngine.Core.Services.Security
             new MimeTypeSignature(new byte[] { 0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1 }, "application/vnd.ms-office", new[] { ".doc", ".xls", ".ppt" })
         };
 
+        /// <summary>
+        /// Detects the MIME type of a file by reading its signature (magic bytes) from a stream.
+        /// </summary>
+        /// <param name="stream">The stream containing the file data to analyze. The stream position is restored after reading.</param>
+        /// <returns>
+        /// The detected MIME type as a string (e.g., "image/jpeg", "application/pdf"), or null if the MIME type cannot be determined
+        /// or if the stream is null or not readable.
+        /// </returns>
+        /// <remarks>
+        /// This method reads up to 32 bytes from the beginning of the stream to match against known file signatures.
+        /// If the stream is seekable, its original position is preserved after the operation.
+        /// </remarks>
         public static string DetectMimeType(Stream stream)
         {
             if (stream == null || !stream.CanRead) return null;
@@ -58,6 +84,19 @@ namespace BlogEngine.Core.Services.Security
             finally { if (stream.CanSeek) stream.Position = originalPosition; }
         }
 
+        /// <summary>
+        /// Validates that the MIME type detected from a file stream matches the expected type based on the file extension.
+        /// </summary>
+        /// <param name="stream">The stream containing the file data to analyze.</param>
+        /// <param name="fileName">The file name or path used to extract the file extension for validation.</param>
+        /// <returns>
+        /// true if the detected MIME type corresponds to the file's extension; false if the MIME type cannot be detected,
+        /// the extension is invalid, the file name is empty, or the detected MIME type does not match the extension.
+        /// </returns>
+        /// <remarks>
+        /// This method detects the actual MIME type from the file content and compares it against the expected extensions
+        /// for that MIME type. This helps identify files that have incorrect extensions or potentially malicious content.
+        /// </remarks>
         public static bool ValidateMimeTypeMatchesExtension(Stream stream, string fileName)
         {
             if (string.IsNullOrEmpty(fileName)) return false;
@@ -70,26 +109,97 @@ namespace BlogEngine.Core.Services.Security
             return matchingSignature.Extensions.Any(ext => ext.Equals(fileExtension, StringComparison.OrdinalIgnoreCase));
         }
 
+        /// <summary>
+        /// Internal class representing a file format signature used for MIME type detection.
+        /// </summary>
+        /// <remarks>
+        /// Each signature consists of a primary byte pattern (magic bytes) that identifies a file format.
+        /// Some formats also use an optional secondary signature at a specific offset to ensure accurate detection.
+        /// </remarks>
         private class MimeTypeSignature
         {
+            /// <summary>
+            /// Gets the primary signature bytes that identify the file format.
+            /// </summary>
+            /// <remarks>
+            /// This contains the magic bytes at the beginning of a file that uniquely identify its format.
+            /// </remarks>
             public byte[] PrimarySignature { get; }
+
+            /// <summary>
+            /// Gets the byte offset where the secondary signature is located, or -1 if no secondary signature is used.
+            /// </summary>
+            /// <remarks>
+            /// Used for formats like WebP, WAV, and AVI that share a RIFF primary signature but differ in their secondary signatures.
+            /// </remarks>
             public int SecondaryOffset { get; }
+
+            /// <summary>
+            /// Gets the secondary signature bytes, or null if not applicable.
+            /// </summary>
+            /// <remarks>
+            /// When present, this provides additional bytes checked at the SecondaryOffset to disambiguate file formats.
+            /// </remarks>
             public byte[] SecondarySignature { get; }
+
+            /// <summary>
+            /// Gets the MIME type identifier (e.g., "image/jpeg", "application/pdf").
+            /// </summary>
+            /// <remarks>
+            /// This is the standard MIME type string that will be returned when this signature is matched.
+            /// </remarks>
             public string MimeType { get; }
+
+            /// <summary>
+            /// Gets the array of file extensions commonly associated with this MIME type.
+            /// </summary>
+            /// <remarks>
+            /// Used by ValidateMimeTypeMatchesExtension to verify that the detected MIME type corresponds to the file's extension.
+            /// </remarks>
             public string[] Extensions { get; }
 
+            /// <summary>
+            /// Initializes a new instance of the MimeTypeSignature class with a primary signature only.
+            /// </summary>
+            /// <param name="signature">The byte pattern that identifies the file format.</param>
+            /// <param name="mimeType">The MIME type associated with this signature.</param>
+            /// <param name="extensions">The file extensions commonly associated with this MIME type.</param>
             public MimeTypeSignature(byte[] signature, string mimeType, string[] extensions)
             {
                 PrimarySignature = signature; MimeType = mimeType; Extensions = extensions;
                 SecondaryOffset = -1; SecondarySignature = null;
             }
 
+            /// <summary>
+            /// Initializes a new instance of the MimeTypeSignature class with both primary and secondary signatures.
+            /// </summary>
+            /// <param name="primarySignature">The primary byte pattern that identifies the file format.</param>
+            /// <param name="secondaryOffset">The byte offset where the secondary signature begins.</param>
+            /// <param name="secondarySignature">The secondary byte pattern that further refines format identification.</param>
+            /// <param name="mimeType">The MIME type associated with these signatures.</param>
+            /// <param name="extensions">The file extensions commonly associated with this MIME type.</param>
+            /// <remarks>
+            /// The secondary signature is checked at the specified offset to disambiguate between similar file formats
+            /// that share the same primary signature (e.g., RIFF-based formats like WebP, WAV, and AVI).
+            /// </remarks>
             public MimeTypeSignature(byte[] primarySignature, int secondaryOffset, byte[] secondarySignature, string mimeType, string[] extensions)
             {
                 PrimarySignature = primarySignature; SecondaryOffset = secondaryOffset;
                 SecondarySignature = secondarySignature; MimeType = mimeType; Extensions = extensions;
             }
 
+            /// <summary>
+            /// Determines whether the provided buffer matches this file signature.
+            /// </summary>
+            /// <param name="buffer">The byte buffer to check against the signatures.</param>
+            /// <param name="bytesRead">The number of valid bytes in the buffer.</param>
+            /// <returns>
+            /// true if both the primary signature and any secondary signature (if defined) match the buffer; false otherwise.
+            /// </returns>
+            /// <remarks>
+            /// This method first checks the primary signature at offset 0. If a secondary signature is defined,
+            /// it is verified at the specified secondary offset.
+            /// </remarks>
             public bool Matches(byte[] buffer, int bytesRead)
             {
                 if (bytesRead < PrimarySignature.Length) return false;
