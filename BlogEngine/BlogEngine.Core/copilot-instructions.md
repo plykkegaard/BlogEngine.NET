@@ -2,6 +2,58 @@
 
 This project is the core class library for BlogEngine.NET and targets .NET Framework 4.8.
 
+## Namespace & Directory Structure
+
+```
+BlogEngine.Core (root namespace)
+├── API/MetaWeblog/                  → BlogEngine.Core.API.MetaWeblog
+│   └── MetaWeblog protocol handling (MWA*, MetaWeblogHandler, XMLRPC)
+├── Data/                            → BlogEngine.Core.Data
+│   ├── Contracts/                   → BlogEngine.Core.Data.Contracts (IRepository interfaces)
+│   ├── Models/                      → BlogEngine.Core.Data.Models (DTO/ViewModel classes)
+│   ├── Services/                    → BlogEngine.Core.Data.Services (Avatar, Json, TagCloud, Updater)
+│   ├── ViewModels/                  → BlogEngine.Core.Data.ViewModels (VM classes)
+│   └── *Repository.cs               → BlogEngine.Core.Data (repository implementations)
+├── Metadata/                        → BlogEngine.Core.Metadata
+│   ├── Schemas/                     → BlogEngine.Core.Metadata.Schemas
+│   └── SEO/GEO metadata management
+├── Helpers/                         → BlogEngine.Core.Helpers (Pager, Utils, BlogGenerator, Events)
+├── Providers/                       → BlogEngine.Core.Providers
+│   ├── BlogProvider/                → BlogEngine.Core.Providers (abstract provider base)
+│   ├── CacheProvider/               → BlogEngine.Core.Providers.CacheProvider
+│   ├── DbProvider/                  → BlogEngine.Core.Providers.DbProvider
+│   ├── FileSystemProviders/         → BlogEngine.Core.Providers.FileSystemProviders
+│   └── XmlProvider/                 → BlogEngine.Core.Providers.XmlProvider
+├── Services/                        → BlogEngine.Core.Services
+│   ├── Compilation/                 → BlogEngine.Core.Services.Compilation (expression builders)
+│   ├── FileSystem/                  → BlogEngine.Core.Services.FileSystem
+│   ├── Messaging/                   → BlogEngine.Core.Services.Messaging (Ping, Protection)
+│   ├── Packaging/                   → BlogEngine.Core.Services.Packaging
+│   ├── Search/                      → BlogEngine.Core.Services.Search
+│   ├── Security/                    → BlogEngine.Core.Services.Security
+│   └── Syndication/                 → BlogEngine.Core.Services.Syndication (BlogML)
+├── Web/                             → BlogEngine.Core.Web
+│   ├── Controls/                    → BlogEngine.Core.Web.Controls (BasePage, CommentForm, PostView, etc.)
+│   ├── Extensions/                  → BlogEngine.Core.Web.Extensions (plugins, DataStore, Widgets)
+│   ├── HttpHandlers/                → BlogEngine.Core.Web.HttpHandlers (handlers for feeds, images, JS, etc.)
+│   ├── HttpModules/                 → BlogEngine.Core.Web.HttpModules (compression, rewriting, security)
+│   └── Scripting/                   → BlogEngine.Core.Web.Scripting
+├── Root classes
+│   ├── AuthorProfile.cs             → BlogEngine.Core.AuthorProfile
+│   ├── Blog.cs                      → BlogEngine.Core.Blog
+│   ├── BlogConfig.cs                → BlogEngine.Core.BlogConfig
+│   ├── BlogSettings.cs              → BlogEngine.Core.BlogSettings
+│   ├── BusinessBase.cs              → BlogEngine.Core.BusinessBase (change tracking base)
+│   ├── Category.cs                  → BlogEngine.Core.Category
+│   ├── Comment.cs                   → BlogEngine.Core.Comment
+│   ├── IPublishable.cs              → BlogEngine.Core.IPublishable (interface)
+│   ├── Page.cs                      → BlogEngine.Core.Page
+│   ├── Post.cs                      → BlogEngine.Core.Post
+│   ├── Referrer.cs                  → BlogEngine.Core.Referrer
+│   ├── Role.cs                      → BlogEngine.Core.Role
+│   └── BlogRollItem.cs              → BlogEngine.Core.BlogRollItem
+```
+
 ## Core Architecture & Patterns
 - Preserve the existing provider-based architecture such as `BlogProvider`, `XmlProvider`, `DbProvider`, and the repository/service abstractions under `Data`, `Providers`, `Services`, `Web`, and `API`.
 - Keep the existing content and configuration models intact, including XML-based storage and the current provider contracts. Avoid changing data contracts unless a change specifically requires it.
