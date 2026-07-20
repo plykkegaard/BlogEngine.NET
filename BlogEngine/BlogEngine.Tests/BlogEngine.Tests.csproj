@@ -98,6 +98,7 @@
     <Compile Include="Fakes\FakeTrashRepository.cs" />
     <Compile Include="Fakes\FakeUsersRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Security\SecurityHeadersModuleTests.cs" />
     <Compile Include="WebApi\BlogControllerTests.cs" />
     <Compile Include="WebApi\CategoryControllerTests.cs" />
     <Compile Include="WebApi\CommentControllerTests.cs" />
