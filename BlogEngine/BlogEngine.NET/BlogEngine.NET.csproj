@@ -688,6 +688,7 @@
     <Content Include="Scripts\angular-touch.min.js" />
     <Content Include="Scripts\angular.js" />
     <Content Include="Scripts\angular.min.js" />
+    <Content Include="Scripts\Auto\02-CookieManager.js" />
     <Content Include="Scripts\Auto\04-handlebars.min.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -802,6 +803,7 @@
     <Content Include="Custom\Themes\SimpleBlue\site.master" />
     <Content Include="COMMENT_XSS_VERIFICATION_GUIDE.md" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
+    <Content Include="Scripts\CookieManager.js" />
     <Content Include="Scripts\errors.json" />
     <Content Include="Scripts\angular.min.js.map" />
     <Content Include="Scripts\angular-touch.min.js.map" />
@@ -1559,8 +1561,6 @@
     <Content Include="Scripts\jquery-3.7.1.slim.js" />
     <Content Include="Scripts\jquery-3.7.1.slim.min.js" />
     <Content Include="Scripts\jquery-ui.js" />
-    <Content Include="Scripts\jquery.cookie-1.4.1.min.js" />
-    <Content Include="Scripts\jquery.cookie.js" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\jquery.validate.js" />
     <Content Include="Scripts\jquery.validate.min.js" />
@@ -1786,7 +1786,6 @@
     <Content Include="robots.txt" />
     <Content Include="Scripts\admin.js" />
     <Content Include="Scripts\Auto\01-jquery-1.9.1.min.js" />
-    <Content Include="Scripts\Auto\02-jquery.cookie.js" />
     <Content Include="Scripts\Auto\04-jquery-jtemplates.js" />
     <Content Include="Scripts\Auto\05-json2.min.js" />
     <Content Include="Scripts\Auto\blog.js" />
@@ -1794,7 +1793,6 @@
     <Content Include="Scripts\jquery-jtemplates.min.js" />
     <Content Include="Scripts\jquery.form.js" />
     <Content Include="Scripts\jQuery\01-jquery-1.9.1.min.js" />
-    <Content Include="Scripts\jQuery\02-jquery.cookie.js" />
     <Content Include="Scripts\jQuery\03-jquery.validate.min.js" />
     <Content Include="Scripts\jQuery\04-jquery-jtemplates.js" />
     <Content Include="Scripts\jQuery\05-json2.min.js" />
