@@ -366,7 +366,6 @@ namespace BlogEngine.Core.Providers
         /// Creates a new blog instance in the data store. Use only for multi-blog scenarios.
         /// </remarks>
         /// <param name="blog">The blog instance to insert.</param>
-        /// </param>
         public static void InsertBlog(Blog blog)
         {
             Provider.InsertBlog(blog);
@@ -971,7 +970,9 @@ namespace BlogEngine.Core.Providers
         /// <summary>
         /// Fills list of custom fields for a blog
         /// </summary>
-        /// <param name="blog">Current blog</param>
+        /// <remarks>
+        /// This method retrieves all custom fields for the current blog.
+        /// </remarks>
         /// <returns>List of custom fields</returns>
         public static List<BlogEngine.Core.Data.Models.CustomField> FillCustomFields()
         {
