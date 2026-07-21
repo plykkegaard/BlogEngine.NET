@@ -125,7 +125,7 @@ function processChecked(url, action, scope, dataService) {
         return false;
     }
     dataService.processChecked(url + action, checked)
-    .success(function (data) {
+    .then(function (response) {
         scope.load();
         toastr.success(BlogAdmin.i18n.completed);
         if ($('#chkAll')) {
@@ -133,7 +133,7 @@ function processChecked(url, action, scope, dataService) {
         }
         spinOff();
     })
-    .error(function (data) {
+    .catch(function (error) {
         toastr.error(BlogAdmin.i18n.failed);
         spinOff();
     });
@@ -198,4 +198,3 @@ function bindCommon() {
 
 
 }
-
