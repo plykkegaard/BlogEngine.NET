@@ -9,7 +9,7 @@ namespace BlogEngine.Core.Data.Models
         /// <summary>
         /// If checked in the UI
         /// </summary>
-        public bool IsChecked { get; set; }
+        public bool IsChecked { get; set; } = false;
         /// <summary>
         /// Package Id
         /// </summary>
@@ -69,7 +69,7 @@ namespace BlogEngine.Core.Data.Models
         /// <summary>
         /// Enabled flag
         /// </summary>
-        public bool Enabled { get; set; }
+        public bool Enabled { get; set; } = false;
         /// <summary>
         /// Priority (estensions order of execution)
         /// </summary>
