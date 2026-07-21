@@ -8,6 +8,8 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
 // Original file name:
 // Generation date: 01/07/2026 19.38.19
 namespace BlogEngine.Core.GalleryServer

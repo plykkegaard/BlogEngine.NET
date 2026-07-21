@@ -4,6 +4,8 @@
     /// MetaWeblog Category struct
     ///     returned as an array from GetCategories
     /// </summary>
+#pragma warning disable CS0649 // Field is never assigned, will always have default value this is a false positive, as the fields are populated via reflection from the XML-RPC call
+#pragma warning disable S101 // Types should be named in PascalCase
     internal struct MWACategory
     {
         #region Constants and Fields
@@ -35,4 +37,6 @@
 
         #endregion
     }
+#pragma warning restore S101
+#pragma warning restore CS0649
 }

@@ -7,6 +7,8 @@
     /// <remarks>
     /// Not used currently, but here for completeness.
     /// </remarks>
+#pragma warning disable CS0649 // Field is never assigned, will always have default value this is a false positive, as the fields are populated via reflection from the XML-RPC call
+#pragma warning disable S101 // Types should be named in PascalCase
     internal struct MWAUserInfo
     {
         /// <summary>
@@ -39,4 +41,6 @@
         /// </summary>
         public string firstName;
     }
+#pragma warning restore S101
+#pragma warning restore CS0649
 }
