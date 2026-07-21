@@ -179,13 +179,17 @@ public partial class _default : BlogEngine.Core.Web.Controls.BlogBasePage
 
 		if (rewrite != null)
 		{
+            Response.RedirectPermanent(rewrite + page);
+
+            /*
             //TODO Replace this Block of code with Response.RedirectPermanent?  Since Asp.net 4.0 has new method saves on code.
-			Response.Clear();
+            Response.Clear();
 			Response.StatusCode = 301;
 			Response.AppendHeader("location", rewrite + page);
 			Response.End();
-		}
-	}
+			*/
+        }
+    }
 
 	private static readonly Regex YEAR_MONTH = new Regex("/([0-9][0-9][0-9][0-9])/([0-1][0-9])", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 	private static readonly Regex YEAR_MONTH_DAY = new Regex("/([0-9][0-9][0-9][0-9])/([0-1][0-9])/([0-3][0-9])", RegexOptions.IgnoreCase | RegexOptions.Compiled);
