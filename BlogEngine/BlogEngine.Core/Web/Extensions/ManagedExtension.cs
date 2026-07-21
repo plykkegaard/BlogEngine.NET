@@ -30,15 +30,6 @@
         /// </remarks>
         private List<ExtensionSettings> settings;
 
-        /// <summary>
-        /// List of blogs that have explicitly disabled this extension.
-        /// </summary>
-        /// <remarks>
-        /// When a blog ID is present in this list, the extension is disabled for that blog instance,
-        /// even if SubBlogEnabled allows sub-blog settings.
-        /// </remarks>
-
-
         #endregion
 
         #region Constructors and Destructors
@@ -173,20 +164,17 @@
         {
             get
             {
-                if (!Blog.CurrentInstance.IsPrimary && SubBlogEnabled)
+                if (!Blog.CurrentInstance.IsPrimary && SubBlogEnabled && settings.All(xset => xset.BlogId != Blog.CurrentInstance.Id))
                 {
-                    if (settings.All(xset => xset.BlogId != Blog.CurrentInstance.Id))
-                    {
-                        var primId = Blog.Blogs.FirstOrDefault(b => b.IsPrimary).BlogId;
+                    var primId = Blog.Blogs.FirstOrDefault(b => b.IsPrimary).BlogId;
 
-                        List<ExtensionSettings> newSets = GenericHelper<List<ExtensionSettings>>.Copy(
-                            settings.Where(setItem => setItem.BlogId == primId || setItem.BlogId == null).ToList());
-                      
-                        foreach (var setItem in newSets)
-                        {
-                            setItem.BlogId = Blog.CurrentInstance.Id;
-                            settings.Add(setItem);
-                        }
+                    List<ExtensionSettings> newSets = GenericHelper<List<ExtensionSettings>>.Copy(
+                        settings.Where(setItem => setItem.BlogId == primId || setItem.BlogId == null).ToList());
+
+                    foreach (var setItem in newSets)
+                    {
+                        setItem.BlogId = Blog.CurrentInstance.Id;
+                        settings.Add(setItem);
                     }
                 }
                 return settings;
@@ -212,18 +200,15 @@
             {
                 var primId = Blog.Blogs.FirstOrDefault(b => b.IsPrimary).BlogId;
 
-                if (!Blog.CurrentInstance.IsPrimary && SubBlogEnabled)
+                if (!Blog.CurrentInstance.IsPrimary && SubBlogEnabled && settings.All(xset => xset.BlogId != Blog.CurrentInstance.Id))
                 {
-                    if (settings.All(xset => xset.BlogId != Blog.CurrentInstance.Id))
-                    {
-                        List<ExtensionSettings> newSets = GenericHelper<List<ExtensionSettings>>.Copy(
-                            settings.Where(setItem => setItem.BlogId == primId || setItem.BlogId == null).ToList());
+                    List<ExtensionSettings> newSets = GenericHelper<List<ExtensionSettings>>.Copy(
+                        settings.Where(setItem => setItem.BlogId == primId || setItem.BlogId == null).ToList());
 
-                        foreach (var setItem in newSets)
-                        {
-                            setItem.BlogId = Blog.CurrentInstance.Id;
-                            settings.Add(setItem);
-                        }
+                    foreach (var setItem in newSets)
+                    {
+                        setItem.BlogId = Blog.CurrentInstance.Id;
+                        settings.Add(setItem);
                     }
                 }
                 return settings.Where(s => s.BlogId == primId || s.BlogId == null).ToList();
@@ -357,40 +342,6 @@
            
 			this.settings.Sort((s1, s2) => string.Compare(s1.Index.ToString(), s2.Index.ToString()));
         }
-
-        /// <summary>
-        /// Returns the physical path and filename of this extension.
-        /// </summary>
-        /// <param name="checkExistence">
-        /// If true, existence of the file is checked and if the file does not exist,
-        /// an empty string is returned.
-        /// </param>
-        /// <returns></returns>
-        //public string GetPathAndFilename(bool checkExistence)
-        //{
-        //    string filename = string.Empty;
-        //    var appRoot = HostingEnvironment.MapPath("~/");
-        //    var codeAssemblies = Utils.CodeAssemblies();
-        //    foreach (Assembly a in codeAssemblies)
-        //    {
-        //        var types = a.GetTypes();
-        //        foreach (var type in types.Where(type => type.Name == Name))
-        //        {
-        //            var assemblyName = type.Assembly.FullName.Split(".".ToCharArray())[0];
-        //            assemblyName = assemblyName.Replace("App_SubCode_", "App_Code\\");
-        //            var fileExt = assemblyName.Contains("VB_Code") ? ".vb" : ".cs";
-        //            filename = appRoot + Path.Combine(Path.Combine(assemblyName, "Extensions"), Name + fileExt);
-        //        }
-        //    }
-
-        //    if (checkExistence && !string.IsNullOrWhiteSpace(filename))
-        //    {
-        //        if (!File.Exists(filename))
-        //            return string.Empty;
-        //    }
-
-        //    return filename;
-        //}
 
         #endregion
     }
