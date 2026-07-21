@@ -1,4 +1,4 @@
-angular.module('blogAdmin').controller('CustomPluginsController', ["$rootScope", "$scope", "$location", "$filter", "dataService", function ($rootScope, $scope, $location, $filter, dataService) {
+angular.module('blogAdmin').controller('CustomPluginsController', ["$rootScope", "$scope", "$location", "$filter", "$sce", "dataService", function ($rootScope, $scope, $location, $filter, $sce, dataService) {
     $scope.items = [];
     $scope.customFields = [];
     $scope.editId = "";
@@ -12,22 +12,15 @@ angular.module('blogAdmin').controller('CustomPluginsController', ["$rootScope",
     $scope.selectedRating = 0;
     $scope.author = UserVars.Name;
 
-    console.log("CustomPluginsController initialized");
-    console.log("Current path:", $location.path());
-    console.log("IsPrimary:", $scope.IsPrimary);
-
     if ($location.path().indexOf("/custom/plugins/gallery") === 0) {
-        console.log("Gallery context detected");
         $scope.fltr = 'all';
         $scope.galleryFilter = 'extensions';
     }
 
     $scope.load = function () {
-        console.log("Loading packages...");
         spinOn();
         dataService.getItems('/api/packages', { take: 0, skip: 0, filter: $scope.fltr, order: 'LastUpdated desc' })
         .then(function (response) { var data = response.data;
-            console.log("Packages loaded successfully. Count:", data.length);
             angular.copy(data, $scope.items);
             gridInit($scope, $filter);
             if ($scope.galleryFilter) {
@@ -53,9 +46,10 @@ angular.module('blogAdmin').controller('CustomPluginsController', ["$rootScope",
             angular.copy(data, $scope.package);
             $scope.selectedRating = $scope.package.Rating;
 
-            $scope.extEditSrc = SiteVars.RelativeWebRoot + "admin/Extensions/Settings.aspx?ext=" + $scope.id + "&enb=False";
+            var srcUrl = SiteVars.RelativeWebRoot + "admin/Extensions/Settings.aspx?ext=" + $scope.id + "&enb=False";
+            $scope.extEditSrc = $sce.trustAsResourceUrl(srcUrl);
             if ($scope.package.SettingsUrl) {
-                $scope.extEditSrc = $scope.package.SettingsUrl.replace("~/", SiteVars.RelativeWebRoot);
+                $scope.extEditSrc = $sce.trustAsResourceUrl($scope.package.SettingsUrl.replace("~/", SiteVars.RelativeWebRoot));
             }
             $scope.removeEmptyReviews();
         })
@@ -67,7 +61,8 @@ angular.module('blogAdmin').controller('CustomPluginsController', ["$rootScope",
 
     $scope.showPluginSettings = function (id) {
         $scope.editId = id;
-        $scope.extEditSrc = SiteVars.RelativeWebRoot + "admin/Extensions/Settings.aspx?ext=" + id + "&enb=False";
+        var srcUrl = SiteVars.RelativeWebRoot + "admin/Extensions/Settings.aspx?ext=" + id + "&enb=False";
+        $scope.extEditSrc = $sce.trustAsResourceUrl(srcUrl);
 
         for (var i = 0, len = $scope.items.length; i < len; i++) {
             if ($scope.items[i].Id === id) {
@@ -75,7 +70,7 @@ angular.module('blogAdmin').controller('CustomPluginsController', ["$rootScope",
 
                 if ($scope.package) {
                     if ($scope.package.SettingsUrl) {
-                        $scope.extEditSrc = $scope.package.SettingsUrl.replace("~/", SiteVars.RelativeWebRoot);
+                        $scope.extEditSrc = $sce.trustAsResourceUrl($scope.package.SettingsUrl.replace("~/", SiteVars.RelativeWebRoot));
                     }
                 }
             }
@@ -145,6 +140,7 @@ angular.module('blogAdmin').controller('CustomPluginsController', ["$rootScope",
     }
 
     $scope.processChecked = function (action, itemsChecked) {
+        console.log("processChecked called with action:", action, "itemsChecked:", itemsChecked);
         if (itemsChecked) {
             processChecked("/api/packages/processchecked/", action, $scope, dataService);
         }
