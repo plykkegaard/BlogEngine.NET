@@ -7,15 +7,15 @@ angular.module('blogAdmin').controller('CommentFilterController', ["$rootScope",
 
     $scope.load = function (callback) {
         dataService.getItems('/api/commentfilter', { take: 0, skip: 0 })
-        .success(function (data) {
-            angular.copy(data, $scope.items);
+        .then(function (response) {
+            angular.copy(response.data, $scope.items);
             gridInit($scope, $filter);
             $('#txtFilter').val('');
             $('#txtFilter').focus();
             spinOff();
             callback;
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.failed);
         });
     }
@@ -32,12 +32,12 @@ angular.module('blogAdmin').controller('CommentFilterController', ["$rootScope",
 
         spinOn();
         dataService.addItem("/api/commentfilter", $scope.editItem)
-        .success(function (data) {
+        .then(function (response) {
             toastr.success($rootScope.lbl.completed);
             $scope.load();
             spinOff();
         })
-        .error(function () {
+        .catch(function () {
             toastr.error($rootScope.lbl.failed);
             spinOff();
         });
@@ -47,12 +47,12 @@ angular.module('blogAdmin').controller('CommentFilterController', ["$rootScope",
         if (itemsChecked) {
             spinOn();
             dataService.updateItem("/api/commentfilter/deleteall/foo", $scope.editItem)
-            .success(function (data) {
+            .then(function (response) {
                 toastr.success($rootScope.lbl.completed);
                 $scope.load();
                 spinOff();
             })
-            .error(function () {
+            .catch(function () {
                 toastr.error($rootScope.lbl.failed);
                 spinOff();
             });
