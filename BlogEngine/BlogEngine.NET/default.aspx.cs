@@ -13,6 +13,7 @@ public partial class _default : BlogEngine.Core.Web.Controls.BlogBasePage
 {
 
     bool SearchEngine = false;
+    private string _metaDescription;
 	protected void Page_Load(object sender, EventArgs e)
 	{
         //Check to see if Client is a SearchEngine or Bot trying to craw the website
@@ -22,7 +23,7 @@ public partial class _default : BlogEngine.Core.Web.Controls.BlogBasePage
 			return;
 
         // If Client is a SearchEngine or Bot Start the Processing of SearchEngine
-        if (SearchEngine == true)
+        if (SearchEngine)
         {
             ProcessSearchEngine();
         }
@@ -103,6 +104,8 @@ public partial class _default : BlogEngine.Core.Web.Controls.BlogBasePage
 		if (Uri.TryCreate(Request.QueryString["apml"], UriKind.Absolute, out url))
 		{
 			Page.Title = Resources.labels.apmlFilteredList;
+			_metaDescription = Page.Title;
+
 			try
 			{
 				Dictionary<Uri, XmlDocument> docs = Utils.FindSemanticDocuments(url, "apml");
@@ -110,10 +113,12 @@ public partial class _default : BlogEngine.Core.Web.Controls.BlogBasePage
 				{
 					foreach (Uri key in docs.Keys)
 					{
-                        PostList1.ContentBy = ServingContentBy.Apml;
+						PostList1.ContentBy = ServingContentBy.Apml;
 						PostList1.Posts = Search.ApmlMatches(docs[key], 30).FindAll(delegate(IPublishable p) { return p is Post; });
 						PostList1.Posts.Sort(delegate(IPublishable ip1, IPublishable ip2) { return ip2.DateCreated.CompareTo(ip1.DateCreated); });
-						Page.Title += Resources.labels.per + Server.HtmlEncode(key.Host);
+						Page.Title = string.Concat(Page.Title, Resources.labels.per, Server.HtmlEncode(key.Host));
+
+						_metaDescription = Page.Title;
 						break;
 					}
 				}
@@ -219,7 +224,7 @@ public partial class _default : BlogEngine.Core.Web.Controls.BlogBasePage
 				if (c is System.Web.UI.HtmlControls.HtmlMeta && (c as System.Web.UI.HtmlControls.HtmlMeta).Name.ToLower() == "keywords")
 				{
 					tag = c as System.Web.UI.HtmlControls.HtmlMeta;
-					tag.Content += ", " + metakeywords;
+					tag.Content = string.Concat(tag.Content, ", ", metakeywords);
 					break;
 				}
 			}
@@ -237,10 +242,10 @@ public partial class _default : BlogEngine.Core.Web.Controls.BlogBasePage
 			Guid categoryId = new Guid(Request.QueryString["id"]);
             PostList1.ContentBy = ServingContentBy.Category;
             Category category = Category.GetCategory(categoryId, Blog.CurrentInstance.IsSiteAggregation);
-			PostList1.Posts = Post.GetPostsByCategory(category).ConvertAll(new Converter<Post, IPublishable>(delegate(Post p) { return p as IPublishable; }));
-            Page.Title = category.Title;
-            AddMetaDescription(string.IsNullOrWhiteSpace(category.Description) ? category.Title : category.Description);
-        }
+				PostList1.Posts = Post.GetPostsByCategory(category).ConvertAll(new Converter<Post, IPublishable>(delegate(Post p) { return p as IPublishable; }));
+				Page.Title = category.Title;
+				_metaDescription = string.IsNullOrWhiteSpace(category.Description) ? category.Title : category.Description;
+			}
 	}
 
 	private void DisplayAuthors()
@@ -249,10 +254,10 @@ public partial class _default : BlogEngine.Core.Web.Controls.BlogBasePage
 		{
 			string author = Server.UrlDecode(Request.QueryString["name"]);
             PostList1.ContentBy = ServingContentBy.Author;
-			PostList1.Posts = Post.GetPostsByAuthor(author).ConvertAll(new Converter<Post, IPublishable>(delegate(Post p) { return p as IPublishable; }));
-			Title = Resources.labels.AllPostsBy +" " + Server.HtmlEncode(author);
-            AddMetaDescription(Title);
-		}
+				PostList1.Posts = Post.GetPostsByAuthor(author).ConvertAll(new Converter<Post, IPublishable>(delegate(Post p) { return p as IPublishable; }));
+				Title = Resources.labels.AllPostsBy +" " + Server.HtmlEncode(author);
+				_metaDescription = Title;
+			}
 	}
 
 	private void DisplayTags()
@@ -263,10 +268,10 @@ public partial class _default : BlogEngine.Core.Web.Controls.BlogBasePage
             tag = tag.StartsWith("/") ? tag.Substring(1) : tag;
 
             PostList1.ContentBy = ServingContentBy.Tag;
-			PostList1.Posts = Post.GetPostsByTag(tag).ConvertAll(new Converter<Post, IPublishable>(delegate(Post p) { return p as IPublishable; }));
-            Title = string.Format("{0} '{1}'", Resources.labels.AllPostsTagged, tag);
-            AddMetaDescription(Title);
-		}
+				PostList1.Posts = Post.GetPostsByTag(tag).ConvertAll(new Converter<Post, IPublishable>(delegate(Post p) { return p as IPublishable; }));
+				Title = string.Format("{0} '{1}'", Resources.labels.AllPostsTagged, tag);
+				_metaDescription = Title;
+			}
 	}
 
 	private void DisplayDateRange()
@@ -319,6 +324,16 @@ public partial class _default : BlogEngine.Core.Web.Controls.BlogBasePage
 	/// </remarks>
 	protected override System.Collections.Generic.IDictionary<string, string> GetSeoMetadata()
 	{
+		// If specific metadata was set (e.g., for category, author, tag pages), use it
+		if (!string.IsNullOrEmpty(_metaDescription))
+		{
+			var metadata = new System.Collections.Generic.Dictionary<string, string>
+			{
+				["description"] = _metaDescription
+			};
+			return metadata;
+		}
+
 		var pageTitle = !string.IsNullOrEmpty(Title) ? Title : BlogSettings.Instance.Name;
 		var pageDescription = !string.IsNullOrEmpty(Title) 
 			? Title + " - " + BlogSettings.Instance.Description 
